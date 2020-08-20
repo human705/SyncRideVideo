@@ -7,7 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+
+//NuGet installed dependencies
+using Newtonsoft.Json;
+
+// User defined Libraries
+using CommonLibrary;
 using HelperFunctionLibrary;
+using System.Runtime.CompilerServices;
 
 namespace BuildCorrectionsList
 {
@@ -15,15 +23,16 @@ namespace BuildCorrectionsList
     {
         List<CorrectionPoint> CorrectionPoints = new List<CorrectionPoint>();
         int formWidth, formHeight;
+        GoldenCheetahRide oldRide = new GoldenCheetahRide();
         public Form1()
         {
             InitializeComponent();
 
             SizeTheForm();
 
-            DegreesRadiansConversion dr = new DegreesRadiansConversion(0, 0);
-            double test = dr.DegToRad(180);
-            Console.WriteLine("180 degrees = " + test.ToString());
+            
+
+
         }
 
         public void SizeTheForm()
@@ -41,17 +50,38 @@ namespace BuildCorrectionsList
 
             formWidth = this.MaximumSize.Width - 50;
             formHeight = this.MaximumSize.Height - 50;
-            this.AutoSize = true;  //Form cannot be smaller than the panel size
+            this.AutoSize = false;  //Form cannot be smaller than the panel size
             this.Size = new System.Drawing.Size(formWidth, formHeight);
-            //Set form position in the screen
+            //Set form position in the screen - Top Left
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(screen.Bounds.Left, screen.Bounds.Top);
+            //PositionTheFormComponents(formWidth, formHeight);
         }
 
-        public void CreateCorrectionList()
+        public void PositionTheFormComponents(int w, int h)
         {
-            //CorrectionPoints = new List<CorrectionPoint>();
 
+            //gridCorrectionsList.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.Fill);
+            //GridView at the top 3rd part of the screen full width
+            Point startLocation = new Point(5, 5);
+            Size size = new Size(w - 25, (int)(h * 0.3));
+            gridCorrectionsList.Location = startLocation;
+            gridCorrectionsList.Size = size;
+
+            //Media Player at middle 3rd, left half
+            startLocation.Y =  startLocation.Y + size.Height + 5;
+            axWindowsMediaPlayer1.Location = startLocation;
+            size.Width = (w - 25) / 2;
+            axWindowsMediaPlayer1.Size = size;
+
+            // DataGridoldRide - notsyncedride bottom third full width
+            startLocation.Y = startLocation.Y + size.Height + 5;
+            size.Width = w - 25;
+            size.Height= (int)(h * 0.3);
+            DataGridOldRide.Location = startLocation;
+            DataGridOldRide.Size = size;
+
+            // Buttons and text boxes = middle third right end
 
         }
 
@@ -63,8 +93,16 @@ namespace BuildCorrectionsList
             myPoint.Latitude = Convert.ToDouble(dataWords[1]);
             myPoint.Longitude = Convert.ToDouble(dataWords[2]);
             myPoint.VideoTimeInSecs = Convert.ToInt32(axWindowsMediaPlayer1.Ctlcontrols.currentPosition);
+            GeoLoc currentPoint = new GeoLoc(myPoint.Latitude, myPoint.Longitude);
 
             // Calculate distances
+            if (CorrectionPoints.Count != 0)
+            {
+                //Distance from start
+                GeoLocMath geoLocMath = new GeoLocMath();
+                GeoLoc startPoint = new GeoLoc(CorrectionPoints[0].Latitude, CorrectionPoints[0].Longitude);
+                myPoint.DistanceFromStart = geoLocMath.CalculateDistanceBetweenGeoLocations(startPoint,currentPoint);
+            }
 
 
             CorrectionPoints.Add(myPoint);
@@ -72,7 +110,7 @@ namespace BuildCorrectionsList
             {
                 gridCorrectionsList.DataSource = CorrectionPoints;
             }
-            //gridCorrectionsList.Update();
+
             gridCorrectionsList.Refresh();
             gridCorrectionsList.DataSource = null;
             gridCorrectionsList.DataSource = CorrectionPoints;
@@ -80,6 +118,7 @@ namespace BuildCorrectionsList
 
 
         #region "Form Buttons"
+
         private void btnGetClipboardData_Click(object sender, EventArgs e)
         {
             string clipboardText = "";
@@ -88,6 +127,7 @@ namespace BuildCorrectionsList
                 clipboardText = Clipboard.GetText(TextDataFormat.Text);
                 // Do whatever you need to do with clipboardText
                 Console.WriteLine("I got :" + clipboardText);
+
                 AddDataToList(clipboardText);
             }
         }
@@ -98,7 +138,21 @@ namespace BuildCorrectionsList
             axWindowsMediaPlayer1.Ctlcontrols.stop();
         }
 
+        private void BtnLoadRide_Click(object sender, EventArgs e)
+        {
+            oldRide = null;
+            DialogResult dr = new DialogResult();
+            dr = openRideFileDialog.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                TxtbRideFileName.Text = openRideFileDialog.FileName;
+                string injson = File.ReadAllText(openRideFileDialog.FileName);
+                oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
+                DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
+                DataGridOldRide.Refresh();
 
+            }
+        }
 
         #endregion "Form Buttons" 
 
@@ -106,10 +160,29 @@ namespace BuildCorrectionsList
 
         private void FormResizeEnded(object sender, EventArgs e)
         {
-            SizeTheForm();
+            //SizeTheForm();
+
         }
 
-        private void FolmLoaded(object sender, EventArgs e)
+        private void FormResizing(object sender, EventArgs e)
+        {
+            int heightUnit = (this.Height - 15) / 3;
+            
+            Size size = new Size(0, 0);
+            size.Width = this.Width - 30;
+            size.Height = heightUnit;
+            gridCorrectionsList.Size = size;
+            gridCorrectionsList.Location = new Point(5, 5);
+
+            DataGridOldRide.Size = size;
+            DataGridOldRide.Location = new Point(5, (heightUnit * 2 + 15));
+
+            size.Width = (int)(this.Width / 2);
+            axWindowsMediaPlayer1.Size = size;
+            axWindowsMediaPlayer1.Location = new Point(5, heightUnit + 10);
+        }
+
+        private void FormLoaded(object sender, EventArgs e)
         {
             //showOnMonitor(1);
         }
@@ -126,8 +199,10 @@ namespace BuildCorrectionsList
             this.Location = new Point(sc[showOnMonitor].Bounds.Left, sc[showOnMonitor].Bounds.Top);
             // If you intend the form to be maximized, change it to normal then maximized.
             this.WindowState = FormWindowState.Normal;
-            this.WindowState = FormWindowState.Normal;
+
         }
+
+
 
         private void MediaPlayerStateChanged(object sender, AxWMPLib._WMPOCXEvents_PlayStateChangeEvent e)
         {
