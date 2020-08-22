@@ -49,6 +49,7 @@
             this.correctionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCreateLatLons = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridOldRide)).BeginInit();
@@ -72,6 +73,7 @@
             // btnGetClipboardData
             // 
             this.btnGetClipboardData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnGetClipboardData.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGetClipboardData.Location = new System.Drawing.Point(3, 92);
             this.btnGetClipboardData.Name = "btnGetClipboardData";
             this.btnGetClipboardData.Size = new System.Drawing.Size(212, 41);
@@ -82,6 +84,7 @@
             // 
             // btnLoadVideo
             // 
+            this.btnLoadVideo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLoadVideo.Location = new System.Drawing.Point(3, 51);
             this.btnLoadVideo.Name = "btnLoadVideo";
             this.btnLoadVideo.Size = new System.Drawing.Size(212, 35);
@@ -127,6 +130,7 @@
             // 
             // btnLoadRide
             // 
+            this.btnLoadRide.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLoadRide.Location = new System.Drawing.Point(3, 3);
             this.btnLoadRide.Name = "btnLoadRide";
             this.btnLoadRide.Size = new System.Drawing.Size(212, 42);
@@ -160,6 +164,7 @@
             this.flowLayoutPanelButtons.Controls.Add(this.btnLoadRide);
             this.flowLayoutPanelButtons.Controls.Add(this.btnLoadVideo);
             this.flowLayoutPanelButtons.Controls.Add(this.btnGetClipboardData);
+            this.flowLayoutPanelButtons.Controls.Add(this.btnCreateLatLons);
             this.flowLayoutPanelButtons.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanelButtons.Location = new System.Drawing.Point(807, 311);
             this.flowLayoutPanelButtons.Name = "flowLayoutPanelButtons";
@@ -179,6 +184,7 @@
             // 
             // lblRideName
             // 
+            this.lblRideName.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.lblRideName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblRideName.Location = new System.Drawing.Point(3, 0);
             this.lblRideName.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
@@ -190,6 +196,7 @@
             // 
             // lblLoadVideo
             // 
+            this.lblLoadVideo.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.lblLoadVideo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblLoadVideo.Location = new System.Drawing.Point(3, 44);
             this.lblLoadVideo.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
@@ -201,6 +208,7 @@
             // 
             // txtbFromClipboard
             // 
+            this.txtbFromClipboard.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.txtbFromClipboard.Location = new System.Drawing.Point(3, 97);
             this.txtbFromClipboard.Margin = new System.Windows.Forms.Padding(3, 10, 3, 3);
             this.txtbFromClipboard.Name = "txtbFromClipboard";
@@ -246,6 +254,16 @@
             this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.clearGridToolStripMenuItem.Text = "Clear grid";
             this.clearGridToolStripMenuItem.Click += new System.EventHandler(this.clearGridToolStripMenuItem_Click);
+            // 
+            // btnCreateLatLons
+            // 
+            this.btnCreateLatLons.Location = new System.Drawing.Point(3, 139);
+            this.btnCreateLatLons.Name = "btnCreateLatLons";
+            this.btnCreateLatLons.Size = new System.Drawing.Size(212, 42);
+            this.btnCreateLatLons.TabIndex = 6;
+            this.btnCreateLatLons.Text = "Create LatLons";
+            this.btnCreateLatLons.UseVisualStyleBackColor = true;
+            this.btnCreateLatLons.Click += new System.EventHandler(this.btnCreateLatLons_Click);
             // 
             // Form1
             // 
@@ -299,6 +317,7 @@
         private System.Windows.Forms.ToolStripMenuItem correctionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearGridToolStripMenuItem;
+        private System.Windows.Forms.Button btnCreateLatLons;
     }
 }
 

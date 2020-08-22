@@ -200,6 +200,56 @@ namespace BuildCorrectionsList
             }
         }
 
+        private void btnCreateLatLons_Click(object sender, EventArgs e)
+        {
+            //string LatLonFileName = @"C:\coding\json\LatLonArray.txt";
+            string LatLonFileName = "";
+            FileStream llofstream;
+            StreamWriter llwriter;
+            try 
+            {
+                if (!rideLoaded)
+                {
+                    MessageBox.Show("No ride is loaded!", "ERROR");
+                    return;
+                }
+                SaveFileDialog saveFileLatLonsDialog1 = new SaveFileDialog();
+                saveFileLatLonsDialog1.InitialDirectory = @"C:\";
+                saveFileLatLonsDialog1.Title = "Save text Files";
+                saveFileLatLonsDialog1.CheckFileExists = false;
+                saveFileLatLonsDialog1.CheckPathExists = true;
+                saveFileLatLonsDialog1.DefaultExt = "txt";
+                saveFileLatLonsDialog1.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveFileLatLonsDialog1.FilterIndex = 1;
+                saveFileLatLonsDialog1.RestoreDirectory = true;
+                if (saveFileLatLonsDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    LatLonFileName = saveFileLatLonsDialog1.FileName;
+                    llofstream = new FileStream(LatLonFileName, FileMode.Create);
+                    llwriter = new StreamWriter(llofstream);
+                    llwriter.AutoFlush = true;
+                    int cnt = 0;
+                    foreach (var item in oldRide.RIDE.SAMPLES)
+                    {
+                        llwriter.Write(item.LAT + "," + item.LON);
+                        if (cnt != oldRide.RIDE.SAMPLES.Count() - 1)
+                        {
+                            llwriter.WriteLine(",");
+                            cnt++;
+                        }
+                    }
+                    llwriter.Close();
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+}
+
         #endregion "Form Buttons" 
 
         #region "Event region"
@@ -327,8 +377,12 @@ namespace BuildCorrectionsList
         {
             gridCorrectionsList.DataSource = null;
             gridCorrectionsList.Refresh();
+            CorrectionPoints = new List<CorrectionPoint>();
+
         }
         #endregion "Menu actions"
+
+
 
 
 
