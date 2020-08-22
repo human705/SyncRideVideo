@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BuildCorrectionsList
+namespace CommonLibrary
 {
-    class CorrectionPoint
+    public class CorrectionPoint
     {
         public int FileTimeInSecs { get; set; } = -1;
         public int VideoTimeInSecs { get; set; } = -1;

@@ -31,22 +31,30 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.gridCorrectionsList = new System.Windows.Forms.DataGridView();
             this.btnGetClipboardData = new System.Windows.Forms.Button();
-            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.btnLoadVideo = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnLoadRide = new System.Windows.Forms.Button();
             this.openRideFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.TxtbRideFileName = new System.Windows.Forms.TextBox();
             this.DataGridOldRide = new System.Windows.Forms.DataGridView();
-            this.FlowLayoutPanelButtons = new System.Windows.Forms.FlowLayoutPanel();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanelButtons = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanelLabels = new System.Windows.Forms.FlowLayoutPanel();
+            this.lblRideName = new System.Windows.Forms.Label();
+            this.lblLoadVideo = new System.Windows.Forms.Label();
+            this.txtbFromClipboard = new System.Windows.Forms.TextBox();
+            this.openFileMovieDialog = new System.Windows.Forms.OpenFileDialog();
+            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
+            this.correctionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridOldRide)).BeginInit();
-            this.FlowLayoutPanelButtons.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
+            this.flowLayoutPanelButtons.SuspendLayout();
+            this.flowLayoutPanelLabels.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.SuspendLayout();
             // 
             // gridCorrectionsList
@@ -59,10 +67,12 @@
             this.gridCorrectionsList.RowTemplate.Height = 24;
             this.gridCorrectionsList.Size = new System.Drawing.Size(1016, 274);
             this.gridCorrectionsList.TabIndex = 0;
+            this.gridCorrectionsList.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.UserDeleteRow);
             // 
             // btnGetClipboardData
             // 
-            this.btnGetClipboardData.Location = new System.Drawing.Point(3, 85);
+            this.btnGetClipboardData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnGetClipboardData.Location = new System.Drawing.Point(3, 92);
             this.btnGetClipboardData.Name = "btnGetClipboardData";
             this.btnGetClipboardData.Size = new System.Drawing.Size(212, 41);
             this.btnGetClipboardData.TabIndex = 1;
@@ -70,20 +80,9 @@
             this.btnGetClipboardData.UseVisualStyleBackColor = true;
             this.btnGetClipboardData.Click += new System.EventHandler(this.btnGetClipboardData_Click);
             // 
-            // axWindowsMediaPlayer1
-            // 
-            this.axWindowsMediaPlayer1.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.axWindowsMediaPlayer1.Enabled = true;
-            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(12, 311);
-            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
-            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
-            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(456, 235);
-            this.axWindowsMediaPlayer1.TabIndex = 2;
-            this.axWindowsMediaPlayer1.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.MediaPlayerStateChanged);
-            // 
             // btnLoadVideo
             // 
-            this.btnLoadVideo.Location = new System.Drawing.Point(3, 44);
+            this.btnLoadVideo.Location = new System.Drawing.Point(3, 51);
             this.btnLoadVideo.Name = "btnLoadVideo";
             this.btnLoadVideo.Size = new System.Drawing.Size(212, 35);
             this.btnLoadVideo.TabIndex = 3;
@@ -95,24 +94,42 @@
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.correctionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1319, 38);
+            this.menuStrip1.Size = new System.Drawing.Size(1055, 28);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem,
+            this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 34);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "&File";
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Text = "&Open Config";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveToolStripMenuItem.Text = "&Save Config";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // btnLoadRide
             // 
             this.btnLoadRide.Location = new System.Drawing.Point(3, 3);
             this.btnLoadRide.Name = "btnLoadRide";
-            this.btnLoadRide.Size = new System.Drawing.Size(212, 35);
+            this.btnLoadRide.Size = new System.Drawing.Size(212, 42);
             this.btnLoadRide.TabIndex = 5;
             this.btnLoadRide.Text = "Load Ride";
             this.btnLoadRide.UseVisualStyleBackColor = true;
@@ -120,18 +137,10 @@
             // 
             // openRideFileDialog
             // 
-            this.openRideFileDialog.FileName = "openRideFileDialog";
             this.openRideFileDialog.Filter = "json files|*.json";
             this.openRideFileDialog.InitialDirectory = "C:\\coding\\json\\";
             this.openRideFileDialog.RestoreDirectory = true;
             this.openRideFileDialog.Title = "Browse json files";
-            // 
-            // TxtbRideFileName
-            // 
-            this.TxtbRideFileName.Location = new System.Drawing.Point(3, 3);
-            this.TxtbRideFileName.Name = "TxtbRideFileName";
-            this.TxtbRideFileName.Size = new System.Drawing.Size(267, 22);
-            this.TxtbRideFileName.TabIndex = 6;
             // 
             // DataGridOldRide
             // 
@@ -145,26 +154,98 @@
             this.DataGridOldRide.Size = new System.Drawing.Size(1016, 244);
             this.DataGridOldRide.TabIndex = 7;
             // 
-            // FlowLayoutPanelButtons
+            // flowLayoutPanelButtons
             // 
-            this.FlowLayoutPanelButtons.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.FlowLayoutPanelButtons.Controls.Add(this.btnLoadRide);
-            this.FlowLayoutPanelButtons.Controls.Add(this.btnLoadVideo);
-            this.FlowLayoutPanelButtons.Controls.Add(this.btnGetClipboardData);
-            this.FlowLayoutPanelButtons.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.FlowLayoutPanelButtons.Location = new System.Drawing.Point(810, 311);
-            this.FlowLayoutPanelButtons.Name = "FlowLayoutPanelButtons";
-            this.FlowLayoutPanelButtons.Size = new System.Drawing.Size(218, 235);
-            this.FlowLayoutPanelButtons.TabIndex = 8;
+            this.flowLayoutPanelButtons.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.flowLayoutPanelButtons.Controls.Add(this.btnLoadRide);
+            this.flowLayoutPanelButtons.Controls.Add(this.btnLoadVideo);
+            this.flowLayoutPanelButtons.Controls.Add(this.btnGetClipboardData);
+            this.flowLayoutPanelButtons.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(807, 311);
+            this.flowLayoutPanelButtons.Name = "flowLayoutPanelButtons";
+            this.flowLayoutPanelButtons.Size = new System.Drawing.Size(221, 235);
+            this.flowLayoutPanelButtons.TabIndex = 8;
             // 
-            // flowLayoutPanel1
+            // flowLayoutPanelLabels
             // 
-            this.flowLayoutPanel1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.flowLayoutPanel1.Controls.Add(this.TxtbRideFileName);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(531, 314);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(273, 232);
-            this.flowLayoutPanel1.TabIndex = 9;
+            this.flowLayoutPanelLabels.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.flowLayoutPanelLabels.Controls.Add(this.lblRideName);
+            this.flowLayoutPanelLabels.Controls.Add(this.lblLoadVideo);
+            this.flowLayoutPanelLabels.Controls.Add(this.txtbFromClipboard);
+            this.flowLayoutPanelLabels.Location = new System.Drawing.Point(531, 314);
+            this.flowLayoutPanelLabels.Name = "flowLayoutPanelLabels";
+            this.flowLayoutPanelLabels.Size = new System.Drawing.Size(270, 232);
+            this.flowLayoutPanelLabels.TabIndex = 9;
+            // 
+            // lblRideName
+            // 
+            this.lblRideName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblRideName.Location = new System.Drawing.Point(3, 0);
+            this.lblRideName.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
+            this.lblRideName.Name = "lblRideName";
+            this.lblRideName.Size = new System.Drawing.Size(266, 42);
+            this.lblRideName.TabIndex = 0;
+            this.lblRideName.Text = "Ride Name";
+            this.lblRideName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblLoadVideo
+            // 
+            this.lblLoadVideo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblLoadVideo.Location = new System.Drawing.Point(3, 44);
+            this.lblLoadVideo.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
+            this.lblLoadVideo.Name = "lblLoadVideo";
+            this.lblLoadVideo.Size = new System.Drawing.Size(266, 41);
+            this.lblLoadVideo.TabIndex = 1;
+            this.lblLoadVideo.Text = "Video Name";
+            this.lblLoadVideo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // txtbFromClipboard
+            // 
+            this.txtbFromClipboard.Location = new System.Drawing.Point(3, 97);
+            this.txtbFromClipboard.Margin = new System.Windows.Forms.Padding(3, 10, 3, 3);
+            this.txtbFromClipboard.Name = "txtbFromClipboard";
+            this.txtbFromClipboard.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtbFromClipboard.Size = new System.Drawing.Size(266, 22);
+            this.txtbFromClipboard.TabIndex = 2;
+            this.txtbFromClipboard.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // openFileMovieDialog
+            // 
+            this.openFileMovieDialog.Filter = "All files|*.*";
+            this.openFileMovieDialog.InitialDirectory = "C:\\BikeAthlets\\Peter Test\\media\\";
+            // 
+            // axWindowsMediaPlayer1
+            // 
+            this.axWindowsMediaPlayer1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.axWindowsMediaPlayer1.Enabled = true;
+            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(12, 312);
+            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
+            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
+            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(456, 235);
+            this.axWindowsMediaPlayer1.TabIndex = 2;
+            this.axWindowsMediaPlayer1.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.MediaPlayerStateChanged);
+            // 
+            // correctionsToolStripMenuItem
+            // 
+            this.correctionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openFileToolStripMenuItem,
+            this.clearGridToolStripMenuItem});
+            this.correctionsToolStripMenuItem.Name = "correctionsToolStripMenuItem";
+            this.correctionsToolStripMenuItem.Size = new System.Drawing.Size(98, 24);
+            this.correctionsToolStripMenuItem.Text = "Corrections";
+            // 
+            // openFileToolStripMenuItem
+            // 
+            this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openFileToolStripMenuItem.Text = "Open File";
+            // 
+            // clearGridToolStripMenuItem
+            // 
+            this.clearGridToolStripMenuItem.Name = "clearGridToolStripMenuItem";
+            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.clearGridToolStripMenuItem.Text = "Clear grid";
+            this.clearGridToolStripMenuItem.Click += new System.EventHandler(this.clearGridToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -172,8 +253,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1055, 808);
-            this.Controls.Add(this.flowLayoutPanel1);
-            this.Controls.Add(this.FlowLayoutPanelButtons);
+            this.Controls.Add(this.flowLayoutPanelLabels);
+            this.Controls.Add(this.flowLayoutPanelButtons);
             this.Controls.Add(this.DataGridOldRide);
             this.Controls.Add(this.axWindowsMediaPlayer1);
             this.Controls.Add(this.gridCorrectionsList);
@@ -184,13 +265,13 @@
             this.ResizeEnd += new System.EventHandler(this.FormResizeEnded);
             this.Resize += new System.EventHandler(this.FormResizing);
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridOldRide)).EndInit();
-            this.FlowLayoutPanelButtons.ResumeLayout(false);
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
+            this.flowLayoutPanelButtons.ResumeLayout(false);
+            this.flowLayoutPanelLabels.ResumeLayout(false);
+            this.flowLayoutPanelLabels.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -206,10 +287,18 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.Button btnLoadRide;
         private System.Windows.Forms.OpenFileDialog openRideFileDialog;
-        private System.Windows.Forms.TextBox TxtbRideFileName;
         private System.Windows.Forms.DataGridView DataGridOldRide;
-        private System.Windows.Forms.FlowLayoutPanel FlowLayoutPanelButtons;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelButtons;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLabels;
+        private System.Windows.Forms.Label lblRideName;
+        private System.Windows.Forms.Label lblLoadVideo;
+        private System.Windows.Forms.TextBox txtbFromClipboard;
+        private System.Windows.Forms.OpenFileDialog openFileMovieDialog;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem correctionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearGridToolStripMenuItem;
     }
 }
 

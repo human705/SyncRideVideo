@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelperFunctionLibrary", "He
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibrary", "CommonLibrary\CommonLibrary.csproj", "{17C20CF3-D73E-4609-AA8E-8FC51C35A7EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainFormUI", "MainFormUI\MainFormUI.csproj", "{CF0912EF-C594-4FE9-B228-73805CD72FD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{17C20CF3-D73E-4609-AA8E-8FC51C35A7EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17C20CF3-D73E-4609-AA8E-8FC51C35A7EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17C20CF3-D73E-4609-AA8E-8FC51C35A7EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF0912EF-C594-4FE9-B228-73805CD72FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF0912EF-C594-4FE9-B228-73805CD72FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF0912EF-C594-4FE9-B228-73805CD72FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF0912EF-C594-4FE9-B228-73805CD72FD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
