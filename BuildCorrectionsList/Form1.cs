@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Configuration;
 
 //NuGet installed dependencies
 using Newtonsoft.Json;
@@ -15,8 +17,7 @@ using Newtonsoft.Json;
 // User defined Libraries
 using CommonLibrary;
 using HelperFunctionLibrary;
-using System.Runtime.CompilerServices;
-using System.Configuration;
+using System.Diagnostics;
 
 namespace BuildCorrectionsList
 {
@@ -37,10 +38,6 @@ namespace BuildCorrectionsList
 
             SizeTheForm();
             Form f = this;
-
-            
-
-
         }
 
         public void SizeTheForm()
@@ -106,7 +103,7 @@ namespace BuildCorrectionsList
                 myPoint.VideoTimeInSecs = Convert.ToInt32(axWindowsMediaPlayer1.Ctlcontrols.currentPosition);
                 currentPoint = new GeoLoc(myPoint.Latitude, myPoint.Longitude);
 
-                // Get distance from old ride (not yet sync'ed
+                // Get distance from old ride (not yet sync'ed)
                 if (CorrectionPoints.Count != 0)
                 {
                     //Can't calculate distance from start because rout is not always a straight line.
@@ -133,7 +130,6 @@ namespace BuildCorrectionsList
             }
 
         }
-
 
         #region "Form Buttons"
 
@@ -250,9 +246,20 @@ namespace BuildCorrectionsList
             }
 }
 
+        private void btnSetVideoPositions_Click(object sender, EventArgs e)
+        {
+            string str;
+            int rowIndex = gridCorrectionsList.CurrentCell.RowIndex;
+            str = gridCorrectionsList.Rows[rowIndex].Cells[1].Value.ToString();
+            axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(str);
+            axWindowsMediaPlayer1.Ctlcontrols.play();
+
+            //MessageBox.Show("Video time = " + str);
+        }
+
         #endregion "Form Buttons" 
 
-        #region "Event region"
+        #region "Events Region"
 
         private void UserDeleteRow(object sender, DataGridViewRowCancelEventArgs e)
         {
@@ -270,10 +277,11 @@ namespace BuildCorrectionsList
         private void FormResizing(object sender, EventArgs e)
         {
             int menuHeight = 20;
+            int formRows = 2;
             int screenPadding = 45;  // Needed to prevent bottom control from rolling off the screen
             int gutter = 3;
             int nextY = 0;
-            int heightUnit = (this.Height - (menuHeight + screenPadding)) / 3;
+            int heightUnit = (this.Height - (menuHeight + screenPadding)) / formRows;
 
             //Get current monitor size
             Screen screen = Screen.FromControl(this); //this is the Form class
@@ -296,17 +304,22 @@ namespace BuildCorrectionsList
 
             //ROW 2 (column 2)
             //flowLayoutPanelLabels.Width = 270;
+            int nextX = axWindowsMediaPlayer1.Size.Width + gutter + 5;
+            flowLayoutPanelLabels.Location = new Point(nextX,nextY);
+            txtbFromClipboard.Height = 41;
 
             //ROW 2 (column 3)
             //flowLayoutPanelButtons.Width = 220;
             //btnLoadRide.Width = 210;
-            txtbFromClipboard.Height = 41;
+            nextX += flowLayoutPanelLabels.Size.Width + gutter + 5;
+            flowLayoutPanelButtons.Location = new Point(nextX, nextY);
 
             //ROW 3
-            size.Width = this.Width - 30;
-            DataGridOldRide.Size = size;
-            nextY += gutter + heightUnit;
-            DataGridOldRide.Location = new Point(5, nextY);
+            //size.Width = this.Width - 30;
+            //DataGridOldRide.Size = size;
+            //nextY += gutter + heightUnit;
+            //DataGridOldRide.Location = new Point(5, nextY);
+            DataGridOldRide.Visible = false;
         }
 
         private void FormLoaded(object sender, EventArgs e)
@@ -328,18 +341,41 @@ namespace BuildCorrectionsList
             this.WindowState = FormWindowState.Normal;
 
         }
+
+        #endregion "Events Region"
+
         #region "Menu actions"
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Create dictionary
+            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
+            Dictionary<string, object> projectData = new Dictionary<string, object>();
+            //dp.dict = projectData;
+            //projectData = dp.LoadDictionaryFromCSV(@"C:\coding\tcx-gpx\SyncRideVideo\data\ProjectData.csv");
+
+            // Save corrections list
             TextConnector correctionData = new TextConnector();
             string fullPath = correctionData.FullFilePath("CorrectionData.csv");
-            correctionData.SaveFile(fullPath, CorrectionPoints);
+            correctionData.SaveListToFile(fullPath, CorrectionPoints);
 
-            //Save movie
-            //Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
-            Configuration config = ConfigurationManager.OpenExeConfiguration(@"C:\coding\tcx-gpx\SyncRideVideo\BuildCorrectionsList\App.config");
-            config.AppSettings.Settings.Add("videoPath", lblLoadVideo.ToString());
-            config.Save(ConfigurationSaveMode.Minimal);
+            //Save Video file and video position
+            dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
+            double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
+            dp.AddUpdateKey("VideoPosition", videpPosition.ToString(), projectData);
+
+            int selectedMarker = 0;
+
+            axWindowsMediaPlayer1.Ctlcontrols.currentMarker = selectedMarker;
+
+            // TODO Save video position
+
+            //Save ride file
+            dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
+
+            //Save dictionary to file
+            fullPath = correctionData.FullFilePath("ProjectData.csv");
+            //projectData = dp.dict;
+            dp.WriteDictionaryToCSV(projectData, fullPath);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -350,22 +386,33 @@ namespace BuildCorrectionsList
             gridCorrectionsList.DataSource = CorrectionPoints;
             gridCorrectionsList.Refresh();
 
+            //Load Dictionaly from file
+            fullPath = correctionData.FullFilePath("ProjectData.csv");
+            // Create dictionary
+            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
+            Dictionary<string, object> projectData = dp.LoadDictionaryFromCSV(fullPath);
+
             //Load Video
             //string video = ConfigurationManager.AppSettings["videoPath"];
-            string video = @"C:\BikeAthlets\Peter Test\media\Chesco Training Loop - 4486.mp4";
+            //string video = @"C:\BikeAthlets\Peter Test\media\Chesco Training Loop - 4486.mp4";
+            string video = dp.GetAnyValue<string>("VideoFileName", projectData);
             lblLoadVideo.Text = video;
             axWindowsMediaPlayer1.URL = video;
-            axWindowsMediaPlayer1.Ctlcontrols.stop();
+            axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(dp.GetAnyValue<string>("VideoPosition", projectData));
+            axWindowsMediaPlayer1.Ctlcontrols.play();
+            
             videoLoaded = true;
+            axWindowsMediaPlayer1.Ctlcontrols.pause();
             //
             // TODO - Add Video position
             //
 
 
             //Load Ride
-            string fn = @"C:\coding\json\CHesco GPX.json";
-            string injson = File.ReadAllText(fn);
-            lblRideName.Text = fn;
+            //string fn = @"C:\coding\json\CHesco GPX.json";
+            string rideName = dp.GetAnyValue<string>("RideFileName", projectData);
+            string injson = File.ReadAllText(rideName);
+            lblRideName.Text = rideName;
             oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
             DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
             DataGridOldRide.Refresh();
@@ -380,13 +427,11 @@ namespace BuildCorrectionsList
             CorrectionPoints = new List<CorrectionPoint>();
 
         }
+
+
         #endregion "Menu actions"
 
-
-
-
-
-
+        #region "State Changes"
         private void MediaPlayerStateChanged(object sender, AxWMPLib._WMPOCXEvents_PlayStateChangeEvent e)
         {
             //WMPLib.WMPPlayState cur_state = WMPLib.WMPPlayState.wmppsStopped;
@@ -433,9 +478,7 @@ namespace BuildCorrectionsList
             prev_state = cur_state;
         }
 
-
-
-        #endregion
+        #endregion "State Changes"
 
     }
 }

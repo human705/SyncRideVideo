@@ -47,7 +47,7 @@ namespace CommonLibrary
             return output;
         }
 
-        public void SaveFile (string file, List<CorrectionPoint> points)
+        public void SaveListToFile (string file, List<CorrectionPoint> points)
         {
             if (File.Exists(file))
             {
