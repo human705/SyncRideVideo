@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Configuration;
+using System.Diagnostics;
 
 //NuGet installed dependencies
 using Newtonsoft.Json;
@@ -17,13 +18,17 @@ using Newtonsoft.Json;
 // User defined Libraries
 using CommonLibrary;
 using HelperFunctionLibrary;
-using System.Diagnostics;
+
+
+
 
 namespace BuildCorrectionsList
 {
     public partial class Form1 : Form
     {
         List<CorrectionPoint> CorrectionPoints = new List<CorrectionPoint>();
+        DataTable cps = new DataTable();
+
         int formWidth, formHeight;
         static bool rideLoaded = false;
         static bool videoLoaded = false;
@@ -31,6 +36,7 @@ namespace BuildCorrectionsList
         GoldenCheetahRide oldRide = new GoldenCheetahRide();
         WMPLib.WMPPlayState cur_state = WMPLib.WMPPlayState.wmppsStopped;
         WMPLib.WMPPlayState prev_state = WMPLib.WMPPlayState.wmppsStopped;
+        private int rowIndex;
 
         public Form1()
         {
@@ -90,6 +96,30 @@ namespace BuildCorrectionsList
 
         //}
 
+        public void AddRowToTable(string clipboardData)
+        {
+            DataRow dr = cps.NewRow();
+            try
+            {
+                string[] rowValues = clipboardData.Split(',');
+                dr["FileTimeInSecs"] = Convert.ToInt32(rowValues[0]);
+                dr["VideoTimeInSecs"] = Convert.ToInt32(axWindowsMediaPlayer1.Ctlcontrols.currentPosition);
+                dr["Latitude"] = Convert.ToDouble(rowValues[1]);
+                dr["Longitude"] = Convert.ToDouble(rowValues[2]);
+                dr["DistanceFromStart"] = oldRide.RIDE.SAMPLES[Convert.ToInt32(rowValues[0])].KM;
+                dr["DistanceFromPrevious"] = 0.0;
+                cps.Rows.Add(dr); //add other rows
+
+                gridCorrectionsList.DataSource = null;
+                gridCorrectionsList.DataSource = cps;
+                gridCorrectionsList.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+
+        }
         public void AddDataToList(string strData)
         {
             CorrectionPoint myPoint = new CorrectionPoint();
@@ -149,10 +179,11 @@ namespace BuildCorrectionsList
                 {
                     clipboardText = Clipboard.GetText(TextDataFormat.Text);
                     // Do whatever you need to do with clipboardText
-                    txtbFromClipboard.Text = clipboardText;
+                    lblFromClipboard.Text = clipboardText;
                     Console.WriteLine("I got :" + clipboardText);
 
-                    AddDataToList(clipboardText);
+                    //AddDataToList(clipboardText);
+                    AddRowToTable(clipboardText);
                 } else
                 {
                     MessageBox.Show("Media player not playing or paused!!!");
@@ -257,7 +288,64 @@ namespace BuildCorrectionsList
             //MessageBox.Show("Video time = " + str);
         }
 
+        private void btnVideoReverse_Click(object sender, EventArgs e)
+        {
+            ChangeVideoPosition(-1);
+        }
+
+        private void btnVideoAdvance_Click(object sender, EventArgs e)
+        {
+            ChangeVideoPosition(1);
+        }
+
         #endregion "Form Buttons" 
+
+        #region "Helper methods"
+
+        public void ChangeVideoPosition (int direction)
+        {
+            double videoTimeChange = 0.0;
+            try
+            {
+                if (txtbVideoTimeChange.Text == "")
+                {
+                    videoTimeChange = 0.0;
+                }
+                else
+                {
+                    videoTimeChange = Convert.ToDouble(txtbVideoTimeChange.Text);
+                }
+
+                if (videoTimeChange > 0)
+                {
+                    switch (direction)
+                    {
+                        case 1:
+                            axWindowsMediaPlayer1.Ctlcontrols.currentPosition += videoTimeChange;
+                            break;
+                        case -1:
+                            axWindowsMediaPlayer1.Ctlcontrols.currentPosition -= videoTimeChange;
+                            break;
+                        default:
+                            MessageBox.Show("Invalid direction entered.");
+                            break;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please enter an amount in seconds to reverse video");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+        #endregion
+
+
+
 
         #region "Events Region"
 
@@ -306,7 +394,7 @@ namespace BuildCorrectionsList
             //flowLayoutPanelLabels.Width = 270;
             int nextX = axWindowsMediaPlayer1.Size.Width + gutter + 5;
             flowLayoutPanelLabels.Location = new Point(nextX,nextY);
-            txtbFromClipboard.Height = 41;
+            lblFromClipboard.Height = 41;
 
             //ROW 2 (column 3)
             //flowLayoutPanelButtons.Width = 220;
@@ -325,6 +413,9 @@ namespace BuildCorrectionsList
         private void FormLoaded(object sender, EventArgs e)
         {
             //showOnMonitor(1);
+            DataTableOperations dto = new DataTableOperations();
+            cps = dto.CreateCorrectionPointsTable();
+
         }
         private void showOnMonitor(int showOnMonitor)
         {
@@ -354,10 +445,12 @@ namespace BuildCorrectionsList
             //projectData = dp.LoadDictionaryFromCSV(@"C:\coding\tcx-gpx\SyncRideVideo\data\ProjectData.csv");
 
             // Save corrections list
-            TextConnector correctionData = new TextConnector();
-            string fullPath = correctionData.FullFilePath("CorrectionData.csv");
-            correctionData.SaveListToFile(fullPath, CorrectionPoints);
-
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("CorrectionData.csv");
+            DataTableOperations dto = new DataTableOperations();
+            dto.WriteCorrectionPointstoCSV(fullPath, cps);
+            //tc.SaveListToFile(fullPath, CorrectionPoints);
+ 
             //Save Video file and video position
             dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
             double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
@@ -373,21 +466,33 @@ namespace BuildCorrectionsList
             dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
 
             //Save dictionary to file
-            fullPath = correctionData.FullFilePath("ProjectData.csv");
+            fullPath = tc.FullFilePath("ProjectData.csv");
             //projectData = dp.dict;
             dp.WriteDictionaryToCSV(projectData, fullPath);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TextConnector correctionData = new TextConnector();
-            string fullPath = correctionData.FullFilePath("CorrectionData.csv");
-            CorrectionPoints = correctionData.ConvertToCorrectionPointsList(correctionData.LoadFile(fullPath));
-            gridCorrectionsList.DataSource = CorrectionPoints;
+
+            //TextConnector correctionData = new TextConnector();
+            //string fullPath = correctionData.FullFilePath("CorrectionData.csv");
+            //CorrectionPoints = correctionData.ConvertToCorrectionPointsList(correctionData.LoadFile(fullPath));
+            //gridCorrectionsList.DataSource = CorrectionPoints;
+            //gridCorrectionsList.Refresh();
+
+            //Use table rather than List
+            DataTableOperations dto = new DataTableOperations();
+            
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("CorrectionData.csv");
+            dto.LoadCorrectionPointsFromCSV(fullPath, cps);
+            gridCorrectionsList.DataSource = cps;
             gridCorrectionsList.Refresh();
 
+
+
             //Load Dictionaly from file
-            fullPath = correctionData.FullFilePath("ProjectData.csv");
+            fullPath = tc.FullFilePath("ProjectData.csv");
             // Create dictionary
             DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
             Dictionary<string, object> projectData = dp.LoadDictionaryFromCSV(fullPath);
@@ -427,7 +532,6 @@ namespace BuildCorrectionsList
             CorrectionPoints = new List<CorrectionPoint>();
 
         }
-
 
         #endregion "Menu actions"
 
@@ -480,5 +584,31 @@ namespace BuildCorrectionsList
 
         #endregion "State Changes"
 
+
+        private void contextMenuStripCorrectionsGrid_Click(object sender, EventArgs e)
+        {
+            if (!this.gridCorrectionsList.Rows[this.rowIndex].IsNewRow)
+            {
+                MessageBox.Show("Not implemented yet!");
+                //this.gridCorrectionsList.Rows.RemoveAt(this.rowIndex);
+            }
+        }
+
+        private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void gridCorrectionsList_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                this.gridCorrectionsList.Rows[e.RowIndex].Selected = true;
+                this.rowIndex = e.RowIndex;
+                this.gridCorrectionsList.CurrentCell = this.gridCorrectionsList.Rows[e.RowIndex].Cells[1];
+                this.contextMenuStripCorrectionsGrid.Show(this.gridCorrectionsList, e.Location);
+                contextMenuStripCorrectionsGrid.Show(Cursor.Position);
+            }
+        }
     }
 }

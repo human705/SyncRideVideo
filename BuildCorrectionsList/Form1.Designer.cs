@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.gridCorrectionsList = new System.Windows.Forms.DataGridView();
             this.btnGetClipboardData = new System.Windows.Forms.Button();
@@ -47,16 +48,22 @@
             this.flowLayoutPanelLabels = new System.Windows.Forms.FlowLayoutPanel();
             this.lblRideName = new System.Windows.Forms.Label();
             this.lblLoadVideo = new System.Windows.Forms.Label();
-            this.txtbFromClipboard = new System.Windows.Forms.TextBox();
             this.openFileMovieDialog = new System.Windows.Forms.OpenFileDialog();
             this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.btnSetVideoPositions = new System.Windows.Forms.Button();
+            this.contextMenuStripCorrectionsGrid = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnVideoReverse = new System.Windows.Forms.Button();
+            this.btnVideoAdvance = new System.Windows.Forms.Button();
+            this.txtbVideoTimeChange = new System.Windows.Forms.TextBox();
+            this.lblFromClipboard = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridOldRide)).BeginInit();
             this.flowLayoutPanelButtons.SuspendLayout();
             this.flowLayoutPanelLabels.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
+            this.contextMenuStripCorrectionsGrid.SuspendLayout();
             this.SuspendLayout();
             // 
             // gridCorrectionsList
@@ -69,15 +76,17 @@
             this.gridCorrectionsList.RowTemplate.Height = 24;
             this.gridCorrectionsList.Size = new System.Drawing.Size(1016, 274);
             this.gridCorrectionsList.TabIndex = 0;
+            this.gridCorrectionsList.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.gridCorrectionsList_CellMouseUp);
             this.gridCorrectionsList.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.UserDeleteRow);
             // 
             // btnGetClipboardData
             // 
             this.btnGetClipboardData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.btnGetClipboardData.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnGetClipboardData.Location = new System.Drawing.Point(3, 80);
+            this.btnGetClipboardData.Location = new System.Drawing.Point(4, 82);
+            this.btnGetClipboardData.Margin = new System.Windows.Forms.Padding(2);
             this.btnGetClipboardData.Name = "btnGetClipboardData";
-            this.btnGetClipboardData.Size = new System.Drawing.Size(212, 33);
+            this.btnGetClipboardData.Size = new System.Drawing.Size(143, 33);
             this.btnGetClipboardData.TabIndex = 1;
             this.btnGetClipboardData.Text = "Get Clipboard Data";
             this.btnGetClipboardData.UseVisualStyleBackColor = true;
@@ -86,9 +95,10 @@
             // btnLoadVideo
             // 
             this.btnLoadVideo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLoadVideo.Location = new System.Drawing.Point(3, 39);
+            this.btnLoadVideo.Location = new System.Drawing.Point(4, 43);
+            this.btnLoadVideo.Margin = new System.Windows.Forms.Padding(2);
             this.btnLoadVideo.Name = "btnLoadVideo";
-            this.btnLoadVideo.Size = new System.Drawing.Size(212, 35);
+            this.btnLoadVideo.Size = new System.Drawing.Size(99, 35);
             this.btnLoadVideo.TabIndex = 3;
             this.btnLoadVideo.Text = "Load Video";
             this.btnLoadVideo.UseVisualStyleBackColor = true;
@@ -112,7 +122,7 @@
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // openToolStripMenuItem
@@ -141,8 +151,9 @@
             // openFileToolStripMenuItem
             // 
             this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.openFileToolStripMenuItem.Text = "Open File";
+            this.openFileToolStripMenuItem.Click += new System.EventHandler(this.openFileToolStripMenuItem_Click);
             // 
             // clearGridToolStripMenuItem
             // 
@@ -154,9 +165,10 @@
             // btnLoadRide
             // 
             this.btnLoadRide.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLoadRide.Location = new System.Drawing.Point(3, 3);
+            this.btnLoadRide.Location = new System.Drawing.Point(4, 4);
+            this.btnLoadRide.Margin = new System.Windows.Forms.Padding(2);
             this.btnLoadRide.Name = "btnLoadRide";
-            this.btnLoadRide.Size = new System.Drawing.Size(212, 30);
+            this.btnLoadRide.Size = new System.Drawing.Size(99, 35);
             this.btnLoadRide.TabIndex = 5;
             this.btnLoadRide.Text = "Load Ride";
             this.btnLoadRide.UseVisualStyleBackColor = true;
@@ -184,22 +196,18 @@
             // flowLayoutPanelButtons
             // 
             this.flowLayoutPanelButtons.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.flowLayoutPanelButtons.Controls.Add(this.btnLoadRide);
-            this.flowLayoutPanelButtons.Controls.Add(this.btnLoadVideo);
-            this.flowLayoutPanelButtons.Controls.Add(this.btnGetClipboardData);
             this.flowLayoutPanelButtons.Controls.Add(this.btnCreateLatLons);
             this.flowLayoutPanelButtons.Controls.Add(this.btnSetVideoPositions);
-            this.flowLayoutPanelButtons.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(807, 311);
+            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(879, 311);
             this.flowLayoutPanelButtons.Name = "flowLayoutPanelButtons";
-            this.flowLayoutPanelButtons.Size = new System.Drawing.Size(221, 235);
+            this.flowLayoutPanelButtons.Size = new System.Drawing.Size(149, 235);
             this.flowLayoutPanelButtons.TabIndex = 8;
             // 
             // btnCreateLatLons
             // 
-            this.btnCreateLatLons.Location = new System.Drawing.Point(3, 119);
+            this.btnCreateLatLons.Location = new System.Drawing.Point(3, 3);
             this.btnCreateLatLons.Name = "btnCreateLatLons";
-            this.btnCreateLatLons.Size = new System.Drawing.Size(212, 31);
+            this.btnCreateLatLons.Size = new System.Drawing.Size(144, 39);
             this.btnCreateLatLons.TabIndex = 6;
             this.btnCreateLatLons.Text = "Create LatLons";
             this.btnCreateLatLons.UseVisualStyleBackColor = true;
@@ -208,22 +216,29 @@
             // flowLayoutPanelLabels
             // 
             this.flowLayoutPanelLabels.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.flowLayoutPanelLabels.Controls.Add(this.btnLoadRide);
             this.flowLayoutPanelLabels.Controls.Add(this.lblRideName);
+            this.flowLayoutPanelLabels.Controls.Add(this.btnLoadVideo);
             this.flowLayoutPanelLabels.Controls.Add(this.lblLoadVideo);
-            this.flowLayoutPanelLabels.Controls.Add(this.txtbFromClipboard);
+            this.flowLayoutPanelLabels.Controls.Add(this.btnGetClipboardData);
+            this.flowLayoutPanelLabels.Controls.Add(this.lblFromClipboard);
+            this.flowLayoutPanelLabels.Controls.Add(this.btnVideoReverse);
+            this.flowLayoutPanelLabels.Controls.Add(this.txtbVideoTimeChange);
+            this.flowLayoutPanelLabels.Controls.Add(this.btnVideoAdvance);
             this.flowLayoutPanelLabels.Location = new System.Drawing.Point(474, 314);
             this.flowLayoutPanelLabels.Name = "flowLayoutPanelLabels";
-            this.flowLayoutPanelLabels.Size = new System.Drawing.Size(327, 232);
+            this.flowLayoutPanelLabels.Padding = new System.Windows.Forms.Padding(2);
+            this.flowLayoutPanelLabels.Size = new System.Drawing.Size(399, 233);
             this.flowLayoutPanelLabels.TabIndex = 9;
             // 
             // lblRideName
             // 
             this.lblRideName.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.lblRideName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblRideName.Location = new System.Drawing.Point(3, 0);
-            this.lblRideName.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
+            this.lblRideName.Location = new System.Drawing.Point(107, 4);
+            this.lblRideName.Margin = new System.Windows.Forms.Padding(2);
             this.lblRideName.Name = "lblRideName";
-            this.lblRideName.Size = new System.Drawing.Size(326, 30);
+            this.lblRideName.Size = new System.Drawing.Size(281, 35);
             this.lblRideName.TabIndex = 0;
             this.lblRideName.Text = "Ride Name";
             this.lblRideName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -232,24 +247,13 @@
             // 
             this.lblLoadVideo.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.lblLoadVideo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblLoadVideo.Location = new System.Drawing.Point(3, 32);
-            this.lblLoadVideo.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
+            this.lblLoadVideo.Location = new System.Drawing.Point(107, 43);
+            this.lblLoadVideo.Margin = new System.Windows.Forms.Padding(2);
             this.lblLoadVideo.Name = "lblLoadVideo";
-            this.lblLoadVideo.Size = new System.Drawing.Size(324, 39);
+            this.lblLoadVideo.Size = new System.Drawing.Size(281, 35);
             this.lblLoadVideo.TabIndex = 1;
             this.lblLoadVideo.Text = "Video Name";
             this.lblLoadVideo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // txtbFromClipboard
-            // 
-            this.txtbFromClipboard.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.txtbFromClipboard.Location = new System.Drawing.Point(3, 83);
-            this.txtbFromClipboard.Margin = new System.Windows.Forms.Padding(3, 10, 3, 3);
-            this.txtbFromClipboard.Name = "txtbFromClipboard";
-            this.txtbFromClipboard.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtbFromClipboard.Size = new System.Drawing.Size(324, 22);
-            this.txtbFromClipboard.TabIndex = 2;
-            this.txtbFromClipboard.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // openFileMovieDialog
             // 
@@ -269,13 +273,65 @@
             // 
             // btnSetVideoPositions
             // 
-            this.btnSetVideoPositions.Location = new System.Drawing.Point(3, 156);
+            this.btnSetVideoPositions.Location = new System.Drawing.Point(3, 48);
             this.btnSetVideoPositions.Name = "btnSetVideoPositions";
-            this.btnSetVideoPositions.Size = new System.Drawing.Size(212, 34);
+            this.btnSetVideoPositions.Size = new System.Drawing.Size(144, 46);
             this.btnSetVideoPositions.TabIndex = 7;
-            this.btnSetVideoPositions.Text = "Set Video Position";
+            this.btnSetVideoPositions.Text = "Set Video Position from grid";
             this.btnSetVideoPositions.UseVisualStyleBackColor = true;
             this.btnSetVideoPositions.Click += new System.EventHandler(this.btnSetVideoPositions_Click);
+            // 
+            // contextMenuStripCorrectionsGrid
+            // 
+            this.contextMenuStripCorrectionsGrid.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStripCorrectionsGrid.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deleteRowToolStripMenuItem});
+            this.contextMenuStripCorrectionsGrid.Name = "contextMenuStripCorrectionsGrid";
+            this.contextMenuStripCorrectionsGrid.Size = new System.Drawing.Size(156, 28);
+            this.contextMenuStripCorrectionsGrid.Click += new System.EventHandler(this.contextMenuStripCorrectionsGrid_Click);
+            // 
+            // deleteRowToolStripMenuItem
+            // 
+            this.deleteRowToolStripMenuItem.Name = "deleteRowToolStripMenuItem";
+            this.deleteRowToolStripMenuItem.Size = new System.Drawing.Size(155, 24);
+            this.deleteRowToolStripMenuItem.Text = "Delete Row";
+            // 
+            // btnVideoReverse
+            // 
+            this.btnVideoReverse.Location = new System.Drawing.Point(5, 120);
+            this.btnVideoReverse.Name = "btnVideoReverse";
+            this.btnVideoReverse.Size = new System.Drawing.Size(126, 23);
+            this.btnVideoReverse.TabIndex = 8;
+            this.btnVideoReverse.Text = "Reverse Video";
+            this.btnVideoReverse.UseVisualStyleBackColor = true;
+            this.btnVideoReverse.Click += new System.EventHandler(this.btnVideoReverse_Click);
+            // 
+            // btnVideoAdvance
+            // 
+            this.btnVideoAdvance.Location = new System.Drawing.Point(257, 120);
+            this.btnVideoAdvance.Name = "btnVideoAdvance";
+            this.btnVideoAdvance.Size = new System.Drawing.Size(131, 23);
+            this.btnVideoAdvance.TabIndex = 9;
+            this.btnVideoAdvance.Text = "Advance Video";
+            this.btnVideoAdvance.UseVisualStyleBackColor = true;
+            this.btnVideoAdvance.Click += new System.EventHandler(this.btnVideoAdvance_Click);
+            // 
+            // txtbVideoTimeChange
+            // 
+            this.txtbVideoTimeChange.BackColor = System.Drawing.SystemColors.Info;
+            this.txtbVideoTimeChange.Location = new System.Drawing.Point(137, 120);
+            this.txtbVideoTimeChange.Name = "txtbVideoTimeChange";
+            this.txtbVideoTimeChange.Size = new System.Drawing.Size(114, 22);
+            this.txtbVideoTimeChange.TabIndex = 10;
+            // 
+            // lblFromClipboard
+            // 
+            this.lblFromClipboard.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.lblFromClipboard.Location = new System.Drawing.Point(151, 82);
+            this.lblFromClipboard.Margin = new System.Windows.Forms.Padding(2);
+            this.lblFromClipboard.Name = "lblFromClipboard";
+            this.lblFromClipboard.Size = new System.Drawing.Size(237, 33);
+            this.lblFromClipboard.TabIndex = 11;
             // 
             // Form1
             // 
@@ -302,6 +358,7 @@
             this.flowLayoutPanelLabels.ResumeLayout(false);
             this.flowLayoutPanelLabels.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
+            this.contextMenuStripCorrectionsGrid.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -322,7 +379,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLabels;
         private System.Windows.Forms.Label lblRideName;
         private System.Windows.Forms.Label lblLoadVideo;
-        private System.Windows.Forms.TextBox txtbFromClipboard;
         private System.Windows.Forms.OpenFileDialog openFileMovieDialog;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
@@ -331,6 +387,12 @@
         private System.Windows.Forms.ToolStripMenuItem clearGridToolStripMenuItem;
         private System.Windows.Forms.Button btnCreateLatLons;
         private System.Windows.Forms.Button btnSetVideoPositions;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStripCorrectionsGrid;
+        private System.Windows.Forms.ToolStripMenuItem deleteRowToolStripMenuItem;
+        private System.Windows.Forms.Label lblFromClipboard;
+        private System.Windows.Forms.Button btnVideoReverse;
+        private System.Windows.Forms.TextBox txtbVideoTimeChange;
+        private System.Windows.Forms.Button btnVideoAdvance;
     }
 }
 
