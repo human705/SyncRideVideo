@@ -64,6 +64,7 @@ namespace CommonLibrary
         public DataTable LoadCorrectionPointsFromCSV (string fullFileName, DataTable dt)
         {
             string Fulltext;
+            dt.Clear();
             using (StreamReader sr = new StreamReader(fullFileName))
             {
                 while (!sr.EndOfStream)

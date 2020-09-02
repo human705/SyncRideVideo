@@ -1,3 +1,6 @@
+var startCnt = -1;
+var endCnt = -1;
+
 /**
  * Adds context menus for the map and the created objects.
  * Context menu items can be different depending on the target.
@@ -54,7 +57,7 @@ function addContextMenus(map, verticegroup) {
       // This menu item will add a new circle to the map
       new H.util.ContextItem({
         label: 'Copy to clipboard',
-        callback: copyToClipBoard.bind(map, coord, strMarkerPos.verticeIndex)
+        callback: copyToClipBoard.bind(map, map, coord, strMarkerPos.verticeIndex)
         //callback: addMarker.bind(map, behavior, coord)
       }),
       // This menu item will add a new circle to the map
@@ -72,7 +75,7 @@ function addContextMenus(map, verticegroup) {
  * @this H.Map
  * @param {H.geo.Point} coord Circle center coordinates
  */
-function copyToClipBoard(coord, pos) {
+function copyToClipBoard(map, coord, pos) {
   // Copy location to clipboard
   var copyText = '';
   var strMyText = pos + ',' + coord.lat + ',' + coord.lng;
@@ -84,6 +87,7 @@ function copyToClipBoard(coord, pos) {
   document.execCommand('copy');
   /* Alert the copied text */
   //alert('Copied the text: ' + copyText.value);
+  //addPolylineToMap(map,pos);
 }
 
 // Find Marker index based on the alt value.
@@ -216,27 +220,36 @@ function WriteFile(arrayData) {
 
   }
 
-  function addPolylineToMap(map) {
+  function addPolylineToMap(map, currTimeInSecs) {
     var lineString = new H.geo.LineString();
     var strRawData = document.getElementById('output').textContent
     var strLatLons = strRawData.replace(/\r\n/g, '');
     var arrLatLons = strLatLons.split(',');
+    var segmentLenth = 600; // 10 minutes 
+    var rideTimeInSecs = arrLatLons.length/2
+    var startEndPoints = getMidPoint(currTimeInSecs, rideTimeInSecs, segmentLenth);  //Center of segment in seconds
+     // Seconds to array points 
+    startCnt = startEndPoints.startPoint * 2;
+    endCnt = startEndPoints.endPoint * 2;
 
-    let i = 0;
-    let myLat, myLon
-    while (i < arrLatLons.length - 1) 
+    
+    var centerMap = false;
+    var myLat, myLon
+    var i = startCnt;
+    while (i < endCnt) 
     {
       myLat = arrLatLons[i];
       i++;
       myLon = arrLatLons[i];
       i++;
       lineString.pushPoint({lat:myLat, lng:myLon});
-      if (i == 2) {
+      if (!centerMap) {
         map.setCenter({lat:myLat, lng:myLon});
+        centerMap = true;
       }
     }
 
-    var svgCircle = '<svg width="20" height="20" version="1.1" xmlns="http://www.w3.org/2000/svg">' +
+     var svgCircle = '<svg width="20" height="20" version="1.1" xmlns="http://www.w3.org/2000/svg">' +
     '<circle cx="10" cy="10" r="7" fill="transparent" stroke="red" stroke-width="4"/>' +
     '</svg>',
     polyline = new H.map.Polyline(
@@ -266,8 +279,13 @@ function WriteFile(arrayData) {
         }
       );
       vertice.draggable = false;
-      vertice.setData({'verticeIndex': index})
+      var pointTimeInSecs = (startCnt/2) + index;
+      //vertice.setData({'verticeIndex': index})
+      vertice.setData({'verticeIndex': pointTimeInSecs})
       verticeGroup.addObject(vertice);
+
+      console.log('Veritce obj data(index) = ' + index + ' pointTimeInSecs = ' + pointTimeInSecs);
+
     });
 
     // add group with polyline and it's vertices (markers) on the map
@@ -311,6 +329,7 @@ function WriteFile(arrayData) {
       if (target instanceof H.map.Marker) {
         // behavior.enable();
         var newLoc = target.getGeometry();
+
         //map.setCenter(newLoc);
         console.log("Marker " + target.getData().verticeIndex + " changed coordinates to: " + newLoc.lat + "," + newLoc.lng);
 
@@ -370,7 +389,7 @@ function WriteFile(arrayData) {
   var map = new H.Map(document.getElementById('map'),
     defaultLayers.vector.normal.map, {
     center: {lat:39.931815965, lng:-75.684996962},
-    zoom: 19,
+    zoom: 15,
     pixelRatio: window.devicePixelRatio || 1
   });
   // add a resize listener to make sure that the map occupies the whole container
@@ -388,8 +407,34 @@ function WriteFile(arrayData) {
   //addDraggableMarker(map, behavior);
   //addContextMenus(map);
   // Now use the map as required...
-  addPolylineToMap(map);
+  var mp = Number(document.getElementById('txtMiddlePoint').value);
+  addPolylineToMap(map, mp);
 
   }
 
+// Returns the middle point of 500 points of the route
+function getMidPoint(currPoint, limit, segmentLength) {
+  // Anything less than 500 start the route at 0 for 500 points
+  //currPoint = Number(document.getElementById('txtbTestRange').value);
+  var segmentMiddle = segmentLength / 2;
+  var startPoint = 0;
+  var endPoint = 0;
+
+  if (currPoint <= segmentMiddle)  {
+    startPoint = 0;
+    endPoint = segmentLength;
+  } else {
+    if (currPoint >= (limit - segmentMiddle)) {
+      startPoint  = limit - segmentLength;
+      endPoint = limit;
+    } else {
+      startPoint = currPoint - segmentMiddle;
+      endPoint = currPoint + segmentMiddle;
+    }
+  }
+
+
+  document.getElementById('txtbTestRange').value= startPoint + " - " + endPoint;
+  return {startPoint,endPoint};
+}
 

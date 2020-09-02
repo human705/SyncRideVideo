@@ -38,6 +38,8 @@ namespace BuildCorrectionsList
         WMPLib.WMPPlayState prev_state = WMPLib.WMPPlayState.wmppsStopped;
         private int rowIndex;
 
+        bool projectStateChanged = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -165,6 +167,7 @@ namespace BuildCorrectionsList
 
         private void btnGetClipboardData_Click(object sender, EventArgs e)
         {
+            projectStateChanged = true;
             string clipboardText = "";
 
             if (!videoLoaded || !rideLoaded)
@@ -268,8 +271,6 @@ namespace BuildCorrectionsList
                     llwriter.Close();
                 }
 
-
-
             }
             catch (Exception ex)
             {
@@ -280,12 +281,13 @@ namespace BuildCorrectionsList
         private void btnSetVideoPositions_Click(object sender, EventArgs e)
         {
             string str;
-            int rowIndex = gridCorrectionsList.CurrentCell.RowIndex;
-            str = gridCorrectionsList.Rows[rowIndex].Cells[1].Value.ToString();
-            axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(str);
-            axWindowsMediaPlayer1.Ctlcontrols.play();
-
-            //MessageBox.Show("Video time = " + str);
+            if (rideLoaded && videoLoaded)
+            {
+                int rowIndex = gridCorrectionsList.CurrentCell.RowIndex;
+                str = gridCorrectionsList.Rows[rowIndex].Cells[1].Value.ToString();
+                axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(str);
+                axWindowsMediaPlayer1.Ctlcontrols.play();
+            }
         }
 
         private void btnVideoReverse_Click(object sender, EventArgs e)
@@ -394,7 +396,19 @@ namespace BuildCorrectionsList
             //flowLayoutPanelLabels.Width = 270;
             int nextX = axWindowsMediaPlayer1.Size.Width + gutter + 5;
             flowLayoutPanelLabels.Location = new Point(nextX,nextY);
-            lblFromClipboard.Height = 41;
+            lblFromClipboard.Height = 30;
+            lblLoadVideo.Height = 30;
+            lblRideName.Height = 30;
+            btnLoadRide.Height = 30;
+            btnLoadVideo.Height = 30;
+            btnGetClipboardData.Height = 30;
+
+            btnVideoReverse.Height = 20;
+            btnVideoAdvance.Height = 20;
+            txtbVideoTimeChange.Height = 20;
+
+            lblVideoTimeInSecs.Height = 20;
+            btnSetVideoPositions.Height = 40;
 
             //ROW 2 (column 3)
             //flowLayoutPanelButtons.Width = 220;
@@ -438,91 +452,49 @@ namespace BuildCorrectionsList
         #region "Menu actions"
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Create dictionary
-            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
-            Dictionary<string, object> projectData = new Dictionary<string, object>();
-            //dp.dict = projectData;
-            //projectData = dp.LoadDictionaryFromCSV(@"C:\coding\tcx-gpx\SyncRideVideo\data\ProjectData.csv");
 
-            // Save corrections list
-            TextConnector tc = new TextConnector();
-            string fullPath = tc.FullFilePath("CorrectionData.csv");
-            DataTableOperations dto = new DataTableOperations();
-            dto.WriteCorrectionPointstoCSV(fullPath, cps);
-            //tc.SaveListToFile(fullPath, CorrectionPoints);
- 
-            //Save Video file and video position
-            dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
-            double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
-            dp.AddUpdateKey("VideoPosition", videpPosition.ToString(), projectData);
+            if (projectStateChanged)
+            {
+                DialogResult dialogAnswer = MessageBox.Show("Save changes to the project?",
+                    "Save changes",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2);
 
-            int selectedMarker = 0;
+                if (dialogAnswer == DialogResult.Yes)
+                {
+                    saveProjectState();
+                }
+            } else
+            {
+                MessageBox.Show("No changes to the project. Save not needed.");
+            }
 
-            axWindowsMediaPlayer1.Ctlcontrols.currentMarker = selectedMarker;
-
-            // TODO Save video position
-
-            //Save ride file
-            dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
-
-            //Save dictionary to file
-            fullPath = tc.FullFilePath("ProjectData.csv");
-            //projectData = dp.dict;
-            dp.WriteDictionaryToCSV(projectData, fullPath);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (projectStateChanged)
+            {
+                DialogResult dialogAnswer = MessageBox.Show("Save changes to the project before loading?",
+                    "Project changed",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2);
 
-            //TextConnector correctionData = new TextConnector();
-            //string fullPath = correctionData.FullFilePath("CorrectionData.csv");
-            //CorrectionPoints = correctionData.ConvertToCorrectionPointsList(correctionData.LoadFile(fullPath));
-            //gridCorrectionsList.DataSource = CorrectionPoints;
-            //gridCorrectionsList.Refresh();
-
-            //Use table rather than List
-            DataTableOperations dto = new DataTableOperations();
+                if (dialogAnswer == DialogResult.Yes)
+                {
+                    saveProjectState();
+                    loadProjectState();
+                } else if (dialogAnswer == DialogResult.No)
+                {
+                    loadProjectState();
+                }
+            } else
+            {
+                loadProjectState();
+            }
             
-            TextConnector tc = new TextConnector();
-            string fullPath = tc.FullFilePath("CorrectionData.csv");
-            dto.LoadCorrectionPointsFromCSV(fullPath, cps);
-            gridCorrectionsList.DataSource = cps;
-            gridCorrectionsList.Refresh();
-
-
-
-            //Load Dictionaly from file
-            fullPath = tc.FullFilePath("ProjectData.csv");
-            // Create dictionary
-            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
-            Dictionary<string, object> projectData = dp.LoadDictionaryFromCSV(fullPath);
-
-            //Load Video
-            //string video = ConfigurationManager.AppSettings["videoPath"];
-            //string video = @"C:\BikeAthlets\Peter Test\media\Chesco Training Loop - 4486.mp4";
-            string video = dp.GetAnyValue<string>("VideoFileName", projectData);
-            lblLoadVideo.Text = video;
-            axWindowsMediaPlayer1.URL = video;
-            axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(dp.GetAnyValue<string>("VideoPosition", projectData));
-            axWindowsMediaPlayer1.Ctlcontrols.play();
-            
-            videoLoaded = true;
-            axWindowsMediaPlayer1.Ctlcontrols.pause();
-            //
-            // TODO - Add Video position
-            //
-
-
-            //Load Ride
-            //string fn = @"C:\coding\json\CHesco GPX.json";
-            string rideName = dp.GetAnyValue<string>("RideFileName", projectData);
-            string injson = File.ReadAllText(rideName);
-            lblRideName.Text = rideName;
-            oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
-            DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
-            DataGridOldRide.Refresh();
-            rideLoaded = true;
-
         }
 
         private void clearGridToolStripMenuItem_Click(object sender, EventArgs e)
@@ -535,7 +507,7 @@ namespace BuildCorrectionsList
 
         #endregion "Menu actions"
 
-        #region "State Changes"
+        #region "Media State Changes"
         private void MediaPlayerStateChanged(object sender, AxWMPLib._WMPOCXEvents_PlayStateChangeEvent e)
         {
             //WMPLib.WMPPlayState cur_state = WMPLib.WMPPlayState.wmppsStopped;
@@ -556,14 +528,16 @@ namespace BuildCorrectionsList
             {
                 case WMPLib.WMPPlayState.wmppsStopped:
                     state = "Stopped";
+                    timer1.Stop();
                     //goon = true;
                     break;
                 case WMPLib.WMPPlayState.wmppsPaused:
                     state = "Paused";
-
+                    lblVideoTimeInSecs.Text = "Video Secs: " + axWindowsMediaPlayer1.Ctlcontrols.currentPosition.ToString();
                     break;
                 case WMPLib.WMPPlayState.wmppsPlaying:
                     state = "Playing";
+                    timer1.Start();
                     break;
                 case WMPLib.WMPPlayState.wmppsBuffering:
                     state = "Buffering";
@@ -582,7 +556,7 @@ namespace BuildCorrectionsList
             prev_state = cur_state;
         }
 
-        #endregion "State Changes"
+        #endregion "Media State Changes"
 
 
         private void contextMenuStripCorrectionsGrid_Click(object sender, EventArgs e)
@@ -609,6 +583,98 @@ namespace BuildCorrectionsList
                 this.contextMenuStripCorrectionsGrid.Show(this.gridCorrectionsList, e.Location);
                 contextMenuStripCorrectionsGrid.Show(Cursor.Position);
             }
+        }
+
+        private void saveProjectState()
+        {
+            // Create dictionary
+            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
+            Dictionary<string, object> projectData = new Dictionary<string, object>();
+            //dp.dict = projectData;
+            //projectData = dp.LoadDictionaryFromCSV(@"C:\coding\tcx-gpx\SyncRideVideo\data\ProjectData.csv");
+
+            // Save corrections list
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("CorrectionData.csv");
+            DataTableOperations dto = new DataTableOperations();
+            dto.WriteCorrectionPointstoCSV(fullPath, cps);
+            //tc.SaveListToFile(fullPath, CorrectionPoints);
+
+            //Save Video file and video position
+            dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
+            double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
+            dp.AddUpdateKey("VideoPosition", videpPosition.ToString(), projectData);
+
+            //Save ride file
+            dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
+
+            //Save dictionary to file
+            fullPath = tc.FullFilePath("ProjectData.csv");
+            //projectData = dp.dict;
+            dp.WriteDictionaryToCSV(projectData, fullPath);
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (axWindowsMediaPlayer1.playState == WMPLib.WMPPlayState.wmppsPlaying)
+            {
+                lblVideoTimeInSecs.Text = "Video Secs: " + axWindowsMediaPlayer1.Ctlcontrols.currentPosition.ToString();
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (projectStateChanged)
+            {
+                DialogResult dialogAnswer = MessageBox.Show("Save changes to the project before exiting?",
+                    "Project changed",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+
+                if (dialogAnswer == DialogResult.Yes)
+                {
+                    saveProjectState();
+                }
+            }
+
+        }
+
+        private void loadProjectState()
+        {
+            //Use table rather than List
+            DataTableOperations dto = new DataTableOperations();
+
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("CorrectionData.csv");
+            dto.LoadCorrectionPointsFromCSV(fullPath, cps);
+            gridCorrectionsList.DataSource = cps;
+            gridCorrectionsList.Refresh();
+
+            //Load Dictionaly from file
+            fullPath = tc.FullFilePath("ProjectData.csv");
+            // Create dictionary
+            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
+            Dictionary<string, object> projectData = dp.LoadDictionaryFromCSV(fullPath);
+
+            //Load Video
+            string video = dp.GetAnyValue<string>("VideoFileName", projectData);
+            lblLoadVideo.Text = video;
+            axWindowsMediaPlayer1.URL = video;
+            axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(dp.GetAnyValue<string>("VideoPosition", projectData));
+            axWindowsMediaPlayer1.Ctlcontrols.play();
+
+            videoLoaded = true;
+            axWindowsMediaPlayer1.Ctlcontrols.pause();
+
+            //Load Ride
+            string rideName = dp.GetAnyValue<string>("RideFileName", projectData);
+            string injson = File.ReadAllText(rideName);
+            lblRideName.Text = rideName;
+            oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
+            DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
+            DataGridOldRide.Refresh();
+            rideLoaded = true;
         }
     }
 }
