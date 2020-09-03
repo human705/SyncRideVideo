@@ -46,8 +46,15 @@
     <Compile Include="DataTableOperations.cs" />
     <Compile Include="DictionalyProcessing.cs" />
     <Compile Include="GoldenCheetahRide.cs" />
+    <Compile Include="NewRideProcessing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextConnector.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HelperFunctionLibrary\HelperFunctionLibrary.csproj">
+      <Project>{e9837d5c-9d88-4e10-a1da-49a0cfafff3a}</Project>
+      <Name>HelperFunctionLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
