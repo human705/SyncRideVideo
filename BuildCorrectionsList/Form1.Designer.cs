@@ -43,31 +43,35 @@
             this.btnLoadRide = new System.Windows.Forms.Button();
             this.openRideFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.flowLayoutPanelButtons = new System.Windows.Forms.FlowLayoutPanel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnShowOldRide = new System.Windows.Forms.Button();
+            this.btnReSequence = new System.Windows.Forms.Button();
             this.btnCreateLatLons = new System.Windows.Forms.Button();
+            this.btnCreateNewRide = new System.Windows.Forms.Button();
             this.btnSetVideoPositions = new System.Windows.Forms.Button();
             this.flowLayoutPanelLabels = new System.Windows.Forms.FlowLayoutPanel();
             this.lblRideName = new System.Windows.Forms.Label();
             this.lblLoadVideo = new System.Windows.Forms.Label();
             this.lblFromClipboard = new System.Windows.Forms.Label();
+            this.grpboxVideoControls = new System.Windows.Forms.GroupBox();
+            this.lblVideoTimeInSecs = new System.Windows.Forms.Label();
+            this.btnVideoAdvance = new System.Windows.Forms.Button();
             this.btnVideoReverse = new System.Windows.Forms.Button();
             this.txtbVideoTimeChange = new System.Windows.Forms.TextBox();
-            this.btnVideoAdvance = new System.Windows.Forms.Button();
             this.openFileMovieDialog = new System.Windows.Forms.OpenFileDialog();
             this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.contextMenuStripCorrectionsGrid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.grpboxVideoControls = new System.Windows.Forms.GroupBox();
-            this.lblVideoTimeInSecs = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.btnCreateNewRide = new System.Windows.Forms.Button();
-            this.btnShowOldRide = new System.Windows.Forms.Button();
+            this.lblVideoTimeTotal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.flowLayoutPanelButtons.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.flowLayoutPanelLabels.SuspendLayout();
+            this.grpboxVideoControls.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.contextMenuStripCorrectionsGrid.SuspendLayout();
-            this.grpboxVideoControls.SuspendLayout();
             this.SuspendLayout();
             // 
             // gridCorrectionsList
@@ -155,14 +159,14 @@
             // openFileToolStripMenuItem
             // 
             this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
             this.openFileToolStripMenuItem.Text = "Open File";
             this.openFileToolStripMenuItem.Click += new System.EventHandler(this.openFileToolStripMenuItem_Click);
             // 
             // clearGridToolStripMenuItem
             // 
             this.clearGridToolStripMenuItem.Name = "clearGridToolStripMenuItem";
-            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
             this.clearGridToolStripMenuItem.Text = "Clear grid";
             this.clearGridToolStripMenuItem.Click += new System.EventHandler(this.clearGridToolStripMenuItem_Click);
             // 
@@ -188,23 +192,64 @@
             // flowLayoutPanelButtons
             // 
             this.flowLayoutPanelButtons.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.flowLayoutPanelButtons.Controls.Add(this.groupBox1);
             this.flowLayoutPanelButtons.Controls.Add(this.btnCreateLatLons);
             this.flowLayoutPanelButtons.Controls.Add(this.btnCreateNewRide);
-            this.flowLayoutPanelButtons.Controls.Add(this.btnShowOldRide);
             this.flowLayoutPanelButtons.Location = new System.Drawing.Point(879, 311);
             this.flowLayoutPanelButtons.Name = "flowLayoutPanelButtons";
             this.flowLayoutPanelButtons.Size = new System.Drawing.Size(149, 235);
             this.flowLayoutPanelButtons.TabIndex = 8;
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.btnShowOldRide);
+            this.groupBox1.Controls.Add(this.btnReSequence);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(144, 104);
+            this.groupBox1.TabIndex = 10;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Old Ride";
+            // 
+            // btnShowOldRide
+            // 
+            this.btnShowOldRide.Location = new System.Drawing.Point(6, 21);
+            this.btnShowOldRide.Name = "btnShowOldRide";
+            this.btnShowOldRide.Size = new System.Drawing.Size(132, 37);
+            this.btnShowOldRide.TabIndex = 8;
+            this.btnShowOldRide.Text = "Show Old Ride";
+            this.btnShowOldRide.UseVisualStyleBackColor = true;
+            this.btnShowOldRide.Click += new System.EventHandler(this.btnShowOldRide_Click);
+            // 
+            // btnReSequence
+            // 
+            this.btnReSequence.Location = new System.Drawing.Point(6, 63);
+            this.btnReSequence.Name = "btnReSequence";
+            this.btnReSequence.Size = new System.Drawing.Size(132, 35);
+            this.btnReSequence.TabIndex = 9;
+            this.btnReSequence.Text = "Re-Sequence";
+            this.btnReSequence.UseVisualStyleBackColor = true;
+            this.btnReSequence.Click += new System.EventHandler(this.btnReSequence_Click);
+            // 
             // btnCreateLatLons
             // 
-            this.btnCreateLatLons.Location = new System.Drawing.Point(3, 3);
+            this.btnCreateLatLons.Location = new System.Drawing.Point(3, 113);
             this.btnCreateLatLons.Name = "btnCreateLatLons";
             this.btnCreateLatLons.Size = new System.Drawing.Size(144, 39);
             this.btnCreateLatLons.TabIndex = 6;
             this.btnCreateLatLons.Text = "Create LatLons";
             this.btnCreateLatLons.UseVisualStyleBackColor = true;
             this.btnCreateLatLons.Click += new System.EventHandler(this.btnCreateLatLons_Click);
+            // 
+            // btnCreateNewRide
+            // 
+            this.btnCreateNewRide.Location = new System.Drawing.Point(3, 158);
+            this.btnCreateNewRide.Name = "btnCreateNewRide";
+            this.btnCreateNewRide.Size = new System.Drawing.Size(144, 41);
+            this.btnCreateNewRide.TabIndex = 7;
+            this.btnCreateNewRide.Text = "Create New Ride";
+            this.btnCreateNewRide.UseVisualStyleBackColor = true;
+            this.btnCreateNewRide.Click += new System.EventHandler(this.btnCreateNewRide_Click);
             // 
             // btnSetVideoPositions
             // 
@@ -266,6 +311,42 @@
             this.lblFromClipboard.TabIndex = 11;
             this.lblFromClipboard.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // grpboxVideoControls
+            // 
+            this.grpboxVideoControls.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.grpboxVideoControls.Controls.Add(this.lblVideoTimeTotal);
+            this.grpboxVideoControls.Controls.Add(this.lblVideoTimeInSecs);
+            this.grpboxVideoControls.Controls.Add(this.btnSetVideoPositions);
+            this.grpboxVideoControls.Controls.Add(this.btnVideoAdvance);
+            this.grpboxVideoControls.Controls.Add(this.btnVideoReverse);
+            this.grpboxVideoControls.Controls.Add(this.txtbVideoTimeChange);
+            this.grpboxVideoControls.Location = new System.Drawing.Point(5, 120);
+            this.grpboxVideoControls.Name = "grpboxVideoControls";
+            this.grpboxVideoControls.Size = new System.Drawing.Size(383, 103);
+            this.grpboxVideoControls.TabIndex = 12;
+            this.grpboxVideoControls.TabStop = false;
+            this.grpboxVideoControls.Text = "Video Controls";
+            // 
+            // lblVideoTimeInSecs
+            // 
+            this.lblVideoTimeInSecs.Location = new System.Drawing.Point(4, 49);
+            this.lblVideoTimeInSecs.Margin = new System.Windows.Forms.Padding(3);
+            this.lblVideoTimeInSecs.Name = "lblVideoTimeInSecs";
+            this.lblVideoTimeInSecs.Size = new System.Drawing.Size(226, 30);
+            this.lblVideoTimeInSecs.TabIndex = 11;
+            this.lblVideoTimeInSecs.Text = "Video Secs: ";
+            this.lblVideoTimeInSecs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // btnVideoAdvance
+            // 
+            this.btnVideoAdvance.Location = new System.Drawing.Point(252, 21);
+            this.btnVideoAdvance.Name = "btnVideoAdvance";
+            this.btnVideoAdvance.Size = new System.Drawing.Size(125, 23);
+            this.btnVideoAdvance.TabIndex = 9;
+            this.btnVideoAdvance.Text = "Advance Video";
+            this.btnVideoAdvance.UseVisualStyleBackColor = true;
+            this.btnVideoAdvance.Click += new System.EventHandler(this.btnVideoAdvance_Click);
+            // 
             // btnVideoReverse
             // 
             this.btnVideoReverse.Location = new System.Drawing.Point(7, 21);
@@ -283,16 +364,6 @@
             this.txtbVideoTimeChange.Name = "txtbVideoTimeChange";
             this.txtbVideoTimeChange.Size = new System.Drawing.Size(114, 22);
             this.txtbVideoTimeChange.TabIndex = 10;
-            // 
-            // btnVideoAdvance
-            // 
-            this.btnVideoAdvance.Location = new System.Drawing.Point(252, 21);
-            this.btnVideoAdvance.Name = "btnVideoAdvance";
-            this.btnVideoAdvance.Size = new System.Drawing.Size(125, 23);
-            this.btnVideoAdvance.TabIndex = 9;
-            this.btnVideoAdvance.Text = "Advance Video";
-            this.btnVideoAdvance.UseVisualStyleBackColor = true;
-            this.btnVideoAdvance.Click += new System.EventHandler(this.btnVideoAdvance_Click);
             // 
             // openFileMovieDialog
             // 
@@ -325,55 +396,18 @@
             this.deleteRowToolStripMenuItem.Size = new System.Drawing.Size(155, 24);
             this.deleteRowToolStripMenuItem.Text = "Delete Row";
             // 
-            // grpboxVideoControls
-            // 
-            this.grpboxVideoControls.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.grpboxVideoControls.Controls.Add(this.lblVideoTimeInSecs);
-            this.grpboxVideoControls.Controls.Add(this.btnSetVideoPositions);
-            this.grpboxVideoControls.Controls.Add(this.btnVideoAdvance);
-            this.grpboxVideoControls.Controls.Add(this.btnVideoReverse);
-            this.grpboxVideoControls.Controls.Add(this.txtbVideoTimeChange);
-            this.grpboxVideoControls.Location = new System.Drawing.Point(5, 120);
-            this.grpboxVideoControls.Name = "grpboxVideoControls";
-            this.grpboxVideoControls.Size = new System.Drawing.Size(383, 103);
-            this.grpboxVideoControls.TabIndex = 12;
-            this.grpboxVideoControls.TabStop = false;
-            this.grpboxVideoControls.Text = "Video Controls";
-            // 
-            // lblVideoTimeInSecs
-            // 
-            this.lblVideoTimeInSecs.Location = new System.Drawing.Point(4, 49);
-            this.lblVideoTimeInSecs.Margin = new System.Windows.Forms.Padding(3);
-            this.lblVideoTimeInSecs.Name = "lblVideoTimeInSecs";
-            this.lblVideoTimeInSecs.Size = new System.Drawing.Size(226, 39);
-            this.lblVideoTimeInSecs.TabIndex = 11;
-            this.lblVideoTimeInSecs.Text = "Video Secs: ";
-            this.lblVideoTimeInSecs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // timer1
             // 
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // btnCreateNewRide
+            // lblVideoTimeTotal
             // 
-            this.btnCreateNewRide.Location = new System.Drawing.Point(3, 48);
-            this.btnCreateNewRide.Name = "btnCreateNewRide";
-            this.btnCreateNewRide.Size = new System.Drawing.Size(144, 41);
-            this.btnCreateNewRide.TabIndex = 7;
-            this.btnCreateNewRide.Text = "Create New Ride";
-            this.btnCreateNewRide.UseVisualStyleBackColor = true;
-            this.btnCreateNewRide.Click += new System.EventHandler(this.btnCreateNewRide_Click);
-            // 
-            // btnShowOldRide
-            // 
-            this.btnShowOldRide.Location = new System.Drawing.Point(3, 95);
-            this.btnShowOldRide.Name = "btnShowOldRide";
-            this.btnShowOldRide.Size = new System.Drawing.Size(144, 37);
-            this.btnShowOldRide.TabIndex = 8;
-            this.btnShowOldRide.Text = "Show Old Ride";
-            this.btnShowOldRide.UseVisualStyleBackColor = true;
-            this.btnShowOldRide.Click += new System.EventHandler(this.btnShowOldRide_Click);
+            this.lblVideoTimeTotal.Location = new System.Drawing.Point(4, 84);
+            this.lblVideoTimeTotal.Name = "lblVideoTimeTotal";
+            this.lblVideoTimeTotal.Size = new System.Drawing.Size(217, 19);
+            this.lblVideoTimeTotal.TabIndex = 12;
+            this.lblVideoTimeTotal.Text = "Total Secs: ";
             // 
             // Form1
             // 
@@ -396,11 +430,12 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.flowLayoutPanelButtons.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
             this.flowLayoutPanelLabels.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
-            this.contextMenuStripCorrectionsGrid.ResumeLayout(false);
             this.grpboxVideoControls.ResumeLayout(false);
             this.grpboxVideoControls.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
+            this.contextMenuStripCorrectionsGrid.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -439,6 +474,9 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button btnCreateNewRide;
         private System.Windows.Forms.Button btnShowOldRide;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button btnReSequence;
+        private System.Windows.Forms.Label lblVideoTimeTotal;
     }
 }
 

@@ -11,7 +11,6 @@ namespace CommonLibrary
 {
     public class DataTableOperations
     {
-
         public DataTable CreateCorrectionPointsTable()
         {
             DataTable dt = new DataTable();
@@ -88,13 +87,10 @@ namespace CommonLibrary
                     }
                 }
             }
-
             return dt;
-
         }
         public DataTable ReadCsvFileToDataTable(string fullFileName)
         {
-
             DataTable dtCsv = new DataTable();
             string Fulltext;
             using (StreamReader sr = new StreamReader(fullFileName))
@@ -128,9 +124,84 @@ namespace CommonLibrary
                     }
                 }
             }
-
             return dtCsv;
         }
 
+        public DataTable LoadTableFromGCRideList(GoldenCheetahRide thisRide)
+        {
+            if (thisRide.RIDE.SAMPLES.Count() == 0)
+            {
+                return null;
+            }
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("secs", typeof(int));
+            dt.Columns.Add("km", typeof(double));
+            dt.Columns.Add("cad", typeof(int));
+            dt.Columns.Add("kph", typeof(double));
+            dt.Columns.Add("hr", typeof(double));
+            dt.Columns.Add("alt", typeof(double));
+            dt.Columns.Add("lat", typeof(double));
+            dt.Columns.Add("lon", typeof(double));
+            dt.Columns.Add("slope", typeof(double));
+
+            for (int i = 0; i < thisRide.RIDE.SAMPLES.Count() - 1; i++)
+            {
+                DataRow dr = dt.NewRow();
+
+                dr["secs"] = thisRide.RIDE.SAMPLES[i].SECS;
+                dr["km"] = thisRide.RIDE.SAMPLES[i].KM;
+                dr["cad"] = thisRide.RIDE.SAMPLES[i].CAD;
+                dr["kph"] = thisRide.RIDE.SAMPLES[i].KPH;
+                dr["hr"] = thisRide.RIDE.SAMPLES[i].HR;
+                dr["alt"] = thisRide.RIDE.SAMPLES[i].ALT;
+                dr["lat"] = thisRide.RIDE.SAMPLES[i].LAT;
+                dr["lon"] = thisRide.RIDE.SAMPLES[i].LON;
+                dr["slope"] = thisRide.RIDE.SAMPLES[i].SLOPE;
+                dt.Rows.Add(dr); //add other rows  
+            }
+                return dt;
+        }
+
+        public void UpdateRideListSamplesFromTable(DataTable thisDataTable, GoldenCheetahRide thisGCRide)
+        {
+            thisGCRide.RIDE.SAMPLES = null;
+            thisGCRide.RIDE.SAMPLES = new List<SAMPLE>();
+            foreach (DataRow dr in thisDataTable.Rows)
+            {
+                SAMPLE newSample = new SAMPLE();
+                newSample.SECS = (int)dr["secs"];
+                newSample.KM = (double)dr["km"];
+                newSample.CAD = (int)dr["cad"];
+                newSample.KPH = (double)dr["kph"];
+                newSample.HR = (double)dr["hr"];
+                newSample.ALT = (double)dr["alt"];
+                newSample.LAT = (double)dr["lat"];
+                newSample.LON = (double)dr["lon"];
+                newSample.SLOPE = (double)dr["slope"];
+
+                thisGCRide.RIDE.SAMPLES.Add(newSample);
+            }
+        }
+
+        public void UpdateTableFromRideListSamples(DataTable thisDataTable, GoldenCheetahRide thisGCRide)
+        {
+            thisDataTable.Clear();
+            for (int i = 0; i < thisGCRide.RIDE.SAMPLES.Count() - 1; i++)
+            {
+                DataRow dr = thisDataTable.NewRow();
+
+                dr["secs"] = thisGCRide.RIDE.SAMPLES[i].SECS;
+                dr["km"] = thisGCRide.RIDE.SAMPLES[i].KM;
+                dr["cad"] = thisGCRide.RIDE.SAMPLES[i].CAD;
+                dr["kph"] = thisGCRide.RIDE.SAMPLES[i].KPH;
+                dr["hr"] = thisGCRide.RIDE.SAMPLES[i].HR;
+                dr["alt"] = thisGCRide.RIDE.SAMPLES[i].ALT;
+                dr["lat"] = thisGCRide.RIDE.SAMPLES[i].LAT;
+                dr["lon"] = thisGCRide.RIDE.SAMPLES[i].LON;
+                dr["slope"] = thisGCRide.RIDE.SAMPLES[i].SLOPE;
+                thisDataTable.Rows.Add(dr); //add other rows  
+            }
+        }
     }
 }

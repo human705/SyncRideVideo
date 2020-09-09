@@ -26,16 +26,20 @@ namespace BuildCorrectionsList
     {
         List<CorrectionPoint> CorrectionPoints = new List<CorrectionPoint>();
         DataTable cps = new DataTable();
+        public static DataTable dtOldRide = new DataTable();
+        public static double VideoLingthInSecs = 0;
 
         int formWidth, formHeight;
         static bool rideLoaded = false;
         static bool videoLoaded = false;
 
-        GoldenCheetahRide oldRide = new GoldenCheetahRide();
-        GoldenCheetahRide newRide = new GoldenCheetahRide();
+        public static GoldenCheetahRide oldRide = new GoldenCheetahRide();
+        public static GoldenCheetahRide newRide = new GoldenCheetahRide();
         WMPLib.WMPPlayState cur_state = WMPLib.WMPPlayState.wmppsStopped;
         WMPLib.WMPPlayState prev_state = WMPLib.WMPPlayState.wmppsStopped;
         private int rowIndex;
+
+        System.Windows.Forms.Timer getMovieDurationTimer = new System.Windows.Forms.Timer();
 
         bool projectStateChanged = false;
 
@@ -208,13 +212,32 @@ namespace BuildCorrectionsList
                 lblLoadVideo.Text = openFileMovieDialog.FileName;
                 movie = openFileMovieDialog.FileName;
                 axWindowsMediaPlayer1.URL = movie;
-                axWindowsMediaPlayer1.Ctlcontrols.stop();
+                axWindowsMediaPlayer1.Ctlcontrols.play();
                 videoLoaded = true;
+                //VideoLingthInSecs = axWindowsMediaPlayer1.currentMedia.duration;
+                //axWindowsMediaPlayer1.Ctlcontrols.stop();
+                getMovieDurationTimer.Start();
             }
         }
 
+        private void GetDuration(object sender, EventArgs e)
+        {
+            // public variable songDuration declared elsewhere
+            VideoLingthInSecs = axWindowsMediaPlayer1.currentMedia.duration;
+            if (VideoLingthInSecs > 0) 
+            {
+                axWindowsMediaPlayer1.Ctlcontrols.pause();
+                getMovieDurationTimer.Stop();
+                lblVideoTimeTotal.Text += VideoLingthInSecs.ToString();
+            }
+            
+        }
         private void BtnLoadRide_Click(object sender, EventArgs e)
         {
+            if (rideLoaded)
+            {
+                return;
+            }
             oldRide = null;
             DialogResult dr = new DialogResult();
             dr = openRideFileDialog.ShowDialog();
@@ -223,9 +246,12 @@ namespace BuildCorrectionsList
                 lblRideName.Text = openRideFileDialog.FileName;
                 string injson = File.ReadAllText(openRideFileDialog.FileName);
                 oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
-                //DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
-                //DataGridOldRide.Refresh();
+                DataTableOperations dto = new DataTableOperations();
+                dtOldRide = dto.LoadTableFromGCRideList(oldRide);
+                dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
                 rideLoaded = true;
+                frmOldRide newFrmOldRide = new frmOldRide();
+                newFrmOldRide.Show();
             }
         }
 
@@ -297,6 +323,21 @@ namespace BuildCorrectionsList
         private void btnVideoAdvance_Click(object sender, EventArgs e)
         {
             ChangeVideoPosition(1);
+        }
+
+        private void btnShowOldRide_Click(object sender, EventArgs e)
+        {
+            if (rideLoaded)
+            {
+                //ShowOldRideData(oldRide);
+                frmOldRide newFrmOldRide = new frmOldRide();
+                newFrmOldRide.Show();
+            }
+            else
+            {
+                MessageBox.Show("No Ride loaded!");
+            }
+
         }
 
         #endregion "Form Buttons" 
@@ -409,6 +450,8 @@ namespace BuildCorrectionsList
             lblVideoTimeInSecs.Height = 20;
             btnSetVideoPositions.Height = 40;
 
+            lblVideoTimeTotal.Height = 20;
+
             btnShowOldRide.Height = 30;
 
             //ROW 2 (column 3)
@@ -430,6 +473,8 @@ namespace BuildCorrectionsList
             //showOnMonitor(1);
             DataTableOperations dto = new DataTableOperations();
             cps = dto.CreateCorrectionPointsTable();
+            getMovieDurationTimer.Tick += new EventHandler(GetDuration);
+            getMovieDurationTimer.Interval = 100;
 
         }
         private void showOnMonitor(int showOnMonitor)
@@ -460,7 +505,7 @@ namespace BuildCorrectionsList
                     "Save changes",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button2);
+                    MessageBoxDefaultButton.Button1);
 
                 if (dialogAnswer == DialogResult.Yes)
                 {
@@ -500,9 +545,9 @@ namespace BuildCorrectionsList
 
         private void clearGridToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            gridCorrectionsList.DataSource = null;
-            gridCorrectionsList.Refresh();
-            CorrectionPoints = new List<CorrectionPoint>();
+            //gridCorrectionsList.DataSource = null;
+            //gridCorrectionsList.Refresh();
+            //CorrectionPoints = new List<CorrectionPoint>();
 
         }
 
@@ -653,9 +698,15 @@ namespace BuildCorrectionsList
             newRide.RIDE.TAGS.SourceFilename = "Chesco test-sync.json";
             newRide.RIDE.TAGS.WorkoutCode = "Chesco test-sync";
             newRide.RIDE.SAMPLES = new List<SAMPLE>();
-            for (int i = 0; i < cps.Rows.Count; i++)
-            {
-                if (i > 0)
+
+
+
+
+
+            //for (int i = 0; i < cps.Rows.Count; i++)
+            for (int i = 0; i < 3; i++)
+                {
+                if (i > 0)  // Read the first 2 records so we can perform calculations between 2 points
                 {
                     fromKm = Convert.ToDouble(cps.Rows[i - 1]["DistanceFromStart"]);
                     toKm = Convert.ToDouble(cps.Rows[i]["DistanceFromStart"]);
@@ -687,16 +738,40 @@ namespace BuildCorrectionsList
                 }
             }
             //Re sequence list based on SECS
-            for (int j = 0; j < newRide.RIDE.SAMPLES.Count; j++)
-            {
-                newRide.RIDE.SAMPLES[j].SECS = j;
-            }
-            //for (int j = 0; j < oldRide.RIDE.SAMPLES.Count; j++)
-            //{
-            //    oldRide.RIDE.SAMPLES[j].SECS = j;
-            //}
-
+            ReSequenceSecsInRide(ref newRide);
             ShowNewRideData(newRide.RIDE.SAMPLES);
+            WriteRideJSON(newRide);
+        }
+
+        private void ReSequenceSecsInRide(ref GoldenCheetahRide thisRide)
+        {
+            for (int j = 0; j < thisRide.RIDE.SAMPLES.Count; j++)
+            {
+                thisRide.RIDE.SAMPLES[j].SECS = j;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void WriteRideJSON(GoldenCheetahRide thisRide)
+        {
+            string outpath = @"C:\coding\tcx-gpx\SyncRideVideo\data\AlpeDHuez.json";
+
+            //Initialize TAGS 
+            thisRide.RIDE.STARTTIME = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss") + " UTC ";
+            thisRide.RIDE.RECINTSECS = 1;
+            thisRide.RIDE.DEVICETYPE = "SyncRideVideo";
+            thisRide.RIDE.IDENTIFIER = "TEST ID";
+            thisRide.RIDE.TAGS.Filename = "AlpeDHuez.json";
+            thisRide.RIDE.TAGS.SourceFilename = "AlpeDHuez.json";
+            thisRide.RIDE.TAGS.WorkoutCode = "AlpeDHuez";
+
+            string outjson = JsonConvert.SerializeObject(thisRide,
+                Formatting.Indented,
+            new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Ignore });
+
+            File.WriteAllText(outpath, outjson);
         }
 
         /// <summary>
@@ -725,24 +800,14 @@ namespace BuildCorrectionsList
 
         }
 
-        private void btnShowOldRide_Click(object sender, EventArgs e)
-        {
-            if (rideLoaded)
-            {
-                ShowOldRideData(oldRide);
-            } else
-            {
-                MessageBox.Show("No Ride loaded!");
-            }
-            
-        }
 
-        private void  ShowOldRideData (GoldenCheetahRide thisOldRide)
+
+        private void  ShowOldRideData (DataTable thisOldRide)
         {
             Form frmSlowOldRideData = new Form();
             DataGridView dgViewOldRide = new DataGridView();
             dgViewOldRide.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgViewOldRide.DataSource = thisOldRide.RIDE.SAMPLES;
+            dgViewOldRide.DataSource = thisOldRide;
             dgViewOldRide.Refresh();
             frmSlowOldRideData.Controls.Add(dgViewOldRide);
             dgViewOldRide.Location = new Point(5, 5);
@@ -752,18 +817,45 @@ namespace BuildCorrectionsList
             frmSlowOldRideData.Text = "Old Ride Data";
             frmSlowOldRideData.Size = new Size(820, 650);
             frmSlowOldRideData.BackColor = Color.Blue;
-            
-            
+
+            Button btnReWriteSecs = new Button();
+            btnReWriteSecs.Text = "ReWrite Secs";
+            btnReWriteSecs.Click += new EventHandler( this.btnReWriteSecs_click);
+            btnReWriteSecs.BackColor = Color.Gray;
+            frmSlowOldRideData.Controls.Add(btnReWriteSecs);
+            btnReWriteSecs.Location = new Point(5,605);
             ////form.ShowDialog(this);
             frmSlowOldRideData.Show(this);
             //(new Thread(() => frmSlowOldRideData.ShowDialog())).Start();
+        }
+
+        /// <summary>
+        /// Re-Write seconds from 0 to the length of the ride
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void btnReWriteSecs_click(object sender, EventArgs e)
+        {
+            //Get the button clicked
+            Button btn = sender as Button;
+            MessageBox.Show(btn.Name + " clicked"); // display button details
+        }
+        private void btnReSequence_Click(object sender, EventArgs e)
+        {
+            if (rideLoaded)
+            {
+                //ReSequenceSecsInRide(ref oldRide);
+                //gridCorrectionsList.DataSource = null;
+                //gridCorrectionsList.DataSource = cps;
+                //gridCorrectionsList.Refresh();
+                //ShowOldRideData(oldRide);
+            }
         }
 
         private void LoadProjectState()
         {
             //Use table rather than List
             DataTableOperations dto = new DataTableOperations();
-
             TextConnector tc = new TextConnector();
             string fullPath = tc.FullFilePath("CorrectionData.csv");
             dto.LoadCorrectionPointsFromCSV(fullPath, cps);
@@ -784,7 +876,8 @@ namespace BuildCorrectionsList
             axWindowsMediaPlayer1.Ctlcontrols.play();
 
             videoLoaded = true;
-            axWindowsMediaPlayer1.Ctlcontrols.pause();
+            //axWindowsMediaPlayer1.Ctlcontrols.pause();
+            getMovieDurationTimer.Start();
 
             //Load Ride
             string rideName = dp.GetAnyValue<string>("RideFileName", projectData);
@@ -793,6 +886,9 @@ namespace BuildCorrectionsList
             oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
             //DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
             //DataGridOldRide.Refresh();
+            //DataTableOperations dto = new DataTableOperations();
+            dtOldRide = dto.LoadTableFromGCRideList(oldRide);
+            dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
             rideLoaded = true;
         }
     }

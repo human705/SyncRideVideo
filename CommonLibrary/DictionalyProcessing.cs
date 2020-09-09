@@ -65,8 +65,11 @@ namespace CommonLibrary
                 {
                     for (int r = 0; r < lines.Length; r++)
                     {
-                        string[] dataWords = lines[r].Split(',');
-                        result.Add(dataWords[0], dataWords[1]);
+                        if (lines[r].Length > 0)  // Skip empty lines
+                        {
+                            string[] dataWords = lines[r].Split(',');
+                            result.Add(dataWords[0], dataWords[1]);
+                        }
                     }
                 }
             }

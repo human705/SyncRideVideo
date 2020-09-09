@@ -48,22 +48,23 @@ namespace CommonLibrary
         {
             // Running total of new video in seconds
             //videoIndex += videoTime;
-
+            int pointsAdded = 0;
+            int pointsMooved = 0;
             // Init vars
             int pointsToAdd = -1;
             int startCnt = 0;
             int endCnt = 0;
             int segmentTime = endTime - startTime + 1;
-            // If this is not the first record we need to add a second to the times
+            // If this is not the first record we need to add a second to the video time
             if (startTime > 0)
             {
-                //endCnt = (endTime - startTime) + 1;
                 videoTime += 1;
-                endCnt = videoTime;
+                endCnt = segmentTime;
             }
             else
             {
                 endCnt = endTime;
+                //endCnt = videoTime - 1; // The last sample will be added manualy
             }
 
             //logwriter.WriteLine("Start marker = {0}, {4}, -- end marker = {1}, {5}, -- video time = {2}, segment time = {3}", startTime, endTime, videoTime, segmentTime, fromKM, toKM);
@@ -99,6 +100,7 @@ namespace CommonLibrary
                 thisNewRideCnt += 1;
                 thisOldRideCnt++;
                 startCnt++;
+                pointsMooved++;
             }
             else
             {   //Check if point exists in new route before adding it
@@ -113,7 +115,7 @@ namespace CommonLibrary
                 }
                 else
                 {
-                    //We moved the first point manually
+                    // First point is there already, move to the next one and decriment the number of points to move
                     startCnt++;
                     endCnt--;
                     //logwriter.WriteLine("FIRST record EXISTS, increamenting startCnt: " + startCnt.ToString() + " decrimenting endCnt: " + endCnt.ToString());
@@ -121,48 +123,52 @@ namespace CommonLibrary
 
             }
 
-            // Do we need an extra  drop?
+            // If the last sample to add equals the segment length, addit brfore the end
             int lastSample = -1;
             if ((pointsInterval * pointsToAdd) == endCnt) lastSample = endCnt - 1;
 
-            //Loop and remove points
+            //Loop and add points
             int cnt = 1;
+            int loopCnt = 0;
             //logwriter.WriteLine("Removing SAMPLE loop from " + "0" + " to " + newEndTime);
             //for (int i = newStartTime; i <= newEndTime; i++)
             while (startCnt < endCnt)
             {
                 if (cnt == pointsInterval || startCnt == lastSample)
                 {
-                    // Add new sample
-                    // Find midpoint between 2 points
-                    GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
-                    GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
-                    GeoLocMath geoLocMath1 = new GeoLocMath();
-                    GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
-                    //Get distance between the new point and the one before it
-                    double newdistanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(newPoint, point1) + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
-                    // Create new sample and add data from above
-                    SAMPLE newSample = new SAMPLE()
+                    if (pointsAdded <= pointsToAdd) // pointsInterval is converted to integer and not accurate  
                     {
-                        SECS = 999, //insertPosition,
-                        KM = newdistanceTravelled,
-                        KPH = videoSpeed,
-                        ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
-                        LAT = newPoint.Latitude,
-                        LON = newPoint.Longitude,
-                        SLOPE = -99
-                    };
-                    // Insert new point in ride
-                    //tempSamples.Add(newSample);
-                    thisNewRide.RIDE.SAMPLES.Add(newSample);
-                    //logwriter.WriteLine("Adding = " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " (SECS), at KM " + newdistanceTravelled.ToString());
-                    thisNewRideCnt += 1;
-                    cnt = 1;
+                        // Add new sample
+                        // Find midpoint between 2 points
+                        GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
+                        GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+                        GeoLocMath geoLocMath1 = new GeoLocMath();
+                        GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
+                        //Get distance between the new point and the one before it
+                        double newdistanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(newPoint, point1) + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
+                        // Create new sample and add data from above
+                        SAMPLE newSample = new SAMPLE()
+                        {
+                            SECS = 999, //insertPosition,
+                            KM = newdistanceTravelled,
+                            KPH = videoSpeed,
+                            ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
+                            LAT = newPoint.Latitude,
+                            LON = newPoint.Longitude,
+                            SLOPE = -99
+                        };
+                        // Insert new point in ride
+                        //tempSamples.Add(newSample);
+                        thisNewRide.RIDE.SAMPLES.Add(newSample);
+                        //logwriter.WriteLine("Adding = " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " (SECS), at KM " + newdistanceTravelled.ToString());
+                        thisNewRideCnt += 1;
+                        cnt = 1;
+                        pointsAdded++;
+                    }
+
                 }
-                else
-                {
-                    //if (startCnt != lastSample)
-                    //{
+                //else
+                //{
                     // Move sample to new ride
                     //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
@@ -170,18 +176,21 @@ namespace CommonLibrary
                     thisNewRideCnt += 1;
                     thisOldRideCnt++;
                     cnt++;
-                }
+                    pointsMooved++;
 
+
+
+                //}
+                loopCnt++;
                 startCnt++;
-            } // END of removing for loop
+            } // END of addong for loop
             // Move last point from old route to new route
             //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
             CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
             //logwriter.WriteLine("Moving LAST record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[oldRideCnt].KM);
             thisNewRideCnt += 1;
             thisOldRideCnt++;
-        }
-        // ***** addPointsToNewRide ENDS
+        }        // ***** addPointsToNewRide ENDS
 
         public void RemovePointsFromNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt,GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide )
         {
@@ -202,6 +211,7 @@ namespace CommonLibrary
             else
             {
                 endCnt = endTime;
+                //endCnt = videoTime;
             }
 
             //logwriter.WriteLine("Start marker = {0}, {4}, -- end marker = {1}, {5}, -- video time = {2}, ride time = {3}", startTime, endTime, videoTime, endCnt, fromKM, toKM);
@@ -321,22 +331,6 @@ namespace CommonLibrary
             thisNewRideCnt += 1;
             thisOldRideCnt++;
         }
-
-        //private void AddSampleToNewList (SAMPLE srcSample, int index, ref GoldenCheetahRide destination, double distanceTravelled, double speed)
-        //{
-        //    SAMPLE newSample = new SAMPLE()
-        //    {
-        //        SECS = 999, //insertPosition,
-        //        KM = distanceTravelled,
-        //        KPH = speed,
-        //        ALT = (destination.RIDE.SAMPLES[index].ALT + destination.RIDE.SAMPLES[index - 1].ALT) / 2,
-        //        LAT = srcSample.LAT,
-        //        LON = srcSample.LON,
-        //        SLOPE = -99
-        //    };
-        //    // Insert new point in ride
-        //    destination.RIDE.SAMPLES.Add(newSample);
-        //}
 
         private void CopySampleToNewlist(SAMPLE srcSample, ref GoldenCheetahRide destination)
         {
