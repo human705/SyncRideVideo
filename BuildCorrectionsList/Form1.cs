@@ -704,7 +704,7 @@ namespace BuildCorrectionsList
 
 
             //for (int i = 0; i < cps.Rows.Count; i++)
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 5; i++)
                 {
                 if (i > 0)  // Read the first 2 records so we can perform calculations between 2 points
                 {
@@ -713,8 +713,8 @@ namespace BuildCorrectionsList
                     videoTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]) - Convert.ToInt32(cps.Rows[i - 1]["VideoTimeInSecs"]);
                     //Debug.WriteLine(fromKm.ToString() + "," + toKm.ToString() + "," + videoTime.ToString());
                     NewRideProcessing newRideProcessing = new NewRideProcessing();
-                    startMarkerTime = newRideProcessing.convertDistanceToSeconds(fromKm, ref oldRide);
-                    endMarkerTime = newRideProcessing.convertDistanceToSeconds(toKm, ref oldRide);
+                    startMarkerTime = newRideProcessing.FindSecondsForDistance(fromKm, ref oldRide);
+                    endMarkerTime = newRideProcessing.FindSecondsForDistance(toKm, ref oldRide);
                     //Debug.WriteLine(startMarkerTime.ToString() + "," + endMarkerTime.ToString());
                     if (startMarkerTime == -1 || endMarkerTime == -1)
                     {
