@@ -703,8 +703,8 @@ namespace BuildCorrectionsList
 
 
 
-            //for (int i = 0; i < cps.Rows.Count; i++)
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < cps.Rows.Count; i++)
+            //for (int i = 0; i < 5; i++)
                 {
                 if (i > 0)  // Read the first 2 records so we can perform calculations between 2 points
                 {

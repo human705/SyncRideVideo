@@ -243,12 +243,12 @@ namespace CommonLibrary
             //logwriter.WriteLine("REMOVING --- Points interval:" + pointsInterval.ToString() + " points to REMOVE: " + pointsToRemove.ToString());
 
             //Calculate distance and avg speed for the full segment
-            GeoLoc startpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[startTime].LAT, thisOldRide.RIDE.SAMPLES[startTime].LON);
-            GeoLoc endpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[endTime].LAT, thisOldRide.RIDE.SAMPLES[endTime].LON);
-            GeoLocMath geoLocMath = new GeoLocMath();
-            double distanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(startpoint, endpoint);
-            // Need to use video time to derive video speed
-            double videoSpeed = ((distanceTravelled * 1000) / videoTime) * 3.6; //kph
+            //GeoLoc startpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[startTime].LAT, thisOldRide.RIDE.SAMPLES[startTime].LON);
+            //GeoLoc endpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[endTime].LAT, thisOldRide.RIDE.SAMPLES[endTime].LON);
+            //GeoLocMath geoLocMath = new GeoLocMath();
+            //double distanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(startpoint, endpoint);
+            //// Need to use video time to derive video speed
+            //double videoSpeed = ((distanceTravelled * 1000) / videoTime) * 3.6; //kph
 
             if (thisNewRide.RIDE.SAMPLES.Count() == 0)
             {
@@ -286,7 +286,7 @@ namespace CommonLibrary
 
             // Do we need an extra  drop?
             int lastSample = -1;
-            if ((pointsInterval * pointsToRemove) == endCnt) lastSample = endCnt - 1;
+            if ((pointsInterval * pointsToRemove) > endCnt) lastSample = endCnt - 1;
             int pointsLeftToRemove = pointsToRemove;
             //Loop and remove points
             int cnt = 1;
