@@ -54,6 +54,7 @@
             this.lblLoadVideo = new System.Windows.Forms.Label();
             this.lblFromClipboard = new System.Windows.Forms.Label();
             this.grpboxVideoControls = new System.Windows.Forms.GroupBox();
+            this.lblVideoTimeTotal = new System.Windows.Forms.Label();
             this.lblVideoTimeInSecs = new System.Windows.Forms.Label();
             this.btnVideoAdvance = new System.Windows.Forms.Button();
             this.btnVideoReverse = new System.Windows.Forms.Button();
@@ -63,7 +64,6 @@
             this.contextMenuStripCorrectionsGrid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.lblVideoTimeTotal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.flowLayoutPanelButtons.SuspendLayout();
@@ -132,18 +132,19 @@
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(176, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.openToolStripMenuItem.Text = "&Open Config";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(176, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.saveToolStripMenuItem.Text = "&Save Config";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -327,6 +328,14 @@
             this.grpboxVideoControls.TabStop = false;
             this.grpboxVideoControls.Text = "Video Controls";
             // 
+            // lblVideoTimeTotal
+            // 
+            this.lblVideoTimeTotal.Location = new System.Drawing.Point(4, 84);
+            this.lblVideoTimeTotal.Name = "lblVideoTimeTotal";
+            this.lblVideoTimeTotal.Size = new System.Drawing.Size(217, 19);
+            this.lblVideoTimeTotal.TabIndex = 12;
+            this.lblVideoTimeTotal.Text = "Total Secs: ";
+            // 
             // lblVideoTimeInSecs
             // 
             this.lblVideoTimeInSecs.Location = new System.Drawing.Point(4, 49);
@@ -400,14 +409,6 @@
             // 
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // lblVideoTimeTotal
-            // 
-            this.lblVideoTimeTotal.Location = new System.Drawing.Point(4, 84);
-            this.lblVideoTimeTotal.Name = "lblVideoTimeTotal";
-            this.lblVideoTimeTotal.Size = new System.Drawing.Size(217, 19);
-            this.lblVideoTimeTotal.TabIndex = 12;
-            this.lblVideoTimeTotal.Text = "Total Secs: ";
             // 
             // Form1
             // 

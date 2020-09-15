@@ -206,49 +206,43 @@ namespace CommonLibrary
             int startCnt = 0;
             int endCnt = 0;
             int segmentTime = endTime - startTime + 1;
-            // If this is not the first record we need to add a second to the times
-            if (startTime > 0)
-            {
-                endCnt = (endTime - startTime) + 1;
-                videoTime += 1;
-            }
-            else
-            {
-                //endCnt = endTime;
-                endCnt = segmentTime;
-            }
 
-            //logwriter.WriteLine("Start marker = {0}, {4}, -- end marker = {1}, {5}, -- video time = {2}, ride time = {3}", startTime, endTime, videoTime, endCnt, fromKM, toKM);
+            
+            //segmentTime = endTime - startTime + 1;
+            endCnt = segmentTime; // Last point is added manually
+            videoTime++;  // Add 1 second to the video that is lost during subtraction
+            // If this is not the first record we need to add a second to the times
+            //if (startTime > 0)
+            //{
+            //    endCnt = (endTime - startTime) + 1;
+            //    videoTime += 1;
+            //}
+            //else
+            //{
+            //    //endCnt = endTime;
+            //    endCnt = segmentTime;
+            //}
 
             //Calculate the number of points to remove and the remove interval
-            pointsToRemove = Math.Abs(videoTime - endCnt);
+            pointsToRemove = Math.Abs(videoTime - segmentTime);
+            
+
             int pointsInterval = -99;
             if (pointsToRemove == 1)
             {
-                pointsInterval = (int)Math.Round(endCnt / 2.0);
+                pointsInterval = (int)Math.Round(segmentTime / 2.0);
             }
             else
             {
-                pointsInterval = (int)Math.Round(Math.Abs(endCnt / (pointsToRemove + 1.0)));
+                pointsInterval = (int)Math.Round(Math.Abs(segmentTime / (pointsToRemove + 1.0)));
             }
             if (pointsInterval < 1) pointsInterval = 1;
 
             if (pointsToRemove == 0)
             {
                 pointsToRemove = 1;
-                pointsInterval = endCnt / 2;
+                pointsInterval = segmentTime / 2;
             }
-
-            ////logwriter.WriteLine("Removing " + pointsToRemove.ToString() + " points from the ride.");
-            //logwriter.WriteLine("REMOVING --- Points interval:" + pointsInterval.ToString() + " points to REMOVE: " + pointsToRemove.ToString());
-
-            //Calculate distance and avg speed for the full segment
-            //GeoLoc startpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[startTime].LAT, thisOldRide.RIDE.SAMPLES[startTime].LON);
-            //GeoLoc endpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[endTime].LAT, thisOldRide.RIDE.SAMPLES[endTime].LON);
-            //GeoLocMath geoLocMath = new GeoLocMath();
-            //double distanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(startpoint, endpoint);
-            //// Need to use video time to derive video speed
-            //double videoSpeed = ((distanceTravelled * 1000) / videoTime) * 3.6; //kph
 
             if (thisNewRide.RIDE.SAMPLES.Count() == 0)
             {
@@ -277,7 +271,7 @@ namespace CommonLibrary
                 {
                     //We moved the first point manually
                     startCnt++;
-                    endCnt--;
+                    //endCnt--;
                     pointsSkipped++;
                     //logwriter.WriteLine("FIRST record EXISTS, increamenting startCnt: " + startCnt.ToString() + " decrimenting endCnt: " + endCnt.ToString());
                 }
@@ -286,7 +280,7 @@ namespace CommonLibrary
 
             // Do we need an extra  drop?
             int lastSample = -1;
-            if ((pointsInterval * pointsToRemove) > endCnt) lastSample = endCnt - 1;
+            if ((pointsInterval * pointsToRemove) == segmentTime) lastSample = segmentTime - 1;
             int pointsLeftToRemove = pointsToRemove;
             //Loop and remove points
             int cnt = 1;
@@ -300,7 +294,7 @@ namespace CommonLibrary
                     if (pointsLeftToRemove > 0)
                     {
                         //logwriter.WriteLine("CNT: " + startCnt.ToString() + " Removing original sample: " + thisOldRideCnt.ToString());
-                        thisOldRideCnt += 1;
+                        thisOldRideCnt++;
                         cnt = 1;
                         pointsLeftToRemove--;
                         pointsSkipped++;
@@ -321,14 +315,21 @@ namespace CommonLibrary
                 }
                 else
                 {
-                    // Move sample to new ride
+                    //Move sample to new ride
                     //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
-                    CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                    //logwriter.WriteLine("CNT: " + startCnt.ToString() + " Moving record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
-                    thisNewRideCnt += 1;
-                    thisOldRideCnt++;
-                    cnt++;
-                    pointsMoved++;
+
+                    // Guard aginst EOF
+                    if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2)
+                    {
+                        CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                        //logwriter.WriteLine("CNT: " + startCnt.ToString() + " Moving record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
+                        thisNewRideCnt++;
+                        thisOldRideCnt++;
+                        cnt++;
+                        pointsMoved++;
+                    }
+
+
                 }
 
                 startCnt++;

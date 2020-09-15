@@ -476,6 +476,8 @@ namespace BuildCorrectionsList
             getMovieDurationTimer.Tick += new EventHandler(GetDuration);
             getMovieDurationTimer.Interval = 100;
 
+            LoadProjectState();
+
         }
         private void showOnMonitor(int showOnMonitor)
         {
@@ -850,6 +852,11 @@ namespace BuildCorrectionsList
                 //gridCorrectionsList.Refresh();
                 //ShowOldRideData(oldRide);
             }
+        }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void LoadProjectState()
