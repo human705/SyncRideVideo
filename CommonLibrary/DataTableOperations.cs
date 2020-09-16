@@ -158,7 +158,7 @@ namespace CommonLibrary
                 dr["lat"] = thisRide.RIDE.SAMPLES[i].LAT;
                 dr["lon"] = thisRide.RIDE.SAMPLES[i].LON;
                 dr["slope"] = thisRide.RIDE.SAMPLES[i].SLOPE;
-                dt.Rows.Add(dr); //add other rows  
+                dt.Rows.Add(dr); 
             }
                 return dt;
         }

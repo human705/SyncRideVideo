@@ -203,54 +203,25 @@ namespace CommonLibrary
             int pointsSkipped = 0;
             // Init vars
             int pointsToRemove = -1;
-            int startCnt = 0;
-            int endCnt = 0;
+
+
+            //int startCnt = 0;
+            //int endCnt = 0;
+            int startCnt = startTime;
+            int endCnt = endTime;
+
             int segmentTime = endTime - startTime + 1;
 
-            
-            //segmentTime = endTime - startTime + 1;
-            endCnt = segmentTime; // Last point is added manually
+            //endCnt = segmentTime - 1; 
             videoTime++;  // Add 1 second to the video that is lost during subtraction
-            // If this is not the first record we need to add a second to the times
-            //if (startTime > 0)
-            //{
-            //    endCnt = (endTime - startTime) + 1;
-            //    videoTime += 1;
-            //}
-            //else
-            //{
-            //    //endCnt = endTime;
-            //    endCnt = segmentTime;
-            //}
-
             //Calculate the number of points to remove and the remove interval
             pointsToRemove = Math.Abs(videoTime - segmentTime);
-            
+            int pointsInterval = CalculateRomovePointsInterval(pointsToRemove, segmentTime);
 
-            int pointsInterval = -99;
-            if (pointsToRemove == 1)
+            if (thisNewRide.RIDE.SAMPLES.Count() == 0) // This is the first record so we can't subtract 1 from the counters
             {
-                pointsInterval = (int)Math.Round(segmentTime / 2.0);
-            }
-            else
-            {
-                pointsInterval = (int)Math.Round(Math.Abs(segmentTime / (pointsToRemove + 1.0)));
-            }
-            if (pointsInterval < 1) pointsInterval = 1;
-
-            if (pointsToRemove == 0)
-            {
-                pointsToRemove = 1;
-                pointsInterval = segmentTime / 2;
-            }
-
-            if (thisNewRide.RIDE.SAMPLES.Count() == 0)
-            {
-                // This is the first record.
-                // Move initial point from old route to new route
-                //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
+                
                 CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                //logwriter.WriteLine("Moving FIRST (INIT) record: " + thisOldRideCnt.ToString() + " to " + newRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
                 thisNewRideCnt += 1;
                 thisOldRideCnt++;
                 startCnt++;
@@ -259,87 +230,136 @@ namespace CommonLibrary
             {   //Check if point exists in new route before adding it
                 if (Math.Abs(thisNewRide.RIDE.SAMPLES[thisNewRideCnt - 1].KM - thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM) > 0.01)
                 {
-                    // Move initial point from old route to new route
-                    //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                    //logwriter.WriteLine("Moving FIRST record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
                     thisNewRideCnt += 1;
                     thisOldRideCnt++;
                     pointsMoved++;
                 }
-                else
+                else // Based on distance point already exists
                 {
-                    //We moved the first point manually
                     startCnt++;
-                    //endCnt--;
                     pointsSkipped++;
-                    //logwriter.WriteLine("FIRST record EXISTS, increamenting startCnt: " + startCnt.ToString() + " decrimenting endCnt: " + endCnt.ToString());
                 }
 
             }
 
-            // Do we need an extra  drop?
+            // THIS NEEDS A METHOD ---Do we need an extra  drop? 
             int lastSample = -1;
             if ((pointsInterval * pointsToRemove) == segmentTime) lastSample = segmentTime - 1;
             int pointsLeftToRemove = pointsToRemove;
+
+
+            // if the videoTimeSegment is > than (routeSegmentTime/2) we need to remove more point than we keep.
+            // 
+            if (videoTime > (segmentTime/2))
+            {
+                NonConsecutivePointsRemoveProcess(ref startCnt,
+                                   ref endCnt,
+                                   ref pointsInterval,
+                                   ref lastSample,
+                                   ref pointsLeftToRemove,
+                                   ref thisOldRideCnt,
+                                   ref pointsSkipped,
+                                   ref thisNewRideCnt,
+                                   ref pointsMoved,
+                                   ref thisOldRide,
+                                   ref thisNewRide);
+            } else
+            {
+                ConsecutivePointsRemoveProcess(ref startCnt,
+                                   ref endCnt,
+                                   ref pointsInterval,
+                                   ref lastSample,
+                                   ref pointsLeftToRemove,
+                                   ref thisOldRideCnt,
+                                   ref pointsSkipped,
+                                   ref thisNewRideCnt,
+                                   ref pointsMoved,
+                                   ref thisOldRide,
+                                   ref thisNewRide,
+                                   ref videoTime);
+            }
+
+            // Get last point from old route
+            CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+            thisNewRideCnt += 1;
+            thisOldRideCnt++;
+        }
+
+
+        private void ConsecutivePointsRemoveProcess(    ref int startCnt,
+                                                        ref int endCnt,
+                                                        ref int pointsInterval,
+                                                        ref int lastSample,
+                                                        ref int pointsLeftToRemove,
+                                                        ref int thisOldRideCnt,
+                                                        ref int pointsSkipped,
+                                                        ref int thisNewRideCnt,
+                                                        ref int pointsMoved,
+                                                        ref GoldenCheetahRide thisOldRide,
+                                                        ref GoldenCheetahRide thisNewRide,
+                                                        ref int videoTime)
+        {
+            int dropCount = (endCnt - startCnt) / videoTime;
+            while (startCnt < endCnt)
+            {
+                thisOldRideCnt += dropCount;
+                pointsSkipped += dropCount;
+                if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
+                {
+                    CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                    thisNewRideCnt++;
+                    thisOldRideCnt++;
+                    pointsMoved++;
+                    startCnt++;
+                }
+                startCnt += dropCount;
+            }
+
+        }
+        private void NonConsecutivePointsRemoveProcess( ref int startCnt,
+                                                        ref int endCnt,
+                                                        ref int pointsInterval,
+                                                        ref int lastSample,
+                                                        ref int pointsLeftToRemove,
+                                                        ref int thisOldRideCnt,
+                                                        ref int pointsSkipped,
+                                                        ref int thisNewRideCnt,
+                                                        ref int pointsMoved,
+                                                        ref GoldenCheetahRide thisOldRide,
+                                                        ref GoldenCheetahRide thisNewRide)
+        {
             //Loop and remove points
             int cnt = 1;
             while (startCnt < endCnt)
             {
-                if (cnt == pointsInterval || startCnt == lastSample)
-                {
-                    // Skip sample to simulate removing sample in new ride
-
-                    // Don't remove more than pointsToRemove
+                if (cnt == pointsInterval || startCnt == lastSample) // Skip sample to simulate removing sample in new ride
+                {   // Don't remove more than pointsToRemove
                     if (pointsLeftToRemove > 0)
                     {
-                        //logwriter.WriteLine("CNT: " + startCnt.ToString() + " Removing original sample: " + thisOldRideCnt.ToString());
-                        thisOldRideCnt++;
                         cnt = 1;
+                        thisOldRideCnt++;
                         pointsLeftToRemove--;
                         pointsSkipped++;
+                        startCnt++;
                     }
-                    else
-                    {
-                        //logwriter.WriteLine("CNT: " + startCnt.ToString() + " SKIPPING REMOVE and MOVING");
-                        // Move sample to new ride
-                        //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
-                        CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                        //logwriter.WriteLine("CNT: " + startCnt.ToString() + " Moving record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
-                        thisNewRideCnt += 1;
-                        thisOldRideCnt++;
-                        cnt++;
-                        pointsMoved++;
-                    }
-                    //thisOldRideCnt += 1;
+                }
+                if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
+                {
+                    CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                    thisNewRideCnt++;
+                    thisOldRideCnt++;
+                    cnt++;
+                    pointsMoved++;
+                    startCnt++;
                 }
                 else
                 {
-                    //Move sample to new ride
-                    //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
-
-                    // Guard aginst EOF
-                    if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2)
-                    {
-                        CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                        //logwriter.WriteLine("CNT: " + startCnt.ToString() + " Moving record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
-                        thisNewRideCnt++;
-                        thisOldRideCnt++;
-                        cnt++;
-                        pointsMoved++;
-                    }
-
-
+                    startCnt = endCnt;
+                    thisNewRideCnt++;
+                    thisOldRideCnt++;
                 }
-
-                startCnt++;
             } // END of removing for loop
-            // Move last point from old route to new route
-            //thisNewRide.RIDE.SAMPLES.Add(thisOldRide.RIDE.SAMPLES[thisOldRideCnt]);
-            CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-            //logwriter.WriteLine("Moving LAST record: " + thisOldRideCnt.ToString() + " to " + thisNewRideCnt.ToString() + " at KM " + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KM);
-            thisNewRideCnt += 1;
-            thisOldRideCnt++;
         }
 
         private void CopySampleToNewlist(SAMPLE srcSample, ref GoldenCheetahRide destination)
@@ -387,6 +407,22 @@ namespace CommonLibrary
             //{ pointsInterval = segmentTime / pointsToAdd; }
             //if (pointsInterval < 1) pointsInterval = 1;
 
+        }
+
+        private int CalculateRomovePointsInterval (int pointsToRemove, int segmentTime)
+        {
+            int pointsInterval = -99;
+            if (pointsToRemove == 1)
+            {
+                pointsInterval = (int)Math.Round(segmentTime / 2.0);
+            }
+            else
+            {
+                pointsInterval = (int)Math.Round(Math.Abs(segmentTime / (pointsToRemove + 1.0)));
+            }
+            if (pointsInterval < 1) pointsInterval = 1;
+
+            return pointsInterval;
         }
     }
 }
