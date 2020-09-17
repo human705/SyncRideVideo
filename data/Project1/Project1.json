@@ -1,13 +1,13 @@
 {
   "RIDE": {
-    "STARTTIME": "2020/09/16 23:11:57 UTC ",
+    "STARTTIME": "2020/09/17 18:59:05 UTC ",
     "RECINTSECS": 1,
     "DEVICETYPE": "SyncRideVideo",
     "IDENTIFIER": "TEST ID",
     "TAGS": {
-      "Filename": "AlpeDHuez.json",
-      "SourceFilename": "AlpeDHuez.json",
-      "WorkoutCode": "AlpeDHuez"
+      "Filename": "Project1.json",
+      "SourceFilename": "Project1.json",
+      "WorkoutCode": "Project1"
     },
     "SAMPLES": [
       {

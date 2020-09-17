@@ -11,6 +11,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Configuration;
 using System.Diagnostics;
+using System.Configuration;
 
 //NuGet installed dependencies
 using Newtonsoft.Json;
@@ -28,6 +29,9 @@ namespace BuildCorrectionsList
         DataTable cps = new DataTable();
         public static DataTable dtOldRide = new DataTable();
         public static double VideoLingthInSecs = 0;
+
+        static string activeProjectName = "";
+        static string activeProjectPath = "";
 
         int formWidth, formHeight;
         static bool rideLoaded = false;
@@ -500,7 +504,7 @@ namespace BuildCorrectionsList
         #region "Menu actions"
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            projectStateChanged = true;
             if (projectStateChanged)
             {
                 DialogResult dialogAnswer = MessageBox.Show("Save changes to the project?",
@@ -540,7 +544,8 @@ namespace BuildCorrectionsList
                 }
             } else
             {
-                LoadProjectState();
+                LoadExistingProject();
+                //LoadProjectState();
             }
             
         }
@@ -625,35 +630,6 @@ namespace BuildCorrectionsList
                 this.contextMenuStripCorrectionsGrid.Show(this.gridCorrectionsList, e.Location);
                 contextMenuStripCorrectionsGrid.Show(Cursor.Position);
             }
-        }
-
-        private void saveProjectState()
-        {
-            // Create dictionary
-            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
-            Dictionary<string, object> projectData = new Dictionary<string, object>();
-            //dp.dict = projectData;
-            //projectData = dp.LoadDictionaryFromCSV(@"C:\coding\tcx-gpx\SyncRideVideo\data\ProjectData.csv");
-
-            // Save corrections list
-            TextConnector tc = new TextConnector();
-            string fullPath = tc.FullFilePath("CorrectionData.csv");
-            DataTableOperations dto = new DataTableOperations();
-            dto.WriteCorrectionPointstoCSV(fullPath, cps);
-            //tc.SaveListToFile(fullPath, CorrectionPoints);
-
-            //Save Video file and video position
-            dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
-            double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
-            dp.AddUpdateKey("VideoPosition", videpPosition.ToString(), projectData);
-
-            //Save ride file
-            dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
-
-            //Save dictionary to file
-            fullPath = tc.FullFilePath("ProjectData.csv");
-            //projectData = dp.dict;
-            dp.WriteDictionaryToCSV(projectData, fullPath);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -758,22 +734,23 @@ namespace BuildCorrectionsList
         /// </summary>
         private void WriteRideJSON(GoldenCheetahRide thisRide)
         {
-            string outpath = @"C:\coding\tcx-gpx\SyncRideVideo\data\AlpeDHuez.json";
+            //string outpath = @"C:\coding\tcx-gpx\SyncRideVideo\data\AlpeDHuez.json";
+            string outPath = $"{ activeProjectPath }\\{ activeProjectName }.json";
 
             //Initialize TAGS 
             thisRide.RIDE.STARTTIME = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss") + " UTC ";
             thisRide.RIDE.RECINTSECS = 1;
             thisRide.RIDE.DEVICETYPE = "SyncRideVideo";
             thisRide.RIDE.IDENTIFIER = "TEST ID";
-            thisRide.RIDE.TAGS.Filename = "AlpeDHuez.json";
-            thisRide.RIDE.TAGS.SourceFilename = "AlpeDHuez.json";
-            thisRide.RIDE.TAGS.WorkoutCode = "AlpeDHuez";
+            thisRide.RIDE.TAGS.Filename = $"{ activeProjectName }.json";
+            thisRide.RIDE.TAGS.SourceFilename = $"{ activeProjectName }.json";
+            thisRide.RIDE.TAGS.WorkoutCode = $"{ activeProjectName }";
 
             string outjson = JsonConvert.SerializeObject(thisRide,
                 Formatting.Indented,
             new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Ignore });
 
-            File.WriteAllText(outpath, outjson);
+            File.WriteAllText(outPath, outjson);
         }
 
         /// <summary>
@@ -854,26 +831,114 @@ namespace BuildCorrectionsList
             }
         }
 
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveProjectState()
+        {
+            if (activeProjectName == "")
+            {
+                CreateNewProject();
+            }
+
+            // Create dictionary
+            DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
+            Dictionary<string, object> projectData = new Dictionary<string, object>();
+
+            // Save corrections list
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("CorrectionData.csv", activeProjectName);
+            DataTableOperations dto = new DataTableOperations();
+            dto.WriteCorrectionPointstoCSV(fullPath, cps);
+            //tc.SaveListToFile(fullPath, CorrectionPoints);
+
+            //Save Video file and video position
+            dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
+            double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
+            dp.AddUpdateKey("VideoPosition", videpPosition.ToString(), projectData);
+
+            //Save ride file
+            dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
+
+            //Save dictionary to file
+            fullPath = tc.FullFilePath("ProjectData.csv", activeProjectName);
+            //projectData = dp.dict;
+            dp.WriteDictionaryToCSV(projectData, fullPath);
+        }
+
+        private void correctionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
 
+        private void CreateProjtoolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateNewProject();
+        }
+
+        private void LoadExistingProject()
+        {
+            string projectPath = ConfigurationManager.AppSettings["filePath"];
+            DialogResult dr = new DialogResult();
+            SelectFolderBrowserDialog.SelectedPath = projectPath;
+            dr = SelectFolderBrowserDialog.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                activeProjectPath = SelectFolderBrowserDialog.SelectedPath.ToString();
+                DirectoryInfo dinfo = new DirectoryInfo(SelectFolderBrowserDialog.SelectedPath.ToString());
+                activeProjectName = dinfo.Name;
+            }
+            LoadProjectState();
+        }
+
+        private void CreateNewProject()
+        {
+            string projectPath = ConfigurationManager.AppSettings["filePath"];
+            string projectName = "Project1";
+            if (InputBox("New project", "New project name:", ref projectName) == DialogResult.OK)
+            {
+                //MessageBox.Show("Value = " + value.ToString());
+                if (!Directory.Exists(projectPath + "\\" + projectName.ToString()))
+                {
+                    Directory.CreateDirectory(projectPath + "\\" + projectName.ToString());
+                    activeProjectName = projectName;
+                    activeProjectPath = projectPath;
+                    this.Text += " - " + projectName;
+                }
+                else
+                {
+                    MessageBox.Show($"Project { projectName } exists. Use a ddifferent name");
+                }
+            }
+        }
+
         private void LoadProjectState()
         {
+            if (activeProjectName == "")
+            {
+                LoadExistingProject();
+            }
+
             //Use table rather than List
             DataTableOperations dto = new DataTableOperations();
             TextConnector tc = new TextConnector();
-            string fullPath = tc.FullFilePath("CorrectionData.csv");
+            string fullPath = tc.FullFilePath("CorrectionData.csv", activeProjectName);
+            if (!File.Exists(fullPath))
+            {
+                MessageBox.Show("Correction data file not found.");
+                return;
+            }
             dto.LoadCorrectionPointsFromCSV(fullPath, cps);
             gridCorrectionsList.DataSource = cps;
             gridCorrectionsList.Refresh();
 
             //Load Dictionaly from file
-            fullPath = tc.FullFilePath("ProjectData.csv");
+            fullPath = tc.FullFilePath("ProjectData.csv", activeProjectName);
             // Create dictionary
             DictionalyProcessing dp = new CommonLibrary.DictionalyProcessing();
             Dictionary<string, object> projectData = dp.LoadDictionaryFromCSV(fullPath);
+            if (!File.Exists(fullPath))
+            {
+                MessageBox.Show("Correction data file not found.");
+                return;
+            }
 
             //Load Video
             string video = dp.GetAnyValue<string>("VideoFileName", projectData);
@@ -898,5 +963,48 @@ namespace BuildCorrectionsList
             dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
             rideLoaded = true;
         }
+
+        public static DialogResult InputBox(string title, string promptText, ref string value)
+        {
+            Form form = new Form();
+            Label label = new Label();
+            TextBox textBox = new TextBox();
+            Button buttonOk = new Button();
+            Button buttonCancel = new Button();
+
+            form.Text = title;
+            label.Text = promptText;
+            textBox.Text = value;
+
+            buttonOk.Text = "OK";
+            buttonCancel.Text = "Cancel";
+            buttonOk.DialogResult = DialogResult.OK;
+            buttonCancel.DialogResult = DialogResult.Cancel;
+
+            label.SetBounds(9, 20, 372, 13);
+            textBox.SetBounds(12, 36, 372, 20);
+            buttonOk.SetBounds(228, 72, 75, 23);
+            buttonCancel.SetBounds(309, 72, 75, 23);
+
+            label.AutoSize = true;
+            textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
+            buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            form.ClientSize = new Size(396, 107);
+            form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
+            form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.MinimizeBox = false;
+            form.MaximizeBox = false;
+            form.AcceptButton = buttonOk;
+            form.CancelButton = buttonCancel;
+
+            DialogResult dialogResult = form.ShowDialog();
+            value = textBox.Text;
+            return dialogResult;
+        }
+
     }
 }

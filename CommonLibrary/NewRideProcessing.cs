@@ -66,8 +66,6 @@ namespace CommonLibrary
         /// <returns></returns>
         public void AddPointsToNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt, GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide)
         {
-            // Running total of new video in seconds
-            //videoIndex += videoTime;
             int pointsAdded = 0;
             int pointsMoved = 0;
             // Init vars
@@ -81,20 +79,6 @@ namespace CommonLibrary
             segmentTime = endTime - startTime + 1;
             endCnt = segmentTime - 1; // Last point is added manually
             pointsToAdd = videoTime - segmentTime;
-            //if (startTime > 0)
-            //{
-            //    videoTime += 1;
-            //    segmentTime = endTime - startTime;
-            //    endCnt = segmentTime - 1; // Last point is added manually
-            //    pointsToAdd = videoTime - segmentTime;
-            //}
-            //else
-            //{
-            //    endCnt = endTime;
-            //    segmentTime = endTime - startTime + 1;
-            //    pointsToAdd = videoTime + 1 - segmentTime;
-            //}
-
 
             //Calculate the number of points to add and the interval for adding them
             int pointsInterval = -1;
@@ -197,30 +181,19 @@ namespace CommonLibrary
 
         public void RemovePointsFromNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt,GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide )
         {
-            // Running total of new video in seconds
-            //videoIndex += videoTime;
             int pointsMoved = 0;
             int pointsSkipped = 0;
-            // Init vars
             int pointsToRemove = -1;
-
-
-            //int startCnt = 0;
-            //int endCnt = 0;
             int startCnt = startTime;
             int endCnt = endTime;
-
             int segmentTime = endTime - startTime + 1;
 
-            //endCnt = segmentTime - 1; 
             videoTime++;  // Add 1 second to the video that is lost during subtraction
-            //Calculate the number of points to remove and the remove interval
             pointsToRemove = Math.Abs(videoTime - segmentTime);
             int pointsInterval = CalculateRomovePointsInterval(pointsToRemove, segmentTime);
 
             if (thisNewRide.RIDE.SAMPLES.Count() == 0) // This is the first record so we can't subtract 1 from the counters
             {
-                
                 CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
                 thisNewRideCnt += 1;
                 thisOldRideCnt++;
@@ -240,7 +213,6 @@ namespace CommonLibrary
                     startCnt++;
                     pointsSkipped++;
                 }
-
             }
 
             // THIS NEEDS A METHOD ---Do we need an extra  drop? 

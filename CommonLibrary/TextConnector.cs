@@ -11,9 +11,9 @@ namespace CommonLibrary
     public class TextConnector
     {
 
-        public string FullFilePath(string fileName)
+        public string FullFilePath(string fileName, string projName)
         {
-            return $"{ConfigurationManager.AppSettings["filePath"]}\\{ fileName } ";
+            return $"{ConfigurationManager.AppSettings["filePath"]}\\{ projName }\\{ fileName }";
         }
 
         public List<string> LoadFile(string file)
