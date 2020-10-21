@@ -885,6 +885,7 @@ namespace BuildCorrectionsList
                 DirectoryInfo dinfo = new DirectoryInfo(SelectFolderBrowserDialog.SelectedPath.ToString());
                 activeProjectName = dinfo.Name;
             }
+            this.Text += " --- " + activeProjectName;
             LoadProjectState();
         }
 

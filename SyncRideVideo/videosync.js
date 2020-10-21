@@ -226,7 +226,8 @@ function WriteFile(arrayData) {
     var strLatLons = strRawData.replace(/\r\n/g, '');
     var arrLatLons = strLatLons.split(',');
     var segmentLenth = 600; // 10 minutes 
-    var rideTimeInSecs = arrLatLons.length/2
+    var rideTimeInSecs = arrLatLons.length/2;
+    if (rideTimeInSecs < segmentLenth) segmentLenth = rideTimeInSecs;
     var startEndPoints = getMidPoint(currTimeInSecs, rideTimeInSecs, segmentLenth);  //Center of segment in seconds
      // Seconds to array points 
     startCnt = startEndPoints.startPoint * 2;
