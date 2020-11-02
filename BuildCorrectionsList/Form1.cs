@@ -11,7 +11,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Configuration;
 using System.Diagnostics;
-using System.Configuration;
+//using System.Configuration;
 
 //NuGet installed dependencies
 using Newtonsoft.Json;
@@ -221,6 +221,11 @@ namespace BuildCorrectionsList
                 //VideoLingthInSecs = axWindowsMediaPlayer1.currentMedia.duration;
                 //axWindowsMediaPlayer1.Ctlcontrols.stop();
                 getMovieDurationTimer.Start();
+            } else if (dr == DialogResult.Cancel)
+            {
+                lblLoadVideo.Text = "";
+                videoLoaded = false;
+                Close();
             }
         }
 
@@ -257,6 +262,8 @@ namespace BuildCorrectionsList
                 frmOldRide newFrmOldRide = new frmOldRide();
                 newFrmOldRide.Show();
             }
+            else if (dr == DialogResult.Cancel)
+                MessageBox.Show("User clicked Cancel button");
         }
 
         private void btnCreateLatLons_Click(object sender, EventArgs e)
@@ -480,7 +487,7 @@ namespace BuildCorrectionsList
             getMovieDurationTimer.Tick += new EventHandler(GetDuration);
             getMovieDurationTimer.Interval = 100;
 
-            LoadProjectState();
+            //LoadProjectState();
 
         }
         private void showOnMonitor(int showOnMonitor)
@@ -691,8 +698,8 @@ namespace BuildCorrectionsList
                     videoTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]) - Convert.ToInt32(cps.Rows[i - 1]["VideoTimeInSecs"]);
                     //Debug.WriteLine(fromKm.ToString() + "," + toKm.ToString() + "," + videoTime.ToString());
                     NewRideProcessing newRideProcessing = new NewRideProcessing();
-                    startMarkerTime = newRideProcessing.FindSecondsForDistance(fromKm, ref oldRide);
-                    endMarkerTime = newRideProcessing.FindSecondsForDistance(toKm, ref oldRide);
+                    startMarkerTime = newRideProcessing.FindTimeForDistance(fromKm, ref oldRide);
+                    endMarkerTime = newRideProcessing.FindTimeForDistance(toKm, ref oldRide);
                     //Debug.WriteLine(startMarkerTime.ToString() + "," + endMarkerTime.ToString());
                     if (startMarkerTime == -1 || endMarkerTime == -1)
                     {
@@ -884,9 +891,11 @@ namespace BuildCorrectionsList
                 activeProjectPath = SelectFolderBrowserDialog.SelectedPath.ToString();
                 DirectoryInfo dinfo = new DirectoryInfo(SelectFolderBrowserDialog.SelectedPath.ToString());
                 activeProjectName = dinfo.Name;
+                this.Text += " --- " + activeProjectName;
+                LoadProjectState();
             }
-            this.Text += " --- " + activeProjectName;
-            LoadProjectState();
+            else if (dr == DialogResult.Cancel)
+                MessageBox.Show("User clicked Cancel button");
         }
 
         private void CreateNewProject()

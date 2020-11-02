@@ -102,6 +102,10 @@
       <Project>{e9837d5c-9d88-4e10-a1da-49a0cfafff3a}</Project>
       <Name>HelperFunctionLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MainFormUI\MainFormUI.csproj">
+      <Project>{cf0912ef-c594-4fe9-b228-73805cd72fd0}</Project>
+      <Name>MainFormUI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="AxWMPLib">

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using HelperFunctionLibrary;
@@ -10,7 +11,8 @@ namespace CommonLibrary
 {
     public class NewRideProcessing
     {
-        public int FindSecondsForDistance(double s, ref GoldenCheetahRide thisOldRide)
+        public static List<SAMPLE> testSegment = new List<SAMPLE>();
+        public int FindTimeForDistance(double s, ref GoldenCheetahRide thisOldRide)
         {
             int pos = 0;
             while (thisOldRide.RIDE.SAMPLES[pos].KM < s && pos < thisOldRide.RIDE.SAMPLES.Count - 1)
@@ -66,6 +68,17 @@ namespace CommonLibrary
         /// <returns></returns>
         public void AddPointsToNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt, GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide)
         {
+            testSegment.Clear();
+            // Save temp list
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("scalo" + startTime.ToString() + "-" + endTime.ToString() + ".csv", "scalo");
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+
+
             int pointsAdded = 0;
             int pointsMoved = 0;
             // Init vars
@@ -101,6 +114,8 @@ namespace CommonLibrary
                 // This is the first record.
                 // Move initial point from old route to new route
                 CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                 thisNewRideCnt += 1;
                 thisOldRideCnt++;
                 startCnt++;
@@ -113,6 +128,8 @@ namespace CommonLibrary
                 {
                     // Move initial point from old route to new route
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                    CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                    SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                     thisNewRideCnt += 1;
                     thisOldRideCnt++;
                     pointsMoved++;
@@ -129,6 +146,8 @@ namespace CommonLibrary
             // If the last sample to add equals the segment length, add it right before the end
             int lastSample = -1;
             if ((pointsInterval * pointsToAdd) == endCnt) lastSample = endCnt - 1;
+            if ((pointsInterval * pointsToAdd) >= endCnt) pointsInterval--;
+            //if ((pointsInterval * pointsToRemove) >= segmentTime) pointsInterval--;
 
             //Loop and add points
             int cnt = 1;
@@ -159,6 +178,8 @@ namespace CommonLibrary
                         };
                         // Insert new point in ride
                         thisNewRide.RIDE.SAMPLES.Add(newSample);
+                        testSegment.Add(newSample);
+                        SaveLineToTxt(newSample, fullPath, -1, thisNewRideCnt);
                         thisNewRideCnt += 1;
                         cnt = 1;
                         pointsAdded++;
@@ -166,6 +187,8 @@ namespace CommonLibrary
                 }
                 // Move sample to new ride
                 CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                 thisNewRideCnt += 1;
                 thisOldRideCnt++;
                 cnt++;
@@ -175,12 +198,27 @@ namespace CommonLibrary
             } // END of addong for loop
             // Move last point from old route to new route
             CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+            CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+            SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
             thisNewRideCnt += 1;
             thisOldRideCnt++;
+
+
+            //SaveToTxt(testSegment, fullPath);
+
         }        // ***** addPointsToNewRide ENDS
 
         public void RemovePointsFromNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt,GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide )
         {
+            TextConnector tc = new TextConnector();
+            string fullPath = tc.FullFilePath("scalo" + startTime.ToString() + "-" + endTime.ToString() + ".csv", "scalo");
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+
+            testSegment.Clear();
             int pointsMoved = 0;
             int pointsSkipped = 0;
             int pointsToRemove = -1;
@@ -195,6 +233,8 @@ namespace CommonLibrary
             if (thisNewRide.RIDE.SAMPLES.Count() == 0) // This is the first record so we can't subtract 1 from the counters
             {
                 CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                 thisNewRideCnt += 1;
                 thisOldRideCnt++;
                 startCnt++;
@@ -204,6 +244,8 @@ namespace CommonLibrary
                 if (Math.Abs(thisNewRide.RIDE.SAMPLES[thisNewRideCnt - 1].KM - thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM) > 0.01)
                 {
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                    CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                    SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                     thisNewRideCnt += 1;
                     thisOldRideCnt++;
                     pointsMoved++;
@@ -217,11 +259,16 @@ namespace CommonLibrary
 
             // THIS NEEDS A METHOD ---Do we need an extra  drop? 
             int lastSample = -1;
-            if ((pointsInterval * pointsToRemove) == segmentTime) lastSample = segmentTime - 1;
+            //if ((pointsInterval * pointsToRemove) == segmentTime) lastSample = segmentTime - 1;
+
+
+
+
+            if ((pointsInterval * pointsToRemove) >= segmentTime - 1) pointsInterval--;
             int pointsLeftToRemove = pointsToRemove;
 
 
-            // if the videoTimeSegment is > than (routeSegmentTime/2) we need to remove more point than we keep.
+            // if the videoTimeSegment is > than (routeSegmentTime/2) we need to remove more points than we keep.
             // 
             if (videoTime > (segmentTime/2))
             {
@@ -235,7 +282,8 @@ namespace CommonLibrary
                                    ref thisNewRideCnt,
                                    ref pointsMoved,
                                    ref thisOldRide,
-                                   ref thisNewRide);
+                                   ref thisNewRide,
+                                   ref fullPath);
             } else
             {
                 ConsecutivePointsRemoveProcess(ref startCnt,
@@ -249,16 +297,26 @@ namespace CommonLibrary
                                    ref pointsMoved,
                                    ref thisOldRide,
                                    ref thisNewRide,
-                                   ref videoTime);
+                                   ref videoTime,
+                                   ref fullPath);
             }
 
             // Get last point from old route
             CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+            CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+            SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
             thisNewRideCnt += 1;
             thisOldRideCnt++;
+
+
+            //// Save temp list
+            //TextConnector tc = new TextConnector();
+            //string fullPath = tc.FullFilePath("scalo" + startTime.ToString() + "-"  + endTime.ToString() + ".csv", "scalo");
+            //SaveToTxt(testSegment, fullPath);
+
         }
 
-
+        // Too many points to drop. Rather than removing points just move some points to the new ride
         private void ConsecutivePointsRemoveProcess(    ref int startCnt,
                                                         ref int endCnt,
                                                         ref int pointsInterval,
@@ -270,7 +328,8 @@ namespace CommonLibrary
                                                         ref int pointsMoved,
                                                         ref GoldenCheetahRide thisOldRide,
                                                         ref GoldenCheetahRide thisNewRide,
-                                                        ref int videoTime)
+                                                        ref int videoTime,
+                                                        ref string fullPath)
         {
             int dropCount = (endCnt - startCnt) / videoTime;
             while (startCnt < endCnt)
@@ -280,6 +339,8 @@ namespace CommonLibrary
                 if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
                 {
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                    CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                    SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                     thisNewRideCnt++;
                     thisOldRideCnt++;
                     pointsMoved++;
@@ -299,7 +360,8 @@ namespace CommonLibrary
                                                         ref int thisNewRideCnt,
                                                         ref int pointsMoved,
                                                         ref GoldenCheetahRide thisOldRide,
-                                                        ref GoldenCheetahRide thisNewRide)
+                                                        ref GoldenCheetahRide thisNewRide,
+                                                        ref string fullPath)
         {
             //Loop and remove points
             int cnt = 1;
@@ -310,6 +372,7 @@ namespace CommonLibrary
                     if (pointsLeftToRemove > 0)
                     {
                         cnt = 1;
+                        SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, -1);
                         thisOldRideCnt++;
                         pointsLeftToRemove--;
                         pointsSkipped++;
@@ -319,6 +382,8 @@ namespace CommonLibrary
                 if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
                 {
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                    CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                    SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
                     thisNewRideCnt++;
                     thisOldRideCnt++;
                     cnt++;
@@ -328,6 +393,7 @@ namespace CommonLibrary
                 else
                 {
                     startCnt = endCnt;
+                    //SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, -1);
                     thisNewRideCnt++;
                     thisOldRideCnt++;
                 }
@@ -348,6 +414,56 @@ namespace CommonLibrary
             };
             // Insert new point in ride
             destination.RIDE.SAMPLES.Add(newSample);
+        }
+
+        public static void SaveToTxt(List<SAMPLE> myList, string path)
+        {
+            using (TextWriter tw = new StreamWriter(path))
+            {
+                foreach (var item in myList)
+                {
+                    tw.Write("SECS:" + item.SECS.ToString());
+                    tw.Write(", KM:" + item.KM.ToString());
+                    tw.Write(", KPH:" + item.KPH.ToString());
+                    tw.Write(", LAT:" + item.LAT.ToString());
+                    tw.Write(", LON:" + item.LON.ToString());
+                    tw.WriteLine(", SLOPE:" + item.SLOPE.ToString());
+                    tw.Flush();
+
+                }
+            }
+        }
+
+        public static void SaveLineToTxt(SAMPLE item, string path, int origTime, int newTime)
+        {
+            using (TextWriter tw = new StreamWriter(path, true)) //Append mode
+            {
+                tw.Write("From sec:" + origTime.ToString());
+                tw.Write(" to sec:" + newTime.ToString());
+                tw.Write(" -- SECS:" + item.SECS.ToString());
+                tw.Write(", KM:" + item.KM.ToString());
+                tw.Write(", KPH:" + item.KPH.ToString());
+                tw.Write(", LAT:" + item.LAT.ToString());
+                tw.Write(", LON:" + item.LON.ToString());
+                tw.WriteLine(", SLOPE:" + item.SLOPE.ToString());
+                tw.Flush();
+            }
+        }
+
+        private void CopySampleToTestlist(SAMPLE srcSample, ref List<SAMPLE> destination)
+        {
+            SAMPLE newSample = new SAMPLE()
+            {
+                SECS = srcSample.SECS, //insertPosition,
+                KM = srcSample.KM,
+                KPH = srcSample.KPH,
+                ALT = srcSample.ALT,
+                LAT = srcSample.LAT,
+                LON = srcSample.LON,
+                SLOPE = srcSample.SLOPE
+            };
+            // Insert new point in ride
+            destination.Add(newSample);
         }
 
         private int CalculatePointsDifference(int videoSegmentSecs, int endCounter)
