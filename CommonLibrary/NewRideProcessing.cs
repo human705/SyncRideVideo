@@ -134,6 +134,8 @@ namespace CommonLibrary
                         // Add new sample
                         GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
                         GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+                        double newPointSlope = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].SLOPE + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].SLOPE) / 2;
+                        double newPointSpeed = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KPH + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KPH) / 2;
                         GeoLocMath geoLocMath1 = new GeoLocMath();
                         GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
                         //Get distance between the new point and the one before it
@@ -144,11 +146,13 @@ namespace CommonLibrary
                         {
                             SECS = 999, //insertPosition,
                             KM = newdistanceTravelled,
-                            KPH = videoSpeed,
+                            //KPH = videoSpeed,
+                            KPH = newPointSpeed,
                             ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
                             LAT = newPoint.Latitude,
                             LON = newPoint.Longitude,
-                            SLOPE = -99
+                            //SLOPE = -99
+                            SLOPE = newPointSlope
                         };
                         // Insert new point in ride
                         thisNewRide.RIDE.SAMPLES.Add(newSample);
@@ -208,6 +212,8 @@ namespace CommonLibrary
                     // Add new sample
                     GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
                     GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+                    double newPointSlope = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].SLOPE + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].SLOPE) / 2;
+                    double newPointSpeed = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KPH + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KPH) / 2;
                     GeoLocMath geoLocMath1 = new GeoLocMath();
                     GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
                     //Get distance between the new point and the one before it
@@ -218,11 +224,12 @@ namespace CommonLibrary
                     {
                         SECS = 999, //insertPosition,
                         KM = newdistanceTravelled,
-                        KPH = videoSpeed,
+                        KPH = newPointSpeed,
                         ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
                         LAT = newPoint.Latitude,
                         LON = newPoint.Longitude,
-                        SLOPE = -99
+                        //SLOPE = -99
+                        SLOPE = newPointSlope
                     };
                     // Insert new point in ride
                     thisNewRide.RIDE.SAMPLES.Add(newSample);
