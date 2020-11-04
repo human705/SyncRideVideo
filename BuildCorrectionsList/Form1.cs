@@ -686,40 +686,65 @@ namespace BuildCorrectionsList
 
 
 
-
+            List<SAMPLE> _testSegment = new List<SAMPLE>();
 
             for (int i = 0; i < cps.Rows.Count; i++)
-            //for (int i = 0; i < 5; i++)
+            {
+                try
                 {
-                if (i > 0)  // Read the first 2 records so we can perform calculations between 2 points
-                {
-                    fromKm = Convert.ToDouble(cps.Rows[i - 1]["DistanceFromStart"]);
-                    toKm = Convert.ToDouble(cps.Rows[i]["DistanceFromStart"]);
-                    videoTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]) - Convert.ToInt32(cps.Rows[i - 1]["VideoTimeInSecs"]);
-                    //Debug.WriteLine(fromKm.ToString() + "," + toKm.ToString() + "," + videoTime.ToString());
-                    NewRideProcessing newRideProcessing = new NewRideProcessing();
-                    startMarkerTime = newRideProcessing.FindTimeForDistance(fromKm, ref oldRide);
-                    endMarkerTime = newRideProcessing.FindTimeForDistance(toKm, ref oldRide);
-                    //Debug.WriteLine(startMarkerTime.ToString() + "," + endMarkerTime.ToString());
-                    if (startMarkerTime == -1 || endMarkerTime == -1)
+                    if (i > 0)  // Read the first 2 records so we can perform calculations between 2 points
                     {
-                        MessageBox.Show("Error converting distance to time at row #: " + i.ToString());
-                        return;
-                    }
-                    
-                    if (videoTime > (endMarkerTime - startMarkerTime))
-                    {
-                        //Adding points to ride
-                        newRideProcessing.AddPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
-                    }
-                    else
-                    {
-                        //Removing points from ride
-                        newRideProcessing.RemovePointsFromNewRide(videoTime, startMarkerTime, endMarkerTime, ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
-                    }
+                        fromKm = Convert.ToDouble(cps.Rows[i - 1]["DistanceFromStart"]);
+                        toKm = Convert.ToDouble(cps.Rows[i]["DistanceFromStart"]);
+                        videoTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]) - Convert.ToInt32(cps.Rows[i - 1]["VideoTimeInSecs"]);
+                        //Debug.WriteLine(fromKm.ToString() + "," + toKm.ToString() + "," + videoTime.ToString());
+                        NewRideProcessing newRideProcessing = new NewRideProcessing();
+                        startMarkerTime = newRideProcessing.FindTimeForDistance(fromKm, ref oldRide);
+                        endMarkerTime = newRideProcessing.FindTimeForDistance(toKm, ref oldRide);
+                        //Debug.WriteLine(startMarkerTime.ToString() + "," + endMarkerTime.ToString());
+                        if (startMarkerTime == -1 || endMarkerTime == -1)
+                        {
+                            MessageBox.Show("Error converting distance to time at row #: " + i.ToString());
+                            return;
+                        }
 
-                    //Debug.WriteLine("Calling AddPointsToRide with parms: " + videoTime.ToString() + "," + startMarkerTime.ToString() +
-                    //    "," + endMarkerTime.ToString() + ","+ oldRideCnt.ToString() + ", oldRide");
+                        if (videoTime > (endMarkerTime - startMarkerTime))
+                        {
+                            //Adding points to ride
+                            _testSegment = newRideProcessing.AddPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
+                        }
+                        else
+                        {
+                            //Removing points from ride
+                            _testSegment = newRideProcessing.RemovePointsFromNewRide(videoTime, startMarkerTime, endMarkerTime, ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
+                        }
+
+                        // TESTS
+
+                        int rTime = Convert.ToInt32(cps.Rows[i]["FileTimeInSecs"]);
+                        int vTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]);
+                        bool checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime - 1].LON;
+                        bool checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime - 1].LAT;
+                        bool checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime - 1].KM;
+
+
+                        if (checkLon && checkLat && checkKM)
+                        {
+                            Debug.Write("Check PASSED --- ");
+                        }
+                        else
+                        {
+                            Debug.Write("Check FAILED --- ");
+                        }
+                        Debug.WriteLine("Record: " + i.ToString() + ". ");
+                        //Debug.WriteLine("Calling AddPointsToRide with parms: " + videoTime.ToString() + "," + startMarkerTime.ToString() +
+                        //    "," + endMarkerTime.ToString() + ","+ oldRideCnt.ToString() + ", oldRide");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + " \n \n " + ex.StackTrace);
+                    //throw;
                 }
             }
             //Re sequence list based on SECS

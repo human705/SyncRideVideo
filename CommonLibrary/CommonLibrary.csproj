@@ -48,6 +48,7 @@
     <Compile Include="GoldenCheetahRide.cs" />
     <Compile Include="NewRideProcessing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecentFileListMenu.cs" />
     <Compile Include="TextConnector.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -57,6 +57,54 @@ namespace CommonLibrary
             }
         }
 
+        private int CalculateAddPointsInterval(int _pointsToAdd, int _segmentTime, int _endCnt, int _videoTime)
+        {
+            int _pointsInterval = -99;
+            //Calculate the number of points to add and the interval for adding them
+
+            //if (_pointsToAdd == 1)
+            //{ _pointsInterval = _segmentTime / 2; }
+            //else
+            //{ _pointsInterval = _segmentTime / _pointsToAdd; }
+
+            if (_pointsToAdd == 1)
+            {
+                _pointsInterval = _segmentTime / 2;
+                //return _pointsInterval;
+            }
+
+            if (_pointsToAdd <= (_segmentTime / 2))
+            {
+                _pointsInterval = _segmentTime / _pointsToAdd;
+                //return _pointsInterval;
+            }
+
+
+            // -pointsInterval must have a positive value here.
+
+            if ((_pointsInterval * _pointsToAdd) >= _endCnt) 
+            {
+                _pointsInterval--;
+                return _pointsInterval;
+            }
+            
+            if (_pointsInterval < 1)
+            {
+                _pointsInterval = 1;
+                return _pointsInterval;
+            }
+
+            //if (_pointsToAdd > (_segmentTime /2) && _pointsToAdd < _segmentTime)
+            //{
+            //    //ADD every other point starting with (_segmentTime - _pointsToAdd) / 2
+            //}
+
+            if (_pointsInterval == 1)
+            {
+                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points, pointsInterval = 1");
+             }
+            return -1;
+        }
 
         /// <summary>
         /// Add points to the ride for video sync.
@@ -66,7 +114,7 @@ namespace CommonLibrary
         /// endTime = the # of SECS at the end of the segment
         /// </summary>
         /// <returns></returns>
-        public void AddPointsToNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt, GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide)
+        public List<SAMPLE> AddPointsToNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt, GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide)
         {
             testSegment.Clear();
             // Save temp list
@@ -77,7 +125,6 @@ namespace CommonLibrary
             {
                 File.Delete(fullPath);
             }
-
 
             int pointsAdded = 0;
             int pointsMoved = 0;
@@ -93,13 +140,16 @@ namespace CommonLibrary
             endCnt = segmentTime - 1; // Last point is added manually
             pointsToAdd = videoTime - segmentTime;
 
-            //Calculate the number of points to add and the interval for adding them
-            int pointsInterval = -1;
-            if (pointsToAdd == 1)
-            { pointsInterval = segmentTime / 2; }
-            else
-            { pointsInterval = segmentTime / pointsToAdd; }
-            if (pointsInterval < 1) pointsInterval = 1;
+            ////////Calculate the number of points to add and the interval for adding them
+            int pointsInterval = CalculateAddPointsInterval(pointsToAdd, segmentTime, endCnt, videoTime);
+            //////if (pointsToAdd == 1)
+            //////{ pointsInterval = segmentTime / 2; }
+            //////else
+            //////{ pointsInterval = segmentTime / pointsToAdd; }
+            //////if (pointsInterval < 1) pointsInterval = 1;
+            ///
+
+
 
             //Calculate distance and avg speed for the full segment
             GeoLoc startpoint = new GeoLoc(thisOldRide.RIDE.SAMPLES[startTime].LAT, thisOldRide.RIDE.SAMPLES[startTime].LON);
@@ -146,7 +196,8 @@ namespace CommonLibrary
             // If the last sample to add equals the segment length, add it right before the end
             int lastSample = -1;
             if ((pointsInterval * pointsToAdd) == endCnt) lastSample = endCnt - 1;
-            if ((pointsInterval * pointsToAdd) >= endCnt) pointsInterval--;
+            
+            /////if ((pointsInterval * pointsToAdd) >= endCnt) pointsInterval--;
             //if ((pointsInterval * pointsToRemove) >= segmentTime) pointsInterval--;
 
             //Loop and add points
@@ -203,12 +254,12 @@ namespace CommonLibrary
             thisNewRideCnt += 1;
             thisOldRideCnt++;
 
-
+            return testSegment;
             //SaveToTxt(testSegment, fullPath);
 
         }        // ***** addPointsToNewRide ENDS
 
-        public void RemovePointsFromNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt,GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide )
+        public List<SAMPLE> RemovePointsFromNewRide(int videoTime, int startTime, int endTime, ref int thisOldRideCnt, ref int thisNewRideCnt,GoldenCheetahRide thisOldRide, ref GoldenCheetahRide thisNewRide )
         {
             TextConnector tc = new TextConnector();
             string fullPath = tc.FullFilePath("scalo" + startTime.ToString() + "-" + endTime.ToString() + ".csv", "scalo");
@@ -313,6 +364,7 @@ namespace CommonLibrary
             //TextConnector tc = new TextConnector();
             //string fullPath = tc.FullFilePath("scalo" + startTime.ToString() + "-"  + endTime.ToString() + ".csv", "scalo");
             //SaveToTxt(testSegment, fullPath);
+            return testSegment;
 
         }
 
@@ -331,20 +383,35 @@ namespace CommonLibrary
                                                         ref int videoTime,
                                                         ref string fullPath)
         {
-            int dropCount = (endCnt - startCnt) / videoTime;
-            while (startCnt < endCnt)
+            int dropCount = (endCnt - startCnt) / (videoTime - 1);
+            if (dropCount * (videoTime - 1) > endCnt - startCnt) dropCount--;
+            if (dropCount <= 1)
+            {
+                throw new Exception("ConsecutivePointsRemoveProcess -- Cannot remove all points");
+            }
+
+            int addedCntr = 1;
+            bool done = false;
+            while (startCnt < endCnt && !done)
             {
                 thisOldRideCnt += dropCount;
                 pointsSkipped += dropCount;
                 if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
                 {
-                    CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                    CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
-                    SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
-                    thisNewRideCnt++;
-                    thisOldRideCnt++;
-                    pointsMoved++;
-                    startCnt++;
+                    if (addedCntr < videoTime - 1) // Don't add more points than needed
+                    {
+                        CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                        CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                        SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
+                        thisNewRideCnt++;
+                        //thisOldRideCnt++;
+                        pointsMoved++;
+                        addedCntr++; 
+                    } else
+                    {
+                        done = true;
+                        thisOldRideCnt = endCnt;
+                    }
                 }
                 startCnt += dropCount;
             }
@@ -363,6 +430,11 @@ namespace CommonLibrary
                                                         ref GoldenCheetahRide thisNewRide,
                                                         ref string fullPath)
         {
+            if (pointsInterval <= 1)
+            {
+                throw new Exception("ConsecutivePointsRemoveProcess -- Cannot remove all points");
+            }
+
             //Loop and remove points
             int cnt = 1;
             while (startCnt < endCnt)
@@ -372,7 +444,7 @@ namespace CommonLibrary
                     if (pointsLeftToRemove > 0)
                     {
                         cnt = 1;
-                        SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, -1);
+                        //SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, -1);
                         thisOldRideCnt++;
                         pointsLeftToRemove--;
                         pointsSkipped++;
