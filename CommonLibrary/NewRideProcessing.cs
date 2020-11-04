@@ -80,7 +80,7 @@ namespace CommonLibrary
             }
 
 
-            // -pointsInterval must have a positive value here.
+            // _pointsInterval must have a positive value here.
 
             if ((_pointsInterval * _pointsToAdd) >= _endCnt) 
             {
@@ -105,6 +105,149 @@ namespace CommonLibrary
              }
             return -1;
         }
+
+        // This method will add points to a  route segment if 
+        // the # of points to be added < half of the size of the segment
+        private void LessThanHalfPointsAddProcess(ref int startCnt,
+                                                    ref int endCnt,
+                                                    ref int pointsInterval,
+                                                    ref int lastSample,
+                                                    ref int pointsToAdd,
+                                                    ref int pointsAdded,
+                                                    ref int thisOldRideCnt,
+                                                    ref int thisNewRideCnt,
+                                                    ref int pointsMoved,
+                                                    ref double videoSpeed,
+                                                    ref GoldenCheetahRide thisOldRide,
+                                                    ref GoldenCheetahRide thisNewRide,
+                                                    ref string fullPath)
+        {
+            //Loop and add points
+            int cnt = 1;
+            int loopCnt = 0;
+            while (startCnt <= endCnt) // THIS
+            {
+                if (cnt == pointsInterval || startCnt == lastSample)  // We only add points at pointsInterval
+                {
+                    if (pointsAdded < pointsToAdd) // Stop adding points because pointsInterval is converted to integer and not accurate  
+                    {
+                        // Add new sample
+                        GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
+                        GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+                        GeoLocMath geoLocMath1 = new GeoLocMath();
+                        GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
+                        //Get distance between the new point and the one before it
+                        GeoLocMath geoLocMath2 = new GeoLocMath();
+                        double newdistanceTravelled = geoLocMath2.CalculateDistanceBetweenGeoLocations(newPoint, point1) + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
+                        // Create new sample and add data from above
+                        SAMPLE newSample = new SAMPLE()
+                        {
+                            SECS = 999, //insertPosition,
+                            KM = newdistanceTravelled,
+                            KPH = videoSpeed,
+                            ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
+                            LAT = newPoint.Latitude,
+                            LON = newPoint.Longitude,
+                            SLOPE = -99
+                        };
+                        // Insert new point in ride
+                        thisNewRide.RIDE.SAMPLES.Add(newSample);
+                        testSegment.Add(newSample);
+                        SaveLineToTxt(newSample, fullPath, -1, thisNewRideCnt);
+                        thisNewRideCnt += 1;
+                        cnt = 1;
+                        pointsAdded++;
+                    }
+                }
+                // Move sample to new ride
+                CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
+                thisNewRideCnt += 1;
+                thisOldRideCnt++;
+                cnt++;
+                pointsMoved++;
+                loopCnt++;
+                startCnt++;
+            } // END of addong for loop
+        }
+
+        // This method will add points to a  route segment if 
+        // the # of points to be added > half of the size of the segment
+        // and < the size of the segment
+        private void MoreThanHalfPointsAddProcess(ref int startCnt,
+                                            ref int endCnt,
+                                            ref int pointsInterval,
+                                            ref int lastSample,
+                                            ref int pointsToAdd,
+                                            ref int pointsAdded,
+                                            ref int thisOldRideCnt,
+                                            ref int thisNewRideCnt,
+                                            ref int pointsMoved,
+                                            ref double videoSpeed,
+                                            ref int segmentTime,
+                                            ref GoldenCheetahRide thisOldRide,
+                                            ref GoldenCheetahRide thisNewRide,
+                                            ref string fullPath)
+        {
+            //ADD every other point starting with (_segmentTime - _pointsToAdd) / 2
+
+            //Loop and add points
+            int cnt = 1;
+            //int loopCnt = 0;
+            int startingPoint = (segmentTime - pointsToAdd) / 2;
+
+            while (startCnt <= endCnt) // THIS
+            {
+                //if (cnt == pointsInterval || startCnt == lastSample)  // We only add points at pointsInterval
+                //{
+                //}
+
+                if (pointsAdded < pointsToAdd && startCnt >= startingPoint)  
+                {
+                    // Add new sample
+                    GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
+                    GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+                    GeoLocMath geoLocMath1 = new GeoLocMath();
+                    GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
+                    //Get distance between the new point and the one before it
+                    GeoLocMath geoLocMath2 = new GeoLocMath();
+                    double newdistanceTravelled = geoLocMath2.CalculateDistanceBetweenGeoLocations(newPoint, point1) + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
+                    // Create new sample and add data from above
+                    SAMPLE newSample = new SAMPLE()
+                    {
+                        SECS = 999, //insertPosition,
+                        KM = newdistanceTravelled,
+                        KPH = videoSpeed,
+                        ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
+                        LAT = newPoint.Latitude,
+                        LON = newPoint.Longitude,
+                        SLOPE = -99
+                    };
+                    // Insert new point in ride
+                    thisNewRide.RIDE.SAMPLES.Add(newSample);
+                    testSegment.Add(newSample);
+                    SaveLineToTxt(newSample, fullPath, -1, thisNewRideCnt);
+                    thisNewRideCnt += 1;
+                    cnt = 1;
+                    pointsAdded++;
+                }
+
+                // Move sample to new ride
+                CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+                CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+                SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
+                thisNewRideCnt += 1;
+                thisOldRideCnt++;
+                cnt++;
+                pointsMoved++;
+                //loopCnt++;
+                startCnt++;
+            } // END of addong for loop
+
+
+        }
+
 
         /// <summary>
         /// Add points to the ride for video sync.
@@ -196,57 +339,101 @@ namespace CommonLibrary
             // If the last sample to add equals the segment length, add it right before the end
             int lastSample = -1;
             if ((pointsInterval * pointsToAdd) == endCnt) lastSample = endCnt - 1;
-            
+
             /////if ((pointsInterval * pointsToAdd) >= endCnt) pointsInterval--;
             //if ((pointsInterval * pointsToRemove) >= segmentTime) pointsInterval--;
 
-            //Loop and add points
-            int cnt = 1;
-            int loopCnt = 0;
-            while (startCnt <= endCnt) // THIS
+
+            if (pointsToAdd > (segmentTime / 2) && pointsToAdd < segmentTime)
             {
-                if (cnt == pointsInterval || startCnt == lastSample)  // We only add points at pointsInterval
-                {
-                    if (pointsAdded < pointsToAdd) // Stop adding points because pointsInterval is converted to integer and not accurate  
-                    {
-                        // Add new sample
-                        GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
-                        GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
-                        GeoLocMath geoLocMath1 = new GeoLocMath();
-                        GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
-                        //Get distance between the new point and the one before it
-                        double newdistanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(newPoint, point1) + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
-                        // Create new sample and add data from above
-                        SAMPLE newSample = new SAMPLE()
-                        {
-                            SECS = 999, //insertPosition,
-                            KM = newdistanceTravelled,
-                            KPH = videoSpeed,
-                            ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
-                            LAT = newPoint.Latitude,
-                            LON = newPoint.Longitude,
-                            SLOPE = -99
-                        };
-                        // Insert new point in ride
-                        thisNewRide.RIDE.SAMPLES.Add(newSample);
-                        testSegment.Add(newSample);
-                        SaveLineToTxt(newSample, fullPath, -1, thisNewRideCnt);
-                        thisNewRideCnt += 1;
-                        cnt = 1;
-                        pointsAdded++;
-                    }
-                }
-                // Move sample to new ride
-                CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
-                CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
-                SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
-                thisNewRideCnt += 1;
-                thisOldRideCnt++;
-                cnt++;
-                pointsMoved++;
-                loopCnt++;
-                startCnt++;
-            } // END of addong for loop
+                //ADD every other point starting with (_segmentTime - _pointsToAdd) / 2
+                MoreThanHalfPointsAddProcess(ref startCnt,
+                                ref endCnt,
+                                ref pointsInterval,
+                                ref lastSample,
+                                ref pointsToAdd,
+                                ref pointsAdded,
+                                ref thisOldRideCnt,
+                                ref thisNewRideCnt,
+                                ref pointsMoved,
+                                ref videoSpeed,
+                                ref segmentTime,
+                                ref thisOldRide,
+                                ref thisNewRide,
+                                ref fullPath);
+            } else
+            {
+                LessThanHalfPointsAddProcess(ref startCnt,
+                                ref endCnt,
+                                ref pointsInterval,
+                                ref lastSample,
+                                ref pointsToAdd,
+                                ref pointsAdded,
+                                ref thisOldRideCnt,
+                                ref thisNewRideCnt,
+                                ref pointsMoved,
+                                ref videoSpeed,
+                                ref thisOldRide,
+                                ref thisNewRide,
+                                ref fullPath);
+            }
+
+
+
+
+
+            ////////Loop and add points
+            //////int cnt = 1;
+            //////int loopCnt = 0;
+            //////while (startCnt <= endCnt) // THIS
+            //////{
+            //////    if (cnt == pointsInterval || startCnt == lastSample)  // We only add points at pointsInterval
+            //////    {
+            //////        if (pointsAdded < pointsToAdd) // Stop adding points because pointsInterval is converted to integer and not accurate  
+            //////        {
+            //////            // Add new sample
+            //////            GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
+            //////            GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+            //////            GeoLocMath geoLocMath1 = new GeoLocMath();
+            //////            GeoLoc newPoint = geoLocMath1.CalculateMidPoint(point1, point2);
+            //////            //Get distance between the new point and the one before it
+            //////            double newdistanceTravelled = geoLocMath.CalculateDistanceBetweenGeoLocations(newPoint, point1) + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
+            //////            // Create new sample and add data from above
+            //////            SAMPLE newSample = new SAMPLE()
+            //////            {
+            //////                SECS = 999, //insertPosition,
+            //////                KM = newdistanceTravelled,
+            //////                KPH = videoSpeed,
+            //////                ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
+            //////                LAT = newPoint.Latitude,
+            //////                LON = newPoint.Longitude,
+            //////                SLOPE = -99
+            //////            };
+            //////            // Insert new point in ride
+            //////            thisNewRide.RIDE.SAMPLES.Add(newSample);
+            //////            testSegment.Add(newSample);
+            //////            SaveLineToTxt(newSample, fullPath, -1, thisNewRideCnt);
+            //////            thisNewRideCnt += 1;
+            //////            cnt = 1;
+            //////            pointsAdded++;
+            //////        }
+            //////    }
+            //////    // Move sample to new ride
+            //////    CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
+            //////    CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
+            //////    SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, thisNewRideCnt);
+            //////    thisNewRideCnt += 1;
+            //////    thisOldRideCnt++;
+            //////    cnt++;
+            //////    pointsMoved++;
+            //////    loopCnt++;
+            //////    startCnt++;
+            //////} // END of addong for loop
+
+
+
+
+
             // Move last point from old route to new route
             CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
             CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
@@ -451,7 +638,7 @@ namespace CommonLibrary
                         startCnt++;
                     }
                 }
-                if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
+                if (thisOldRideCnt <= thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
                 {
                     CopySampleToNewlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref thisNewRide);
                     CopySampleToTestlist(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], ref testSegment);
