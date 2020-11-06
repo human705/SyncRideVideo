@@ -12,7 +12,6 @@ namespace HelperFunctionLibrary
         //private GeoLoc point2 { get; set; }
 
         private GeoLoc _point1;
-
         public GeoLoc point1
         {
             get { return _point1; }
@@ -26,20 +25,14 @@ namespace HelperFunctionLibrary
             get { return _point2; }
             set { _point2 = value; }
         }
-
-
-
-        public GeoLocMath()
-        {
-
-        }
+        //public GeoLocMath()
+        //{
+        //}
         public GeoLocMath(GeoLoc p1, GeoLoc p2)
         {
             this._point1 = p1;
             this._point2 = p2;
         }
-
-        
         
         static readonly double radius = 6371; // earth's mean radius in km
         static public ConvertDegressRadians convertDegressRadians = new ConvertDegressRadians();
