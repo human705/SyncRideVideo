@@ -113,7 +113,7 @@ namespace CommonLibrary
         private void LessThanHalfPointsAddProcess(ref int startCnt,
                                                     ref int endCnt,
                                                     ref int pointsInterval,
-                                                    ref int lastSample,
+                                                    //ref int lastSample,
                                                     ref int pointsToAdd,
                                                     ref int pointsAdded,
                                                     ref int thisOldRideCnt,
@@ -129,7 +129,7 @@ namespace CommonLibrary
             int loopCnt = 0;
             while (startCnt <= endCnt) // THIS
             {
-                if (cnt == pointsInterval || startCnt == lastSample)  // We only add points at pointsInterval
+                if (cnt == pointsInterval)// || startCnt == lastSample)  // We only add points at pointsInterval
                 {
                     if (pointsAdded < pointsToAdd) // Stop adding points because pointsInterval is converted to integer and not accurate  
                     {
@@ -185,7 +185,7 @@ namespace CommonLibrary
         private void MoreThanHalfPointsAddProcess(ref int startCnt,
                                             ref int endCnt,
                                             ref int pointsInterval,
-                                            ref int lastSample,
+                                            //ref int lastSample,
                                             ref int pointsToAdd,
                                             ref int pointsAdded,
                                             ref int thisOldRideCnt,
@@ -342,7 +342,7 @@ namespace CommonLibrary
                 MoreThanHalfPointsAddProcess(ref startCnt,
                                 ref endCnt,
                                 ref pointsInterval,
-                                ref lastSample,
+                                //ref lastSample,
                                 ref pointsToAdd,
                                 ref pointsAdded,
                                 ref thisOldRideCnt,
@@ -357,7 +357,7 @@ namespace CommonLibrary
                 LessThanHalfPointsAddProcess(ref startCnt,
                                 ref endCnt,
                                 ref pointsInterval,
-                                ref lastSample,
+                                //ref lastSample,
                                 ref pointsToAdd,
                                 ref pointsAdded,
                                 ref thisOldRideCnt,
@@ -461,7 +461,7 @@ namespace CommonLibrary
 
             testSegment.Clear();
             int pointsMoved = 0;
-            int pointsSkipped = 0;
+            //int pointsSkipped = 0;
             int pointsToRemove = -1;
             int startCnt = startTime;
             int endCnt = endTime;
@@ -500,12 +500,12 @@ namespace CommonLibrary
                 else // Based on distance point already exists
                 {
                     startCnt++;
-                    pointsSkipped++;
+                    //pointsSkipped++;
                 }
             }
 
             // THIS NEEDS A METHOD ---Do we need an extra  drop? 
-            int lastSample = -1;
+            //int lastSample = -1;
             //if ((pointsInterval * pointsToRemove) == segmentTime) lastSample = segmentTime - 1;
 
 
@@ -522,10 +522,10 @@ namespace CommonLibrary
                 NonConsecutivePointsRemoveProcess(ref startCnt,
                                    ref endCnt,
                                    ref pointsInterval,
-                                   ref lastSample,
+                                   //ref lastSample,
                                    ref pointsLeftToRemove,
                                    ref thisOldRideCnt,
-                                   ref pointsSkipped,
+                                   //ref pointsSkipped,
                                    ref thisNewRideCnt,
                                    ref pointsMoved,
                                    ref thisOldRide,
@@ -536,10 +536,10 @@ namespace CommonLibrary
                 ConsecutivePointsRemoveProcess(ref startCnt,
                                    ref endCnt,
                                    ref pointsInterval,
-                                   ref lastSample,
+                                   //ref lastSample,
                                    ref pointsLeftToRemove,
                                    ref thisOldRideCnt,
-                                   ref pointsSkipped,
+                                   //ref pointsSkipped,
                                    ref thisNewRideCnt,
                                    ref pointsMoved,
                                    ref thisOldRide,
@@ -568,10 +568,10 @@ namespace CommonLibrary
         private void ConsecutivePointsRemoveProcess(    ref int startCnt,
                                                         ref int endCnt,
                                                         ref int pointsInterval,
-                                                        ref int lastSample,
+                                                        //ref int lastSample,
                                                         ref int pointsLeftToRemove,
                                                         ref int thisOldRideCnt,
-                                                        ref int pointsSkipped,
+                                                        //ref int pointsSkipped,
                                                         ref int thisNewRideCnt,
                                                         ref int pointsMoved,
                                                         ref GoldenCheetahRide thisOldRide,
@@ -591,7 +591,7 @@ namespace CommonLibrary
             while (startCnt < endCnt && !done)
             {
                 thisOldRideCnt += dropCount;
-                pointsSkipped += dropCount;
+                //pointsSkipped += dropCount;
                 if (thisOldRideCnt < thisOldRide.RIDE.SAMPLES.Count - 2) // Guard aginst EOF
                 {
                     if (addedCntr < videoTime - 1) // Don't add more points than needed
@@ -616,10 +616,10 @@ namespace CommonLibrary
         private void NonConsecutivePointsRemoveProcess( ref int startCnt,
                                                         ref int endCnt,
                                                         ref int pointsInterval,
-                                                        ref int lastSample,
+                                                        //ref int lastSample,
                                                         ref int pointsLeftToRemove,
                                                         ref int thisOldRideCnt,
-                                                        ref int pointsSkipped,
+                                                        //ref int pointsSkipped,
                                                         ref int thisNewRideCnt,
                                                         ref int pointsMoved,
                                                         ref GoldenCheetahRide thisOldRide,
@@ -635,15 +635,14 @@ namespace CommonLibrary
             int cnt = 1;
             while (startCnt < endCnt)
             {
-                if (cnt == pointsInterval || startCnt == lastSample) // Skip sample to simulate removing sample in new ride
+                if (cnt == pointsInterval)// || startCnt == lastSample) // Skip sample to simulate removing sample in new ride
                 {   // Don't remove more than pointsToRemove
                     if (pointsLeftToRemove > 0)
                     {
                         cnt = 1;
-                        //SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, -1);
                         thisOldRideCnt++;
                         pointsLeftToRemove--;
-                        pointsSkipped++;
+                        //pointsSkipped++;
                         startCnt++;
                     }
                 }
@@ -663,7 +662,6 @@ namespace CommonLibrary
                     else
                     {
                         startCnt = endCnt;
-                        //SaveLineToTxt(thisOldRide.RIDE.SAMPLES[thisOldRideCnt], fullPath, thisOldRideCnt, -1);
                         thisNewRideCnt++;
                         thisOldRideCnt++;
                     } 
