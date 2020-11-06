@@ -48,6 +48,7 @@ namespace BuildCorrectionsList
 
             lblVideoSecs.Size = new Size(100, 30);
             lblVideoSecs.Text += Form1.VideoLingthInSecs.ToString();
+            btnReWriteSecs.Visible = false;
         }
 
         private void btnReWriteSecs_Click(object sender, EventArgs e)
@@ -60,7 +61,7 @@ namespace BuildCorrectionsList
             }
             dgViewOldRide.Refresh();
             DataTableOperations dto = new DataTableOperations();
-            dto.UpdateRideListSamplesFromTable(Form1.dtOldRide, Form1.newRide);
+            //dto.UpdateRideListSamplesFromTable(Form1.dtOldRide, Form1.newRide);
         }
 
     }

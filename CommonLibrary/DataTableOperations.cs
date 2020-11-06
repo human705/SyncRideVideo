@@ -145,7 +145,7 @@ namespace CommonLibrary
             dt.Columns.Add("lon", typeof(double));
             dt.Columns.Add("slope", typeof(double));
 
-            for (int i = 0; i < thisRide.RIDE.SAMPLES.Count() - 1; i++)
+            for (int i = 0; i < thisRide.RIDE.SAMPLES.Count(); i++)
             {
                 DataRow dr = dt.NewRow();
 
@@ -163,6 +163,7 @@ namespace CommonLibrary
                 return dt;
         }
 
+        //Only needed if we allow the user to edit the table manually
         public void UpdateRideListSamplesFromTable(DataTable thisDataTable, GoldenCheetahRide thisGCRide)
         {
             thisGCRide.RIDE.SAMPLES = null;

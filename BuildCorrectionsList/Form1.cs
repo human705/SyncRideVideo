@@ -274,7 +274,7 @@ namespace BuildCorrectionsList
                 oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
                 DataTableOperations dto = new DataTableOperations();
                 dtOldRide = dto.LoadTableFromGCRideList(oldRide);
-                dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
+                //dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
                 rideLoaded = true;
                 frmOldRide newFrmOldRide = new frmOldRide();
                 newFrmOldRide.Show();
@@ -506,6 +506,16 @@ namespace BuildCorrectionsList
             btnCreateNewRide.Enabled = false;
 
             //LoadProjectState();
+            //Load list of recent files 
+            LoadRecentList();
+            foreach (string item in MRUlist)
+            {
+                //populating menu
+                ToolStripMenuItem fileRecent =
+                 new ToolStripMenuItem(item, null, RecentFile_click);
+                //add the menu to "recent" menu
+                recentToolStripMenuItem.DropDownItems.Add(fileRecent);
+            }
 
         }
         private void showOnMonitor(int showOnMonitor)
@@ -549,30 +559,37 @@ namespace BuildCorrectionsList
 
         }
 
+
+        /// <summary>
+        /// Show dialog to save existing project changes
+        /// </summary>
+        private void saveProjectChanges()
+        {
+            DialogResult dialogAnswer = MessageBox.Show("Save changes to the project before loading?",
+                "Project changed",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2);
+
+            if (dialogAnswer == DialogResult.Yes)
+            {
+                saveProjectState();
+                LoadProjectState();
+            }
+            else if (dialogAnswer == DialogResult.No)
+            {
+                LoadProjectState();
+            }
+        }
+
+
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (projectStateChanged)
             {
-                DialogResult dialogAnswer = MessageBox.Show("Save changes to the project before loading?",
-                    "Project changed",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button2);
-
-                if (dialogAnswer == DialogResult.Yes)
-                {
-                    saveProjectState();
-                    LoadProjectState();
-                } else if (dialogAnswer == DialogResult.No)
-                {
-                    LoadProjectState();
-                }
-            } else
-            {
-                LoadExistingProject();
-                //LoadProjectState();
-            }
-            
+                saveProjectChanges();
+            } 
+            LoadExistingProject();
         }
 
         private void clearGridToolStripMenuItem_Click(object sender, EventArgs e)
@@ -902,6 +919,7 @@ namespace BuildCorrectionsList
             }
         }
 
+
         private void saveProjectState()
         {
             if (activeProjectName == "")
@@ -944,6 +962,9 @@ namespace BuildCorrectionsList
             CreateNewProject();
         }
 
+        /// <summary>
+        /// Show dialog for the user to pick a project to open
+        /// </summary>
         private void LoadExistingProject()
         {
             string projectPath = ConfigurationManager.AppSettings["filePath"];
@@ -957,6 +978,7 @@ namespace BuildCorrectionsList
                 activeProjectName = dinfo.Name;
                 this.Text += " --- " + activeProjectName;
                 LoadProjectState();
+                SaveRecentFile(activeProjectName);
             }
             else if (dr == DialogResult.Cancel)
                 MessageBox.Show("User clicked Cancel button");
@@ -983,6 +1005,11 @@ namespace BuildCorrectionsList
             }
         }
 
+
+        /// <summary>
+        /// Load selected project state if a project is selected.
+        /// If a project is not selected, it will open a dialog
+        /// </summary>
         private void LoadProjectState()
         {
             if (activeProjectName == "")
@@ -1030,15 +1057,13 @@ namespace BuildCorrectionsList
             string injson = File.ReadAllText(rideName);
             lblRideName.Text = rideName;
             oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
-            //DataGridOldRide.DataSource = oldRide.RIDE.SAMPLES;
-            //DataGridOldRide.Refresh();
-            //DataTableOperations dto = new DataTableOperations();
             dtOldRide = dto.LoadTableFromGCRideList(oldRide);
-            dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
+            //dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
             rideLoaded = true;
 
             btnCreateNewRide.Enabled = true;
         }
+
 
         public static DialogResult InputBox(string title, string promptText, ref string value)
         {
@@ -1081,6 +1106,98 @@ namespace BuildCorrectionsList
             value = textBox.Text;
             return dialogResult;
         }
+
+
+        ///MRUList
+
+        Queue<string> MRUlist = new Queue<string>();
+        int MRUnumber = 5;
+        private void SaveRecentFile(string path)
+        {
+            //clear all recent list from menu
+            recentToolStripMenuItem.DropDownItems.Clear();
+            LoadRecentList(); //load list from file
+            if (!(MRUlist.Contains(path))) //prevent duplication on recent list
+                MRUlist.Enqueue(path); //insert given path into list
+                                       //keep list number not exceeded the given value
+            while (MRUlist.Count > MRUnumber)
+            {
+                MRUlist.Dequeue();
+            }
+            foreach (string item in MRUlist)
+            {
+                //create new menu for each item in list
+                ToolStripMenuItem fileRecent = new ToolStripMenuItem
+                             (item, null, RecentFile_click);
+                //add the menu to "recent" menu
+                recentToolStripMenuItem.DropDownItems.Add(fileRecent);
+            }
+            //writing menu list to file
+            //create file called "Recent.txt" located on app folder
+            string projectPath = ConfigurationManager.AppSettings["filePath"];
+            if (!String.IsNullOrEmpty(projectPath))
+            {
+                StreamWriter stringToWrite =
+                    new StreamWriter(projectPath + "\\Recent.txt");
+                foreach (string item in MRUlist)
+                {
+                    stringToWrite.WriteLine(item); //write list to stream
+                }
+                stringToWrite.Flush(); //write stream to file
+                stringToWrite.Close(); //close the stream and reclaim memory 
+            } else
+            {
+                MessageBox.Show("Call to appsetings for filepath returned an empty string!");
+                return;
+            }
+        }
+
+        private void LoadRecentList()
+        {//try to load file. If file isn't found, do nothing
+            MRUlist.Clear();
+            try
+            {
+                //read file stream
+                string projectPath = ConfigurationManager.AppSettings["filePath"];
+                if (File.Exists(projectPath + "\\Recent.txt"))
+                {
+                    StreamReader listToRead =
+                    new StreamReader(projectPath + "\\Recent.txt");
+                    string line;
+                    while ((line = listToRead.ReadLine()) != null) //read each line until end of file
+                        MRUlist.Enqueue(line); //insert to list
+                    listToRead.Close(); //close the stream
+                } else
+                {
+                    using (StreamWriter w = File.AppendText(projectPath + "\\Recent.txt")) ;
+                }
+
+            }
+            catch (Exception) {
+                throw;
+            }
+        }
+
+        private void RecentFile_click(object sender, EventArgs e)
+        {
+            //just load a file
+            activeProjectName = sender.ToString();
+            if (projectStateChanged)
+            {
+                saveProjectChanges();
+            }
+            LoadProjectState();
+        }
+
+
+
+
+
+
+
+
+
+
 
     }
 }

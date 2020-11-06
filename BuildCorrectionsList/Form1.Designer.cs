@@ -35,6 +35,8 @@
             this.btnLoadVideo = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CreateProjtoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.correctionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,9 +66,8 @@
             this.contextMenuStripCorrectionsGrid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.CreateProjtoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.SelectFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.recentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.flowLayoutPanelButtons.SuspendLayout();
@@ -119,6 +120,7 @@
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.recentToolStripMenuItem,
             this.fileToolStripMenuItem,
             this.correctionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -138,17 +140,29 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "&File";
             // 
+            // CreateProjtoolStripMenuItem
+            // 
+            this.CreateProjtoolStripMenuItem.Name = "CreateProjtoolStripMenuItem";
+            this.CreateProjtoolStripMenuItem.Size = new System.Drawing.Size(185, 26);
+            this.CreateProjtoolStripMenuItem.Text = "Create Project";
+            this.CreateProjtoolStripMenuItem.Click += new System.EventHandler(this.CreateProjtoolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(182, 6);
+            // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(185, 26);
             this.openToolStripMenuItem.Text = "&Open Project";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(185, 26);
             this.saveToolStripMenuItem.Text = "&Save Project";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -165,14 +179,14 @@
             // openFileToolStripMenuItem
             // 
             this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
             this.openFileToolStripMenuItem.Text = "Open File";
             this.openFileToolStripMenuItem.Click += new System.EventHandler(this.openFileToolStripMenuItem_Click);
             // 
             // clearGridToolStripMenuItem
             // 
             this.clearGridToolStripMenuItem.Name = "clearGridToolStripMenuItem";
-            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
             this.clearGridToolStripMenuItem.Text = "Clear grid";
             this.clearGridToolStripMenuItem.Click += new System.EventHandler(this.clearGridToolStripMenuItem_Click);
             // 
@@ -415,17 +429,11 @@
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // CreateProjtoolStripMenuItem
+            // recentToolStripMenuItem
             // 
-            this.CreateProjtoolStripMenuItem.Name = "CreateProjtoolStripMenuItem";
-            this.CreateProjtoolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.CreateProjtoolStripMenuItem.Text = "Create Project";
-            this.CreateProjtoolStripMenuItem.Click += new System.EventHandler(this.CreateProjtoolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
+            this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
+            this.recentToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
+            this.recentToolStripMenuItem.Text = "Recent";
             // 
             // Form1
             // 
@@ -498,6 +506,7 @@
         private System.Windows.Forms.ToolStripMenuItem CreateProjtoolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.FolderBrowserDialog SelectFolderBrowserDialog;
+        private System.Windows.Forms.ToolStripMenuItem recentToolStripMenuItem;
     }
 }
 

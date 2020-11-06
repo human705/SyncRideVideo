@@ -17,7 +17,7 @@ namespace CommonLibrary
         public int FindTimeForDistance(double s, ref GoldenCheetahRide thisOldRide)
         {
             int pos = 0;
-            while (thisOldRide.RIDE.SAMPLES[pos].KM < s && pos < thisOldRide.RIDE.SAMPLES.Count - 1)
+            while (thisOldRide.RIDE.SAMPLES[pos].KM < s && pos <= thisOldRide.RIDE.SAMPLES.Count - 1)
             {
                 pos += 1;
             }
