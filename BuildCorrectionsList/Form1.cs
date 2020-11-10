@@ -220,6 +220,10 @@ namespace BuildCorrectionsList
                 MessageBox.Show("No data in the clipboard!!");
             }
             btnCreateNewRide.Enabled = true;
+
+            // Go to the bottom of the grid.
+            gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
+
         }
         private void btnLoadVideo_Click(object sender, EventArgs e)
         {
