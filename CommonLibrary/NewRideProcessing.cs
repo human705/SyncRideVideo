@@ -84,10 +84,10 @@ namespace CommonLibrary
 
             // _pointsInterval must have a positive value here.
 
-            if ((_pointsInterval * _pointsToAdd) >= _endCnt) 
+            if ((_pointsInterval * _pointsToAdd) >= _endCnt && _pointsInterval > 2) 
             {
                 _pointsInterval--;
-                return _pointsInterval;
+                //return _pointsInterval;
             }
             
             if (_pointsInterval < 1)
@@ -202,7 +202,7 @@ namespace CommonLibrary
             //int loopCnt = 0;
             int startingPoint = (segmentTime - pointsToAdd) / 2;
 
-            while (startCnt <= endCnt) // THIS
+            while (startCnt <= endCnt) 
             {
                 if (pointsAdded < pointsToAdd && startCnt >= startingPoint)  
                 {
@@ -246,8 +246,77 @@ namespace CommonLibrary
                 cnt++;
                 pointsMoved++;
                 startCnt++;
-            } // END of addong for loop
+            } // END of adding for loop
+
+            // Need to check if all points needed were added.
+            // If not, loop and add them
+
+            while (pointsAdded < pointsToAdd)
+            {
+
+                AddNewPoint( 
+                    ref thisOldRideCnt,
+                    ref thisNewRideCnt,
+                    ref pointsAdded,
+                    ref thisOldRide,
+                    ref thisNewRide,
+                    ref fullPath);
+
+            }
+
+            if (pointsAdded < pointsToAdd)
+            {
+                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + 
+                    $" -- Only added {pointsAdded} out of {pointsToAdd} ");
+            }
         }
+
+
+
+        /// <summary>
+        /// Add a new point between 2 adjacent ones
+        /// </summary>
+        private void  AddNewPoint (
+                                ref int thisOldRideCnt,
+                                ref int thisNewRideCnt,
+                                ref int pointsAdded,
+                                ref GoldenCheetahRide thisOldRide,
+                                ref GoldenCheetahRide thisNewRide,
+                                ref string fullPath)
+        {
+
+
+            // Add new sample
+            GeoLoc point1 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].LON);
+            GeoLoc point2 = new GeoLoc(thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LAT, thisOldRide.RIDE.SAMPLES[thisOldRideCnt].LON);
+            double newPointSlope = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].SLOPE + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].SLOPE) / 2;
+            double newPointSpeed = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KPH + thisOldRide.RIDE.SAMPLES[thisOldRideCnt].KPH) / 2;
+
+            GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
+            GeoLoc newPoint = geoLocM1.CalcMidPoint();
+            geoLocM1.point1 = newPoint;
+            geoLocM1.point2 = point1;
+            double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].KM;
+            // Create new sample and add data from above
+            SAMPLE newSample = new SAMPLE()
+            {
+                SECS = 999, //insertPosition,
+                KM = newdistanceTravelled,
+                KPH = newPointSpeed,
+                ALT = (thisOldRide.RIDE.SAMPLES[thisOldRideCnt].ALT + thisOldRide.RIDE.SAMPLES[thisOldRideCnt - 1].ALT) / 2,
+                LAT = newPoint.Latitude,
+                LON = newPoint.Longitude,
+                SLOPE = newPointSlope
+            };
+            // Insert new point in ride
+            thisNewRide.RIDE.SAMPLES.Add(newSample);
+            testSegment.Add(newSample);
+            SaveLineToTxt(newSample, fullPath, -1, thisNewRideCnt);
+            thisNewRideCnt += 1;
+
+            pointsAdded++;
+        }
+
 
 
         /// <summary>

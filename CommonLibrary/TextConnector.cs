@@ -16,6 +16,11 @@ namespace CommonLibrary
             return $"{ConfigurationManager.AppSettings["filePath"]}\\{ projName }\\{ fileName }";
         }
 
+        public string FullProjPath(string projName)
+        {
+            return $"{ConfigurationManager.AppSettings["filePath"]}\\{ projName }";
+        }
+
         public List<string> LoadFile(string file)
         {
             if (!File.Exists(file))

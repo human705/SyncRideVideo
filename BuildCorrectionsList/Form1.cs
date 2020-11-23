@@ -1030,6 +1030,8 @@ namespace BuildCorrectionsList
                 MessageBox.Show("Correction data file not found.");
                 return;
             }
+
+            activeProjectPath = tc.FullProjPath(activeProjectName);
             dto.LoadCorrectionPointsFromCSV(fullPath, cps);
             gridCorrectionsList.DataSource = cps;
             gridCorrectionsList.Refresh();
