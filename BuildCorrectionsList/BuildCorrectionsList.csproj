@@ -8,7 +8,7 @@
     <ProjectGuid>{4563F738-3495-4D64-8297-0ED2D00629CF}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>BuildCorrectionsList</RootNamespace>
-    <AssemblyName>BuildCorrectionsList</AssemblyName>
+    <AssemblyName>SyncRideVideo</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -84,6 +84,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmMapView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMapView.Designer.cs">
+      <DependentUpon>frmMapView.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmOldRide.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +100,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMapView.resx">
+      <DependentUpon>frmMapView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmOldRide.resx">
       <DependentUpon>frmOldRide.cs</DependentUpon>

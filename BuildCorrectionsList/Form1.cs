@@ -502,6 +502,8 @@ namespace BuildCorrectionsList
 
         private void FormLoaded(object sender, EventArgs e)
         {
+
+            RestoreWindowLocation();
             //showOnMonitor(1);
             DataTableOperations dto = new DataTableOperations();
             cps = dto.CreateCorrectionPointsTable();
@@ -701,7 +703,7 @@ namespace BuildCorrectionsList
                     saveProjectState();
                 }
             }
-
+            SaveWindowLocation();
         }
 
         private void btnCreateNewRide_Click(object sender, EventArgs e)
@@ -1184,6 +1186,19 @@ namespace BuildCorrectionsList
             }
         }
 
+        private void showMapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (rideLoaded)
+            {
+                frmMapView newFrmMapView = new frmMapView();
+                newFrmMapView.Show();
+            }
+            else
+            {
+                MessageBox.Show("No Ride loaded!");
+            }
+        }
+
         private void RecentFile_click(object sender, EventArgs e)
         {
             //just load a file
@@ -1197,7 +1212,51 @@ namespace BuildCorrectionsList
 
 
 
-
+        private void RestoreWindowLocation()
+        {
+            if (Properties.Settings.Default.w0Max)
+            {
+                Location = Properties.Settings.Default.w0Loc;
+                WindowState = FormWindowState.Maximized;
+                Size = Properties.Settings.Default.w0Size;
+            }
+            else if (Properties.Settings.Default.w0Min)
+            {
+                Location = Properties.Settings.Default.w0Loc;
+                WindowState = FormWindowState.Minimized;
+                Size = Properties.Settings.Default.w0Size;
+            }
+            else
+            {
+                Location = Properties.Settings.Default.w0Loc;
+                Size = Properties.Settings.Default.w0Size;
+            }
+        }
+        private void SaveWindowLocation()
+        {
+            if (WindowState == FormWindowState.Maximized)
+            {
+                Properties.Settings.Default.w0Loc = RestoreBounds.Location;
+                Properties.Settings.Default.w0Size = RestoreBounds.Size;
+                Properties.Settings.Default.w0Max = true;
+                Properties.Settings.Default.w0Min = false;
+            }
+            else if (WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.w0Loc = Location;
+                Properties.Settings.Default.w0Size = Size;
+                Properties.Settings.Default.w0Max = false;
+                Properties.Settings.Default.w0Min = false;
+            }
+            else
+            {
+                Properties.Settings.Default.w0Loc = RestoreBounds.Location;
+                Properties.Settings.Default.w0Size = RestoreBounds.Size;
+                Properties.Settings.Default.w0Max = false;
+                Properties.Settings.Default.w0Min = true;
+            }
+            Properties.Settings.Default.Save();
+        }
 
 
 
