@@ -42,7 +42,7 @@ namespace BuildCorrectionsList
     public partial class Form1 : Form
     {
         List<CorrectionPoint> CorrectionPoints = new List<CorrectionPoint>();
-        DataTable cps = new DataTable();
+        public static DataTable cps = new DataTable();
         public static DataTable dtOldRide = new DataTable();
         public static double VideoLingthInSecs = 0;
 
@@ -52,6 +52,7 @@ namespace BuildCorrectionsList
         int formWidth, formHeight;
         static bool rideLoaded = false;
         static bool videoLoaded = false;
+        static public string mapLocation = "";
 
         public static GoldenCheetahRide oldRide = new GoldenCheetahRide();
         public static GoldenCheetahRide newRide = new GoldenCheetahRide();
@@ -199,25 +200,30 @@ namespace BuildCorrectionsList
                 return;
             }
             
-            if (Clipboard.ContainsText(TextDataFormat.Text))
+
+            if (cur_state == WMPLib.WMPPlayState.wmppsPaused || cur_state == WMPLib.WMPPlayState.wmppsPlaying)
             {
-                if (cur_state == WMPLib.WMPPlayState.wmppsPaused || cur_state == WMPLib.WMPPlayState.wmppsPlaying)
+                if (mapLocation != "")
+                {
+                    lblFromClipboard.Text = mapLocation;
+                    AddRowToTable(mapLocation);
+                } else if (Clipboard.ContainsText(TextDataFormat.Text))
                 {
                     clipboardText = Clipboard.GetText(TextDataFormat.Text);
                     // Do whatever you need to do with clipboardText
                     lblFromClipboard.Text = clipboardText;
                     Console.WriteLine("I got :" + clipboardText);
-
-                    //AddDataToList(clipboardText);
                     AddRowToTable(clipboardText);
+
                 } else
                 {
-                    MessageBox.Show("Media player not playing or paused!!!");
+                    MessageBox.Show("No data from the Application or the clipboard!!");
+                    return;
                 }
 
             } else
             {
-                MessageBox.Show("No data in the clipboard!!");
+                MessageBox.Show("Media player not playing or paused!!!");
             }
             btnCreateNewRide.Enabled = true;
 
@@ -266,6 +272,7 @@ namespace BuildCorrectionsList
         {
             if (rideLoaded)
             {
+                MessageBox.Show("Ride already loaded!");
                 return;
             }
             oldRide = null;
@@ -725,8 +732,6 @@ namespace BuildCorrectionsList
             newRide.RIDE.TAGS.WorkoutCode = "Chesco test-sync";
             newRide.RIDE.SAMPLES = new List<SAMPLE>();
 
-
-
             List<SAMPLE> _testSegment = new List<SAMPLE>();
 
             for (int i = 0; i < cps.Rows.Count; i++)
@@ -917,11 +922,6 @@ namespace BuildCorrectionsList
         {
             if (rideLoaded)
             {
-                //ReSequenceSecsInRide(ref oldRide);
-                //gridCorrectionsList.DataSource = null;
-                //gridCorrectionsList.DataSource = cps;
-                //gridCorrectionsList.Refresh();
-                //ShowOldRideData(oldRide);
             }
         }
 
@@ -966,6 +966,7 @@ namespace BuildCorrectionsList
         private void CreateProjtoolStripMenuItem_Click(object sender, EventArgs e)
         {
             CreateNewProject();
+            rideLoaded = false;
         }
 
         /// <summary>

@@ -20,6 +20,17 @@ namespace CommonLibrary
         public DataTable _oldRideData { get; set; }
         public GMapOverlay _markers { get; set; }
         public int _mapZoom { get; set; }
+        public DataTable _cps { get; set; }
+
+        public List<double> _altDataX { get; set; }
+        public List<double> _altDataY { get; set; }
+
+        private void AddAltitudeChartData (int _sec, double _alt)
+        {
+            double t = (double)_sec;
+            _altDataX.Add(t);
+            _altDataY.Add(_alt);
+        }
 
         private void AddMarkerToRoutePoint(double _lat, double _lng, double _alt, int _sec, double _km)
         {
@@ -66,13 +77,14 @@ namespace CommonLibrary
                         //newSample.SLOPE = (double)dr["slope"];
                         _km = (double)dr["km"];
                         _sec = (int)dr["secs"];
-                        _alt = (double)dr["lat"];
+                        _alt = (double)dr["alt"];
                         _lat = (double)dr["lat"];
                         _lng = (double)dr["lon"];
 
                         _geoPoints.Add(new GeoLocPoint(_lat, _lng, _alt, _sec));
                         _points.Add(new PointLatLng(_lat, _lng));
                         AddMarkerToRoutePoint(_lat, _lng, _alt, _sec, _km);
+                        AddAltitudeChartData(_sec, _alt);
 
                     }
                 }
@@ -86,8 +98,14 @@ namespace CommonLibrary
         public void SetMapDefaults()
         {
             //Set Map provider
-            //_myMap.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
-            _myMap.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
+            _myMap.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
+
+            //OSM
+            //_myMap.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
+
+            //HERE maps
+            //_myMap.MapProvider = GMap.NET.MapProviders.HereMapProvider.Instance;
+            //GMapProviders.HereMap.AppId = "85zcRChsXvg1bNBFwRxG";
 
             // Do not cache map info
             GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly;
@@ -111,6 +129,8 @@ namespace CommonLibrary
             //Set map postition based on LAT and LON
             _myMap.Position = _initLatLng;
         }
+
+
     }
 
     public struct GeoLocPoint

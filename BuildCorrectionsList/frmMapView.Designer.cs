@@ -29,11 +29,14 @@ namespace BuildCorrectionsList
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.gMapControl1 = new GMap.NET.WindowsForms.GMapControl();
             this.panel1 = new System.Windows.Forms.Panel();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.formsPlot1 = new ScottPlot.FormsPlot();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // gMapControl1
@@ -62,9 +65,10 @@ namespace BuildCorrectionsList
             this.gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             this.gMapControl1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.gMapControl1.ShowTileGridLines = false;
-            this.gMapControl1.Size = new System.Drawing.Size(1064, 284);
+            this.gMapControl1.Size = new System.Drawing.Size(1082, 284);
             this.gMapControl1.TabIndex = 0;
             this.gMapControl1.Zoom = 0D;
+            this.gMapControl1.OnMarkerDoubleClick += new GMap.NET.WindowsForms.MarkerDoubleClick(this.gMapControl1_OnMarkerDoubleClick);
             // 
             // panel1
             // 
@@ -73,7 +77,7 @@ namespace BuildCorrectionsList
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1088, 302);
+            this.panel1.Size = new System.Drawing.Size(1106, 302);
             this.panel1.TabIndex = 1;
             // 
             // splitter1
@@ -83,24 +87,37 @@ namespace BuildCorrectionsList
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitter1.Location = new System.Drawing.Point(0, 302);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(1088, 10);
+            this.splitter1.Size = new System.Drawing.Size(1106, 10);
             this.splitter1.TabIndex = 2;
             this.splitter1.TabStop = false;
             // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.DarkRed;
+            this.panel2.Controls.Add(this.formsPlot1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 312);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1088, 342);
+            this.panel2.Size = new System.Drawing.Size(1106, 366);
             this.panel2.TabIndex = 3;
+            // 
+            // formsPlot1
+            // 
+            this.formsPlot1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.formsPlot1.AutoSize = true;
+            this.formsPlot1.Location = new System.Drawing.Point(4, 4);
+            this.formsPlot1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.formsPlot1.Name = "formsPlot1";
+            this.formsPlot1.Size = new System.Drawing.Size(1098, 358);
+            this.formsPlot1.TabIndex = 0;
             // 
             // frmMapView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1088, 654);
+            this.ClientSize = new System.Drawing.Size(1106, 678);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.panel1);
@@ -110,6 +127,8 @@ namespace BuildCorrectionsList
             this.Load += new System.EventHandler(this.frmMapView_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -121,5 +140,6 @@ namespace BuildCorrectionsList
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel2;
+        private ScottPlot.FormsPlot formsPlot1;
     }
 }

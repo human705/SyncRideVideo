@@ -65,19 +65,19 @@
             this.btnVideoReverse = new System.Windows.Forms.Button();
             this.txtbVideoTimeChange = new System.Windows.Forms.TextBox();
             this.openFileMovieDialog = new System.Windows.Forms.OpenFileDialog();
-            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.contextMenuStripCorrectionsGrid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SelectFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.flowLayoutPanelButtons.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.flowLayoutPanelLabels.SuspendLayout();
             this.grpboxVideoControls.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.contextMenuStripCorrectionsGrid.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.SuspendLayout();
             // 
             // gridCorrectionsList
@@ -128,7 +128,7 @@
             this.viewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1055, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(858, 28);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -210,7 +210,7 @@
             // showMapToolStripMenuItem
             // 
             this.showMapToolStripMenuItem.Name = "showMapToolStripMenuItem";
-            this.showMapToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.showMapToolStripMenuItem.Size = new System.Drawing.Size(162, 26);
             this.showMapToolStripMenuItem.Text = "Show Map";
             this.showMapToolStripMenuItem.Click += new System.EventHandler(this.showMapToolStripMenuItem_Click);
             // 
@@ -239,7 +239,7 @@
             this.flowLayoutPanelButtons.Controls.Add(this.groupBox1);
             this.flowLayoutPanelButtons.Controls.Add(this.btnCreateLatLons);
             this.flowLayoutPanelButtons.Controls.Add(this.btnCreateNewRide);
-            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(879, 311);
+            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(853, 290);
             this.flowLayoutPanelButtons.Name = "flowLayoutPanelButtons";
             this.flowLayoutPanelButtons.Size = new System.Drawing.Size(149, 235);
             this.flowLayoutPanelButtons.TabIndex = 8;
@@ -315,7 +315,7 @@
             this.flowLayoutPanelLabels.Controls.Add(this.btnGetClipboardData);
             this.flowLayoutPanelLabels.Controls.Add(this.lblFromClipboard);
             this.flowLayoutPanelLabels.Controls.Add(this.grpboxVideoControls);
-            this.flowLayoutPanelLabels.Location = new System.Drawing.Point(474, 311);
+            this.flowLayoutPanelLabels.Location = new System.Drawing.Point(346, 290);
             this.flowLayoutPanelLabels.Name = "flowLayoutPanelLabels";
             this.flowLayoutPanelLabels.Padding = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanelLabels.Size = new System.Drawing.Size(399, 236);
@@ -422,17 +422,6 @@
             this.openFileMovieDialog.Filter = "All files|*.*";
             this.openFileMovieDialog.InitialDirectory = "C:\\BikeAthlets\\Peter Test\\media\\";
             // 
-            // axWindowsMediaPlayer1
-            // 
-            this.axWindowsMediaPlayer1.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.axWindowsMediaPlayer1.Enabled = true;
-            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(12, 312);
-            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
-            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
-            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(456, 235);
-            this.axWindowsMediaPlayer1.TabIndex = 2;
-            this.axWindowsMediaPlayer1.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.MediaPlayerStateChanged);
-            // 
             // contextMenuStripCorrectionsGrid
             // 
             this.contextMenuStripCorrectionsGrid.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -453,12 +442,23 @@
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // axWindowsMediaPlayer1
+            // 
+            this.axWindowsMediaPlayer1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.axWindowsMediaPlayer1.Enabled = true;
+            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(15, 291);
+            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
+            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
+            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(570, 294);
+            this.axWindowsMediaPlayer1.TabIndex = 2;
+            this.axWindowsMediaPlayer1.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.MediaPlayerStateChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1055, 808);
+            this.ClientSize = new System.Drawing.Size(858, 651);
             this.Controls.Add(this.flowLayoutPanelLabels);
             this.Controls.Add(this.flowLayoutPanelButtons);
             this.Controls.Add(this.axWindowsMediaPlayer1);
@@ -478,8 +478,8 @@
             this.flowLayoutPanelLabels.ResumeLayout(false);
             this.grpboxVideoControls.ResumeLayout(false);
             this.grpboxVideoControls.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             this.contextMenuStripCorrectionsGrid.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

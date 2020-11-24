@@ -41,6 +41,10 @@ namespace BuildCorrectionsList
                 myOSMMap._myMap = gMapControl1;
                 //Get route data table
                 myOSMMap._oldRideData = Form1.dtOldRide;
+
+                //Correction table from form1
+                myOSMMap._cps = Form1.cps;
+
                 // Test LatLng = New York
                 myOSMMap._initLatLng = new PointLatLng(40.730610, -73.935242);
                 // Get route begin and set it as map center
@@ -56,6 +60,12 @@ namespace BuildCorrectionsList
                 GMapOverlay markers = new GMapOverlay("markers");
                 myOSMMap._markers = markers;
 
+                //Add axis for altitude chart
+                List<double> AltitideXAxis = new List<double>();
+                myOSMMap._altDataX = AltitideXAxis;
+                List<double> AltitideYAxis = new List<double>();
+                myOSMMap._altDataY = AltitideYAxis;
+
                 GMapRoute route = new GMapRoute(myOSMMap.CreateFullRoute(), "GC route");
                 route.Stroke = new Pen(Color.Red, 3);
                 routes.Routes.Add(route);
@@ -65,6 +75,10 @@ namespace BuildCorrectionsList
                 gMapControl1.Overlays.Add(markers);
                 gMapControl1.Refresh();
 
+                //Add Altitude chart
+                formsPlot1.plt.PlotScatter(AltitideXAxis.ToArray(), AltitideYAxis.ToArray());
+                formsPlot1.Render();
+                
 
             }
             catch (Exception)
@@ -126,5 +140,63 @@ namespace BuildCorrectionsList
             Properties.Settings.Default.Save();
         }
 
+        private int GeoLocIndexAt (double _lat, double _lng)
+        {
+            int _index = -1;
+            int _sec;
+            double _currLat, _currLng;
+            try
+            {
+                DataTable _dt = new DataTable();
+                _dt = Form1.dtOldRide;
+
+                foreach (DataRow dr in _dt.Rows)
+                {
+                    _sec = (int)dr["secs"];
+                    _currLat = (double)dr["lat"];
+                    _currLng = (double)dr["lon"];
+
+                    if (_currLat == _lat && _currLng == _lng)
+                    {
+                        _index = _sec;
+                    }
+
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return _index;
+        } 
+
+
+
+
+        private void gMapControl1_OnMarkerDoubleClick(GMapMarker item, MouseEventArgs e)
+        {
+            double _lat = item.Position.Lat;
+            double _lng = item.Position.Lng;
+            
+            int _index = GeoLocIndexAt(_lat, _lng);
+            string s = $"At time: {_index.ToString()} Lat: {_lat.ToString()} and LON: {_lng.ToString()}";
+            if (_index >= 0)
+            {
+                Console.WriteLine(s);
+
+                string mapLocation = $"{_index.ToString()},{_lat.ToString()},{_lng.ToString()}";
+                if (mapLocation != "")
+                {
+                    Form1.mapLocation = mapLocation;
+                }
+            } else
+            {
+                MessageBox.Show("Index NOT FOUND for LAT: "+ _lat.ToString() + " and LON: " + _lng.ToString());
+
+            }
+
+            
+            
+        }
     }
 }
