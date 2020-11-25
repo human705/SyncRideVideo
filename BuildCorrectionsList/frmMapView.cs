@@ -24,6 +24,9 @@ namespace BuildCorrectionsList
 
         //public static GoldenCheetahRide oldRide = new GoldenCheetahRide();
         //public static MapView myOSMMap = new MapView();
+        MapView myOSMMap = new MapView();
+        //Add selected markers overlay  
+        GMapOverlay selectedMarkers = new GMapOverlay("SelectedMarkers");
 
         public frmMapView()
         {
@@ -37,7 +40,7 @@ namespace BuildCorrectionsList
             {
                 RestoreWindowLocation();
 
-                MapView myOSMMap = new MapView();
+                //MapView myOSMMap = new MapView();
                 myOSMMap._myMap = gMapControl1;
                 //Get route data table
                 myOSMMap._oldRideData = Form1.dtOldRide;
@@ -73,6 +76,15 @@ namespace BuildCorrectionsList
 
                 //Add markers to map
                 gMapControl1.Overlays.Add(markers);
+
+                //Add selected markers to map
+                myOSMMap._selectedMarkers = selectedMarkers;
+                myOSMMap.AddSelectedMarkersToMap();
+
+                //Add selected Markers  overlay
+                gMapControl1.Overlays.Add(selectedMarkers);
+
+
                 gMapControl1.Refresh();
 
                 //Add Altitude chart
@@ -88,9 +100,21 @@ namespace BuildCorrectionsList
 
         }
 
+        private void AddSelectedMarkerToRoute(double _lat, double _lng)
+        {
+            //Add marker
+            GMapMarker marker = new GMarkerGoogle(
+                new PointLatLng(_lat, _lng),
+                GMarkerGoogleType.red_small);
+            // Add to marker overlay
+            selectedMarkers.Markers.Add(marker);
+        }
+
+
         private void frmMapView_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveWindowLocation();
+            //Form1.timerQMapLocs.Stop();
         }
 
 
@@ -140,6 +164,12 @@ namespace BuildCorrectionsList
             Properties.Settings.Default.Save();
         }
 
+        /// <summary>
+        /// Find the index og the given LatLng in the table
+        /// </summary>
+        /// <param name="_lat"></param>
+        /// <param name="_lng"></param>
+        /// <returns>Possition if found, otherwise -1</returns>
         private int GeoLocIndexAt (double _lat, double _lng)
         {
             int _index = -1;
@@ -183,16 +213,19 @@ namespace BuildCorrectionsList
             if (_index >= 0)
             {
                 Console.WriteLine(s);
-
+                //Center Map on point 
+                gMapControl1.Position = new PointLatLng(_lat, _lng);
                 string mapLocation = $"{_index.ToString()},{_lat.ToString()},{_lng.ToString()}";
-                if (mapLocation != "")
+                if (mapLocation != "") // If we have a location, update data grid
                 {
                     Form1.mapLocation = mapLocation;
+                    Form1.mapLocs.Enqueue(mapLocation);
+                    AddSelectedMarkerToRoute(_lat, _lng);
                 }
             } else
             {
                 MessageBox.Show("Index NOT FOUND for LAT: "+ _lat.ToString() + " and LON: " + _lng.ToString());
-
+                return;
             }
 
             

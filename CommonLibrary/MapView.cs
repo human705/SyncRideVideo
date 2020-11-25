@@ -19,6 +19,7 @@ namespace CommonLibrary
         public PointLatLng _initLatLng { get; set; }
         public DataTable _oldRideData { get; set; }
         public GMapOverlay _markers { get; set; }
+        public GMapOverlay _selectedMarkers { get; set; }
         public int _mapZoom { get; set; }
         public DataTable _cps { get; set; }
 
@@ -51,6 +52,30 @@ namespace CommonLibrary
             // Add to marker overlay
             _markers.Markers.Add(marker);
         }
+
+
+
+        public void AddSelectedMarkersToMap ()
+        {
+            GMapMarker _redMarker;
+            try
+                
+            {
+                double _lat, _lng;
+                foreach (DataRow dr in _cps.Rows)
+                {
+                    _lat = (double)dr.ItemArray[2];
+                    _lng = (double)dr.ItemArray[3];
+                    _redMarker = new GMarkerGoogle(new PointLatLng(_lat, _lng),GMarkerGoogleType.red_small);
+                    _selectedMarkers.Markers.Add(_redMarker);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         public List<PointLatLng> CreateFullRoute ()
         {
@@ -117,8 +142,8 @@ namespace CommonLibrary
 
             //Set map zoom control
             _myMap.MinZoom = 1;
-            _myMap.MaxZoom = 18;
-            if (_mapZoom > 1 && _mapZoom < 18)
+            _myMap.MaxZoom = 20;
+            if (_mapZoom >= 1 && _mapZoom <= 20)
             {
                 _myMap.Zoom = _mapZoom; 
             } else

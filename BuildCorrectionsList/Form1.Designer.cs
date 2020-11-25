@@ -69,6 +69,7 @@
             this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SelectFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.timerQMapLocs = new System.Windows.Forms.Timer(this.components);
             this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             ((System.ComponentModel.ISupportInitialize)(this.gridCorrectionsList)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -128,14 +129,14 @@
             this.viewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(858, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1073, 38);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // recentToolStripMenuItem
             // 
             this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
-            this.recentToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
+            this.recentToolStripMenuItem.Size = new System.Drawing.Size(68, 34);
             this.recentToolStripMenuItem.Text = "Recent";
             // 
             // fileToolStripMenuItem
@@ -146,7 +147,7 @@
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 34);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // CreateProjtoolStripMenuItem
@@ -181,7 +182,7 @@
             this.openFileToolStripMenuItem,
             this.clearGridToolStripMenuItem});
             this.correctionsToolStripMenuItem.Name = "correctionsToolStripMenuItem";
-            this.correctionsToolStripMenuItem.Size = new System.Drawing.Size(98, 24);
+            this.correctionsToolStripMenuItem.Size = new System.Drawing.Size(98, 34);
             this.correctionsToolStripMenuItem.Text = "Corrections";
             this.correctionsToolStripMenuItem.Click += new System.EventHandler(this.correctionsToolStripMenuItem_Click);
             // 
@@ -204,7 +205,7 @@
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showMapToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 34);
             this.viewToolStripMenuItem.Text = "View";
             // 
             // showMapToolStripMenuItem
@@ -442,6 +443,10 @@
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // timerQMapLocs
+            // 
+            this.timerQMapLocs.Tick += new System.EventHandler(this.timerQMapLocs_Tick);
+            // 
             // axWindowsMediaPlayer1
             // 
             this.axWindowsMediaPlayer1.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -527,6 +532,7 @@
         private System.Windows.Forms.ToolStripMenuItem recentToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showMapToolStripMenuItem;
+        public System.Windows.Forms.Timer timerQMapLocs;
     }
 }
 

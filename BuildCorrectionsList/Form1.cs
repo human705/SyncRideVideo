@@ -35,7 +35,7 @@ using Newtonsoft.Json;
 using CommonLibrary;
 using HelperFunctionLibrary;
 using System.Threading;
-
+using System.Collections;
 
 namespace BuildCorrectionsList
 {
@@ -53,6 +53,7 @@ namespace BuildCorrectionsList
         static bool rideLoaded = false;
         static bool videoLoaded = false;
         static public string mapLocation = "";
+        static public Queue<string> mapLocs = new Queue<string>();
 
         public static GoldenCheetahRide oldRide = new GoldenCheetahRide();
         public static GoldenCheetahRide newRide = new GoldenCheetahRide();
@@ -511,6 +512,8 @@ namespace BuildCorrectionsList
         {
 
             RestoreWindowLocation();
+            //Clear Map Locations Q
+            mapLocs.Clear();
             //showOnMonitor(1);
             DataTableOperations dto = new DataTableOperations();
             cps = dto.CreateCorrectionPointsTable();
@@ -1189,10 +1192,13 @@ namespace BuildCorrectionsList
 
         private void showMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (rideLoaded)
+            // If a ride is loaded show the form and start the timer to monitor the queue for correction points 
+            if (rideLoaded) 
             {
                 frmMapView newFrmMapView = new frmMapView();
                 newFrmMapView.Show();
+                timerQMapLocs.Interval = 500;
+                timerQMapLocs.Start();
             }
             else
             {
@@ -1233,6 +1239,22 @@ namespace BuildCorrectionsList
                 Size = Properties.Settings.Default.w0Size;
             }
         }
+
+        private void timerQMapLocs_Tick(object sender, EventArgs e)
+        {
+            ProcessMapLocsQ();
+        }
+
+        private void ProcessMapLocsQ()
+        {
+            while (mapLocs.Count > 0)
+            {
+                string m = mapLocs.Dequeue();
+                AddRowToTable(m);
+                Console.WriteLine("Object in queue: " + m);
+            }
+        }
+
         private void SaveWindowLocation()
         {
             if (WindowState == FormWindowState.Maximized)
