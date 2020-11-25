@@ -100,6 +100,11 @@ namespace BuildCorrectionsList
 
         }
 
+        /// <summary>
+        /// Add a red marker at the LatLng and add it to the selected markers layer
+        /// </summary>
+        /// <param name="_lat"></param>
+        /// <param name="_lng"></param>
         private void AddSelectedMarkerToRoute(double _lat, double _lng)
         {
             //Add marker
@@ -107,7 +112,9 @@ namespace BuildCorrectionsList
                 new PointLatLng(_lat, _lng),
                 GMarkerGoogleType.red_small);
             // Add to marker overlay
+            marker.Tag = "red";
             selectedMarkers.Markers.Add(marker);
+            //selectedMarkers.Markers.Remove(marker);
         }
 
 
@@ -230,6 +237,33 @@ namespace BuildCorrectionsList
 
             
             
+        }
+
+        private void gMapControl1_OnMarkerClick(GMapMarker item, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Right && (string)item.Tag == "red")
+            {
+
+                var selectedOption = MessageBox.Show("Delete selected marker?", "Delete marker", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                // If the no button was pressed ...
+                if (selectedOption == DialogResult.Yes)
+                {
+                    selectedMarkers.Markers.Remove(item);
+                    Console.WriteLine("Removing marker:" + item.ToString());
+                }
+                else if (selectedOption == DialogResult.No)
+                {
+                    return;
+                    //MessageBox.Show("No is pressed!", "No Dialog", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                else
+                {
+                    return;
+                    //MessageBox.Show("Cancel is pressed", "Cancel Dialog", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+
+            }
         }
     }
 }

@@ -68,6 +68,7 @@ namespace BuildCorrectionsList
             this.gMapControl1.Size = new System.Drawing.Size(1082, 284);
             this.gMapControl1.TabIndex = 0;
             this.gMapControl1.Zoom = 0D;
+            this.gMapControl1.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.gMapControl1_OnMarkerClick);
             this.gMapControl1.OnMarkerDoubleClick += new GMap.NET.WindowsForms.MarkerDoubleClick(this.gMapControl1_OnMarkerDoubleClick);
             // 
             // panel1

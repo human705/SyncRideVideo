@@ -1253,6 +1253,8 @@ namespace BuildCorrectionsList
                 AddRowToTable(m);
                 Console.WriteLine("Object in queue: " + m);
             }
+            // Go to the bottom of the grid.
+            gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
         }
 
         private void SaveWindowLocation()

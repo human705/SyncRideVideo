@@ -55,6 +55,9 @@ namespace CommonLibrary
 
 
 
+        /// <summary>
+        /// Add red markers for the existing correction points list
+        /// </summary>
         public void AddSelectedMarkersToMap ()
         {
             GMapMarker _redMarker;
@@ -67,6 +70,7 @@ namespace CommonLibrary
                     _lat = (double)dr.ItemArray[2];
                     _lng = (double)dr.ItemArray[3];
                     _redMarker = new GMarkerGoogle(new PointLatLng(_lat, _lng),GMarkerGoogleType.red_small);
+                    _redMarker.Tag = "red";
                     _selectedMarkers.Markers.Add(_redMarker);
                 }
             }
