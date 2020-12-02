@@ -44,6 +44,7 @@ namespace CommonLibrary
                         marker.ToolTipText = "Time:" + _sec.ToString() + "\nLAT:" 
                         + _lat.ToString() + "\nLNG:" + _lng.ToString() + "\nALT:" 
                         + _alt.ToString() + "\nMeters:" + (_km*1000).ToString();
+            marker.Tag = "blue";
             marker.ToolTip.Fill = Brushes.Black;
             marker.ToolTip.Foreground = Brushes.White;
             marker.ToolTip.Stroke = Pens.Black;
@@ -157,6 +158,8 @@ namespace CommonLibrary
 
             //Set map postition based on LAT and LON
             _myMap.Position = _initLatLng;
+
+            
         }
 
 

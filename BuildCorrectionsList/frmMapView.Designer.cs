@@ -30,7 +30,7 @@ namespace BuildCorrectionsList
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.gMapControl1 = new GMap.NET.WindowsForms.GMapControl();
+            this.gMapControl2 = new GMap.NET.WindowsForms.GMapControl();
             this.panel1 = new System.Windows.Forms.Panel();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -39,42 +39,42 @@ namespace BuildCorrectionsList
             this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // gMapControl1
+            // gMapControl2
             // 
-            this.gMapControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.gMapControl2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gMapControl1.AutoSize = true;
-            this.gMapControl1.Bearing = 0F;
-            this.gMapControl1.CanDragMap = true;
-            this.gMapControl1.EmptyTileColor = System.Drawing.Color.Navy;
-            this.gMapControl1.GrayScaleMode = false;
-            this.gMapControl1.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
-            this.gMapControl1.LevelsKeepInMemory = 5;
-            this.gMapControl1.Location = new System.Drawing.Point(12, 12);
-            this.gMapControl1.MarkersEnabled = true;
-            this.gMapControl1.MaxZoom = 2;
-            this.gMapControl1.MinZoom = 2;
-            this.gMapControl1.MouseWheelZoomEnabled = true;
-            this.gMapControl1.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
-            this.gMapControl1.Name = "gMapControl1";
-            this.gMapControl1.NegativeMode = false;
-            this.gMapControl1.PolygonsEnabled = true;
-            this.gMapControl1.RetryLoadTile = 0;
-            this.gMapControl1.RoutesEnabled = true;
-            this.gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
-            this.gMapControl1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
-            this.gMapControl1.ShowTileGridLines = false;
-            this.gMapControl1.Size = new System.Drawing.Size(1082, 284);
-            this.gMapControl1.TabIndex = 0;
-            this.gMapControl1.Zoom = 0D;
-            this.gMapControl1.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.gMapControl1_OnMarkerClick);
-            this.gMapControl1.OnMarkerDoubleClick += new GMap.NET.WindowsForms.MarkerDoubleClick(this.gMapControl1_OnMarkerDoubleClick);
+            this.gMapControl2.AutoSize = true;
+            this.gMapControl2.Bearing = 0F;
+            this.gMapControl2.CanDragMap = true;
+            this.gMapControl2.EmptyTileColor = System.Drawing.Color.Navy;
+            this.gMapControl2.GrayScaleMode = false;
+            this.gMapControl2.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
+            this.gMapControl2.LevelsKeepInMemory = 5;
+            this.gMapControl2.Location = new System.Drawing.Point(12, 12);
+            this.gMapControl2.MarkersEnabled = true;
+            this.gMapControl2.MaxZoom = 2;
+            this.gMapControl2.MinZoom = 2;
+            this.gMapControl2.MouseWheelZoomEnabled = true;
+            this.gMapControl2.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.gMapControl2.Name = "gMapControl2";
+            this.gMapControl2.NegativeMode = false;
+            this.gMapControl2.PolygonsEnabled = true;
+            this.gMapControl2.RetryLoadTile = 0;
+            this.gMapControl2.RoutesEnabled = true;
+            this.gMapControl2.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
+            this.gMapControl2.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
+            this.gMapControl2.ShowTileGridLines = false;
+            this.gMapControl2.Size = new System.Drawing.Size(1082, 284);
+            this.gMapControl2.TabIndex = 0;
+            this.gMapControl2.Zoom = 0D;
+            this.gMapControl2.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.gMapControl1_OnMarkerClick);
+            this.gMapControl2.OnMarkerDoubleClick += new GMap.NET.WindowsForms.MarkerDoubleClick(this.gMapControl1_OnMarkerDoubleClick);
             // 
             // panel1
             // 
             this.panel1.AutoSize = true;
-            this.panel1.Controls.Add(this.gMapControl1);
+            this.panel1.Controls.Add(this.gMapControl2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
@@ -137,7 +137,7 @@ namespace BuildCorrectionsList
 
         #endregion
 
-        private GMap.NET.WindowsForms.GMapControl gMapControl1;
+        private GMap.NET.WindowsForms.GMapControl gMapControl2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel2;

@@ -41,7 +41,7 @@ namespace BuildCorrectionsList
                 RestoreWindowLocation();
 
                 //MapView myOSMMap = new MapView();
-                myOSMMap._myMap = gMapControl1;
+                myOSMMap._myMap = gMapControl2;
                 //Get route data table
                 myOSMMap._oldRideData = Form1.dtOldRide;
 
@@ -72,20 +72,20 @@ namespace BuildCorrectionsList
                 GMapRoute route = new GMapRoute(myOSMMap.CreateFullRoute(), "GC route");
                 route.Stroke = new Pen(Color.Red, 3);
                 routes.Routes.Add(route);
-                gMapControl1.Overlays.Add(routes);
+                gMapControl2.Overlays.Add(routes);
 
                 //Add markers to map
-                gMapControl1.Overlays.Add(markers);
+                gMapControl2.Overlays.Add(markers);
 
                 //Add selected markers to map
                 myOSMMap._selectedMarkers = selectedMarkers;
                 myOSMMap.AddSelectedMarkersToMap();
 
                 //Add selected Markers  overlay
-                gMapControl1.Overlays.Add(selectedMarkers);
+                gMapControl2.Overlays.Add(selectedMarkers);
 
 
-                gMapControl1.Refresh();
+                gMapControl2.Refresh();
 
                 //Add Altitude chart
                 formsPlot1.plt.PlotScatter(AltitideXAxis.ToArray(), AltitideYAxis.ToArray());
@@ -221,12 +221,12 @@ namespace BuildCorrectionsList
             {
                 Console.WriteLine(s);
                 //Center Map on point 
-                gMapControl1.Position = new PointLatLng(_lat, _lng);
+                gMapControl2.Position = new PointLatLng(_lat, _lng);
                 string mapLocation = $"{_index.ToString()},{_lat.ToString()},{_lng.ToString()}";
                 if (mapLocation != "") // If we have a location, update data grid
                 {
                     Form1.mapLocation = mapLocation;
-                    Form1.mapLocs.Enqueue(mapLocation);
+                    //Form1.mapLocs.Enqueue(mapLocation);
                     AddSelectedMarkerToRoute(_lat, _lng);
                 }
             } else

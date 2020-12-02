@@ -28,6 +28,11 @@ using System.Configuration;
 using System.Diagnostics;
 //using System.Configuration;
 
+using GMap.NET;
+using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms.Markers;
+using GMap.NET.MapProviders;
+
 //NuGet installed dependencies
 using Newtonsoft.Json;
 
@@ -53,48 +58,52 @@ namespace BuildCorrectionsList
         static bool rideLoaded = false;
         static bool videoLoaded = false;
         static public string mapLocation = "";
-        static public Queue<string> mapLocs = new Queue<string>();
+        //static public Queue<string> mapLocs = new Queue<string>();
 
         public static GoldenCheetahRide oldRide = new GoldenCheetahRide();
         public static GoldenCheetahRide newRide = new GoldenCheetahRide();
         WMPLib.WMPPlayState cur_state = WMPLib.WMPPlayState.wmppsStopped;
         WMPLib.WMPPlayState prev_state = WMPLib.WMPPlayState.wmppsStopped;
         private int rowIndex;
-
+        
+        //Timer to get the video duration 
         System.Windows.Forms.Timer getMovieDurationTimer = new System.Windows.Forms.Timer();
 
         bool projectStateChanged = false;
+
+        GMapMarker selectedBlueMarker, selectedRedMarker;
+        ContextMenuStrip PopupMenu = new ContextMenuStrip();
 
         public Form1()
         {
             InitializeComponent();
 
-            SizeTheForm();
-            //Form f = this;
-        }
-
-        public void SizeTheForm()
-        {
-            // Support multiple screens
-            Screen screen = Screen.FromControl(this); //this is the Form class
-            // no larger than screen size
-            //this.MaximumSize = new System.Drawing.Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
-            this.MaximumSize = new System.Drawing.Size(screen.Bounds.Width, screen.Bounds.Height);
-
-            // no smaller than design time size
-            //this.MinimumSize = new System.Drawing.Size(this.Width, this.Height);
-            this.MinimumSize = new System.Drawing.Size(900, 700);
-
-            formWidth = this.MaximumSize.Width - 50;
-            formHeight = this.MaximumSize.Height - 50;
-            this.AutoSize = false;  //Form cannot be smaller than the panel size
-            this.Size = new System.Drawing.Size(formWidth, formHeight);
-            //Set form position in the screen - Top Left
-            this.StartPosition = FormStartPosition.Manual;
-            this.Location = new Point(screen.Bounds.Left, screen.Bounds.Top);
-            //PositionTheFormComponents(formWidth, formHeight);
+            //SizeTheForm();
 
         }
+
+        //public void SizeTheForm()
+        //{
+        //    // Support multiple screens
+        //    Screen screen = Screen.FromControl(this); //this is the Form class
+        //    // no larger than screen size
+        //    //this.MaximumSize = new System.Drawing.Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+        //    this.MaximumSize = new System.Drawing.Size(screen.Bounds.Width, screen.Bounds.Height);
+
+        //    // no smaller than design time size
+        //    //this.MinimumSize = new System.Drawing.Size(this.Width, this.Height);
+        //    this.MinimumSize = new System.Drawing.Size(900, 700);
+
+        //    formWidth = this.MaximumSize.Width - 50;
+        //    formHeight = this.MaximumSize.Height - 50;
+        //    this.AutoSize = false;  //Form cannot be smaller than the panel size
+        //    this.Size = new System.Drawing.Size(formWidth, formHeight);
+        //    //Set form position in the screen - Top Left
+        //    this.StartPosition = FormStartPosition.Manual;
+        //    this.Location = new Point(screen.Bounds.Left, screen.Bounds.Top);
+        //    //PositionTheFormComponents(formWidth, formHeight);
+
+        //}
 
         //public void PositionTheFormComponents(int w, int h)
         //{
@@ -190,48 +199,48 @@ namespace BuildCorrectionsList
 
         #region "Form Buttons"
 
-        private void btnGetClipboardData_Click(object sender, EventArgs e)
-        {
-            projectStateChanged = true;
-            string clipboardText = "";
+        //private void btnGetClipboardData_Click(object sender, EventArgs e)
+        //{
+        //    projectStateChanged = true;
+        //    string clipboardText = "";
 
-            if (!videoLoaded || !rideLoaded)
-            {
-                MessageBox.Show("Ride and/or video not loaded yet!");
-                return;
-            }
+        //    if (!videoLoaded || !rideLoaded)
+        //    {
+        //        MessageBox.Show("Ride and/or video not loaded yet!");
+        //        return;
+        //    }
             
 
-            if (cur_state == WMPLib.WMPPlayState.wmppsPaused || cur_state == WMPLib.WMPPlayState.wmppsPlaying)
-            {
-                if (mapLocation != "")
-                {
-                    lblFromClipboard.Text = mapLocation;
-                    AddRowToTable(mapLocation);
-                } else if (Clipboard.ContainsText(TextDataFormat.Text))
-                {
-                    clipboardText = Clipboard.GetText(TextDataFormat.Text);
-                    // Do whatever you need to do with clipboardText
-                    lblFromClipboard.Text = clipboardText;
-                    Console.WriteLine("I got :" + clipboardText);
-                    AddRowToTable(clipboardText);
+        //    if (cur_state == WMPLib.WMPPlayState.wmppsPaused || cur_state == WMPLib.WMPPlayState.wmppsPlaying)
+        //    {
+        //        if (mapLocation != "")
+        //        {
+        //            lblFromClipboard.Text = mapLocation;
+        //            AddRowToTable(mapLocation);
+        //        } else if (Clipboard.ContainsText(TextDataFormat.Text))
+        //        {
+        //            clipboardText = Clipboard.GetText(TextDataFormat.Text);
+        //            // Do whatever you need to do with clipboardText
+        //            lblFromClipboard.Text = clipboardText;
+        //            Console.WriteLine("I got :" + clipboardText);
+        //            AddRowToTable(clipboardText);
 
-                } else
-                {
-                    MessageBox.Show("No data from the Application or the clipboard!!");
-                    return;
-                }
+        //        } else
+        //        {
+        //            MessageBox.Show("No data from the Application or the clipboard!!");
+        //            return;
+        //        }
 
-            } else
-            {
-                MessageBox.Show("Media player not playing or paused!!!");
-            }
-            btnCreateNewRide.Enabled = true;
+        //    } else
+        //    {
+        //        MessageBox.Show("Media player not playing or paused!!!");
+        //    }
+        //    btnCreateNewRide.Enabled = true;
 
-            // Go to the bottom of the grid.
-            gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
+        //    // Go to the bottom of the grid.
+        //    gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
 
-        }
+        //}
         private void btnLoadVideo_Click(object sender, EventArgs e)
         {
             //string movie = @"C:\BikeAthlets\Peter Test\media\Chesco Training Loop - 4486.mp4";
@@ -241,7 +250,8 @@ namespace BuildCorrectionsList
             dr = openFileMovieDialog.ShowDialog();
             if (dr == DialogResult.OK)
             {
-                lblLoadVideo.Text = openFileMovieDialog.FileName;
+                //lblLoadVideo.Text = openFileMovieDialog.FileName;
+                VideoNameLabel1.Text = openFileMovieDialog.FileName;
                 movie = openFileMovieDialog.FileName;
                 axWindowsMediaPlayer1.URL = movie;
                 axWindowsMediaPlayer1.Ctlcontrols.play();
@@ -251,12 +261,16 @@ namespace BuildCorrectionsList
                 getMovieDurationTimer.Start();
             } else if (dr == DialogResult.Cancel)
             {
-                lblLoadVideo.Text = "";
+                //lblLoadVideo.Text = "";
+                VideoNameLabel1.Text = "";
                 videoLoaded = false;
                 Close();
             }
         }
 
+        /// <summary>
+        /// Use the timer to get the video duration and update the label
+        /// </summary>
         private void GetDuration(object sender, EventArgs e)
         {
             // public variable songDuration declared elsewhere
@@ -265,7 +279,8 @@ namespace BuildCorrectionsList
             {
                 axWindowsMediaPlayer1.Ctlcontrols.pause();
                 getMovieDurationTimer.Stop();
-                lblVideoTimeTotal.Text += VideoLingthInSecs.ToString();
+                //lblVideoTimeTotal.Text += VideoLingthInSecs.ToString();
+                TotVideoTimeToolStripLabel1.Text += " = " + VideoLingthInSecs.ToString();
             }
             
         }
@@ -281,7 +296,8 @@ namespace BuildCorrectionsList
             dr = openRideFileDialog.ShowDialog();
             if (dr == DialogResult.OK)
             {
-                lblRideName.Text = openRideFileDialog.FileName;
+                //lblRideName.Text = openRideFileDialog.FileName;
+                RideNameLabel1.Text = openRideFileDialog.FileName;
                 string injson = File.ReadAllText(openRideFileDialog.FileName);
                 oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
                 DataTableOperations dto = new DataTableOperations();
@@ -295,53 +311,53 @@ namespace BuildCorrectionsList
                 MessageBox.Show("User clicked Cancel button");
         }
 
-        private void btnCreateLatLons_Click(object sender, EventArgs e)
-        {
-            //string LatLonFileName = @"C:\coding\json\LatLonArray.txt";
-            string LatLonFileName = "";
-            FileStream llofstream;
-            StreamWriter llwriter;
-            try 
-            {
-                if (!rideLoaded)
-                {
-                    MessageBox.Show("No ride is loaded!", "ERROR");
-                    return;
-                }
-                SaveFileDialog saveFileLatLonsDialog1 = new SaveFileDialog();
-                saveFileLatLonsDialog1.InitialDirectory = @"C:\";
-                saveFileLatLonsDialog1.Title = "Save text Files";
-                saveFileLatLonsDialog1.CheckFileExists = false;
-                saveFileLatLonsDialog1.CheckPathExists = true;
-                saveFileLatLonsDialog1.DefaultExt = "txt";
-                saveFileLatLonsDialog1.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-                saveFileLatLonsDialog1.FilterIndex = 1;
-                saveFileLatLonsDialog1.RestoreDirectory = true;
-                if (saveFileLatLonsDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    LatLonFileName = saveFileLatLonsDialog1.FileName;
-                    llofstream = new FileStream(LatLonFileName, FileMode.Create);
-                    llwriter = new StreamWriter(llofstream);
-                    llwriter.AutoFlush = true;
-                    int cnt = 0;
-                    foreach (var item in oldRide.RIDE.SAMPLES)
-                    {
-                        llwriter.Write(item.LAT + "," + item.LON);
-                        if (cnt != oldRide.RIDE.SAMPLES.Count() - 1)
-                        {
-                            llwriter.WriteLine(",");
-                            cnt++;
-                        }
-                    }
-                    llwriter.Close();
-                }
+//        private void btnCreateLatLons_Click(object sender, EventArgs e)
+//        {
+//            //string LatLonFileName = @"C:\coding\json\LatLonArray.txt";
+//            string LatLonFileName = "";
+//            FileStream llofstream;
+//            StreamWriter llwriter;
+//            try 
+//            {
+//                if (!rideLoaded)
+//                {
+//                    MessageBox.Show("No ride is loaded!", "ERROR");
+//                    return;
+//                }
+//                SaveFileDialog saveFileLatLonsDialog1 = new SaveFileDialog();
+//                saveFileLatLonsDialog1.InitialDirectory = @"C:\";
+//                saveFileLatLonsDialog1.Title = "Save text Files";
+//                saveFileLatLonsDialog1.CheckFileExists = false;
+//                saveFileLatLonsDialog1.CheckPathExists = true;
+//                saveFileLatLonsDialog1.DefaultExt = "txt";
+//                saveFileLatLonsDialog1.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+//                saveFileLatLonsDialog1.FilterIndex = 1;
+//                saveFileLatLonsDialog1.RestoreDirectory = true;
+//                if (saveFileLatLonsDialog1.ShowDialog() == DialogResult.OK)
+//                {
+//                    LatLonFileName = saveFileLatLonsDialog1.FileName;
+//                    llofstream = new FileStream(LatLonFileName, FileMode.Create);
+//                    llwriter = new StreamWriter(llofstream);
+//                    llwriter.AutoFlush = true;
+//                    int cnt = 0;
+//                    foreach (var item in oldRide.RIDE.SAMPLES)
+//                    {
+//                        llwriter.Write(item.LAT + "," + item.LON);
+//                        if (cnt != oldRide.RIDE.SAMPLES.Count() - 1)
+//                        {
+//                            llwriter.WriteLine(",");
+//                            cnt++;
+//                        }
+//                    }
+//                    llwriter.Close();
+//                }
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
-}
+//            }
+//            catch (Exception ex)
+//            {
+//                MessageBox.Show("Error: " + ex.Message);
+//            }
+//}
 
         private void btnSetVideoPositions_Click(object sender, EventArgs e)
         {
@@ -431,10 +447,15 @@ namespace BuildCorrectionsList
 
         #region "Events Region"
 
+        /// <summary>
+        /// Method called by pressing the delete key with a selected row
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserDeleteRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            int rowIndex = gridCorrectionsList.CurrentCell.RowIndex;
-            MessageBox.Show("Deleting row " + rowIndex.ToString());
+            //int rowIndex = gridCorrectionsList.CurrentCell.RowIndex;
+            //MessageBox.Show("Deleting row " + rowIndex.ToString());
             //gridCorrectionsList.Rows.RemoveAt(rowIndex);
         }
 
@@ -446,66 +467,66 @@ namespace BuildCorrectionsList
 
         private void FormResizing(object sender, EventArgs e)
         {
-            int menuHeight = 20;
-            int formRows = 2;
-            int screenPadding = 45;  // Needed to prevent bottom control from rolling off the screen
-            int gutter = 3;
-            int nextY = 0;
-            int heightUnit = (this.Height - (menuHeight + screenPadding)) / formRows;
+            //int menuHeight = 20;
+            //int formRows = 2;
+            //int screenPadding = 45;  // Needed to prevent bottom control from rolling off the screen
+            //int gutter = 3;
+            //int nextY = 0;
+            //int heightUnit = (this.Height - (menuHeight + screenPadding)) / formRows;
 
-            //Get current monitor size
-            Screen screen = Screen.FromControl(this); //this is the Form class
-            this.MaximumSize = new System.Drawing.Size(screen.Bounds.Width, screen.Bounds.Height);
-            //this.MaximumSize = new System.Drawing.Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+            ////Get current monitor size
+            //Screen screen = Screen.FromControl(this); //this is the Form class
+            //this.MaximumSize = new System.Drawing.Size(screen.Bounds.Width, screen.Bounds.Height);
+            ////this.MaximumSize = new System.Drawing.Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
 
-            //ROW 1 (one column)
-            Size size = new Size(0, 0);
-            size.Width = this.Width - 30;
-            size.Height = heightUnit;
-            gridCorrectionsList.Size = size;
-            nextY += menuHeight;
-            gridCorrectionsList.Location = new Point(5, nextY);
-
-            //ROW 2 (column 1)
-            size.Width = (int)(this.Width / 2);
-            axWindowsMediaPlayer1.Size = size;
-            nextY += gutter + heightUnit;
-            axWindowsMediaPlayer1.Location = new Point(5, nextY);
-
-            //ROW 2 (column 2)
-            //flowLayoutPanelLabels.Width = 270;
-            int nextX = axWindowsMediaPlayer1.Size.Width + gutter + 5;
-            flowLayoutPanelLabels.Location = new Point(nextX,nextY);
-            lblFromClipboard.Height = 30;
-            lblLoadVideo.Height = 30;
-            lblRideName.Height = 30;
-            btnLoadRide.Height = 30;
-            btnLoadVideo.Height = 30;
-            btnGetClipboardData.Height = 30;
-
-            btnVideoReverse.Height = 20;
-            btnVideoAdvance.Height = 20;
-            txtbVideoTimeChange.Height = 20;
-
-            lblVideoTimeInSecs.Height = 20;
-            btnSetVideoPositions.Height = 40;
-
-            lblVideoTimeTotal.Height = 20;
-
-            btnShowOldRide.Height = 30;
-
-            //ROW 2 (column 3)
-            //flowLayoutPanelButtons.Width = 220;
-            //btnLoadRide.Width = 210;
-            nextX += flowLayoutPanelLabels.Size.Width + gutter + 5;
-            flowLayoutPanelButtons.Location = new Point(nextX, nextY);
-
-            //ROW 3
+            ////ROW 1 (one column)
+            //Size size = new Size(0, 0);
             //size.Width = this.Width - 30;
-            //DataGridOldRide.Size = size;
+            //size.Height = heightUnit;
+            //gridCorrectionsList.Size = size;
+            //nextY += menuHeight;
+            //gridCorrectionsList.Location = new Point(5, nextY);
+
+            ////ROW 2 (column 1)
+            //size.Width = (int)(this.Width / 2);
+            //axWindowsMediaPlayer1.Size = size;
             //nextY += gutter + heightUnit;
-            //DataGridOldRide.Location = new Point(5, nextY);
-            //DataGridOldRide.Visible = false;
+            //axWindowsMediaPlayer1.Location = new Point(5, nextY);
+
+            ////ROW 2 (column 2)
+            ////flowLayoutPanelLabels.Width = 270;
+            //int nextX = axWindowsMediaPlayer1.Size.Width + gutter + 5;
+            //flowLayoutPanelLabels.Location = new Point(nextX,nextY);
+            //lblFromClipboard.Height = 30;
+            //lblLoadVideo.Height = 30;
+            //lblRideName.Height = 30;
+            //btnLoadRide.Height = 30;
+            //btnLoadVideo.Height = 30;
+            //btnGetClipboardData.Height = 30;
+
+            //btnVideoReverse.Height = 20;
+            //btnVideoAdvance.Height = 20;
+            //txtbVideoTimeChange.Height = 20;
+
+            //lblVideoTimeInSecs.Height = 20;
+            //btnSetVideoPositions.Height = 40;
+
+            //lblVideoTimeTotal.Height = 20;
+
+            //btnShowOldRide.Height = 30;
+
+            ////ROW 2 (column 3)
+            ////flowLayoutPanelButtons.Width = 220;
+            ////btnLoadRide.Width = 210;
+            //nextX += flowLayoutPanelLabels.Size.Width + gutter + 5;
+            //flowLayoutPanelButtons.Location = new Point(nextX, nextY);
+
+            ////ROW 3
+            ////size.Width = this.Width - 30;
+            ////DataGridOldRide.Size = size;
+            ////nextY += gutter + heightUnit;
+            ////DataGridOldRide.Location = new Point(5, nextY);
+            ////DataGridOldRide.Visible = false;
         }
 
         private void FormLoaded(object sender, EventArgs e)
@@ -513,7 +534,7 @@ namespace BuildCorrectionsList
 
             RestoreWindowLocation();
             //Clear Map Locations Q
-            mapLocs.Clear();
+            //mapLocs.Clear();
             //showOnMonitor(1);
             DataTableOperations dto = new DataTableOperations();
             cps = dto.CreateCorrectionPointsTable();
@@ -533,22 +554,30 @@ namespace BuildCorrectionsList
                 recentToolStripMenuItem.DropDownItems.Add(fileRecent);
             }
 
-        }
-        private void showOnMonitor(int showOnMonitor)
-        {
-            Screen[] sc;
-            sc = Screen.AllScreens;
-            if (showOnMonitor >= sc.Length)
-            {
-                showOnMonitor = 0;
-            }
+            //Start the queue timer
+            //timerQMapLocs.Interval = 500;
+            //timerQMapLocs.Start();
 
-            this.StartPosition = FormStartPosition.Manual;
-            this.Location = new Point(sc[showOnMonitor].Bounds.Left, sc[showOnMonitor].Bounds.Top);
-            // If you intend the form to be maximized, change it to normal then maximized.
-            this.WindowState = FormWindowState.Normal;
+            BuildMapContextMenu();
+
+            //BuildMapContextMenu();
 
         }
+        //private void showOnMonitor(int showOnMonitor)
+        //{
+        //    Screen[] sc;
+        //    sc = Screen.AllScreens;
+        //    if (showOnMonitor >= sc.Length)
+        //    {
+        //        showOnMonitor = 0;
+        //    }
+
+        //    this.StartPosition = FormStartPosition.Manual;
+        //    this.Location = new Point(sc[showOnMonitor].Bounds.Left, sc[showOnMonitor].Bounds.Top);
+        //    // If you intend the form to be maximized, change it to normal then maximized.
+        //    this.WindowState = FormWindowState.Normal;
+
+        //}
 
         #endregion "Events Region"
 
@@ -664,20 +693,65 @@ namespace BuildCorrectionsList
         #endregion "Media State Changes"
 
 
+        /// <summary>
+        /// Execute delete action when the GRID is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void contextMenuStripCorrectionsGrid_Click(object sender, EventArgs e)
         {
-            if (!this.gridCorrectionsList.Rows[this.rowIndex].IsNewRow)
-            {
-                MessageBox.Show("Not implemented yet!");
-                //this.gridCorrectionsList.Rows.RemoveAt(this.rowIndex);
-            }
+            //if (!this.gridCorrectionsList.Rows[this.rowIndex].IsNewRow)
+            //{
+            //    MessageBox.Show("Not implemented yet!");
+            //    //this.gridCorrectionsList.Rows.RemoveAt(this.rowIndex);
+            //}
         }
+
+
+        /// <summary>
+        /// Grid context menu DELETE click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deleteRowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show("Clicked on DELETE context menu item!");
+            int rowIndex = gridCorrectionsList.CurrentCell.RowIndex;
+            //MessageBox.Show("Deleting row " + rowIndex.ToString());
+
+            double lat = (double)gridCorrectionsList.Rows[rowIndex].Cells["Latitude"].Value;
+            double lng = (double)gridCorrectionsList.Rows[rowIndex].Cells["Longitude"].Value;
+
+            foreach (GMapMarker marker in selectedMarkers.Markers)
+            {
+                if (marker.Tag.ToString() == "red" && marker.Position.Lat == lat && marker.Position.Lng == lng)
+                {
+                    selectedRedMarker = marker;
+                }
+            }
+
+            //Find the Marker GeoLoc from the table
+            //int _index = MarkerGeoLocIndexAt(_lat, _lng);
+
+            //Delete selected Marker from overlay
+            selectedMarkers.Markers.Remove(selectedRedMarker);
+
+            //Delete marker from the table
+            gridCorrectionsList.Rows.RemoveAt(rowIndex);
+            gridCorrectionsList.Refresh();
+        }
+
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
 
+        /// <summary>
+        /// Show context menu created in design view
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void gridCorrectionsList_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -704,7 +778,7 @@ namespace BuildCorrectionsList
             {
                 DialogResult dialogAnswer = MessageBox.Show("Save changes to the project before exiting?",
                     "Project changed",
-                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question,
                     MessageBoxDefaultButton.Button1);
 
@@ -921,12 +995,12 @@ namespace BuildCorrectionsList
             Button btn = sender as Button;
             MessageBox.Show(btn.Name + " clicked"); // display button details
         }
-        private void btnReSequence_Click(object sender, EventArgs e)
-        {
-            if (rideLoaded)
-            {
-            }
-        }
+        //private void btnReSequence_Click(object sender, EventArgs e)
+        //{
+        //    if (rideLoaded)
+        //    {
+        //    }
+        //}
 
 
         private void saveProjectState()
@@ -948,12 +1022,14 @@ namespace BuildCorrectionsList
             //tc.SaveListToFile(fullPath, CorrectionPoints);
 
             //Save Video file and video position
-            dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
+            //dp.AddUpdateKey("VideoFileName", lblLoadVideo.Text, projectData);
+            dp.AddUpdateKey("VideoFileName", VideoNameLabel1.Text, projectData);
             double videpPosition = axWindowsMediaPlayer1.Ctlcontrols.currentPosition;
             dp.AddUpdateKey("VideoPosition", videpPosition.ToString(), projectData);
 
             //Save ride file
-            dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
+            //dp.AddUpdateKey("RideFileName", lblRideName.Text, projectData);
+            dp.AddUpdateKey("RideFileName", RideNameLabel1.Text, projectData);
 
             //Save dictionary to file
             fullPath = tc.FullFilePath("ProjectData.csv", activeProjectName);
@@ -1042,6 +1118,11 @@ namespace BuildCorrectionsList
             gridCorrectionsList.DataSource = cps;
             gridCorrectionsList.Refresh();
 
+            if (gridCorrectionsList.Rows.Count > 0)
+            {
+                gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0]; 
+            }
+
             //Load Dictionaly from file
             fullPath = tc.FullFilePath("ProjectData.csv", activeProjectName);
             // Create dictionary
@@ -1055,7 +1136,8 @@ namespace BuildCorrectionsList
 
             //Load Video
             string video = dp.GetAnyValue<string>("VideoFileName", projectData);
-            lblLoadVideo.Text = video;
+            //lblLoadVideo.Text = video;
+            VideoNameLabel1.Text = video;
             axWindowsMediaPlayer1.URL = video;
             axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(dp.GetAnyValue<string>("VideoPosition", projectData));
             axWindowsMediaPlayer1.Ctlcontrols.play();
@@ -1067,15 +1149,139 @@ namespace BuildCorrectionsList
             //Load Ride
             string rideName = dp.GetAnyValue<string>("RideFileName", projectData);
             string injson = File.ReadAllText(rideName);
-            lblRideName.Text = rideName;
+            //lblRideName.Text = rideName;
+            RideNameLabel1.Text = rideName;
             oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
             dtOldRide = dto.LoadTableFromGCRideList(oldRide);
             //dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
+            LoadAndShowMap();
             rideLoaded = true;
 
             btnCreateNewRide.Enabled = true;
         }
 
+
+        MapView myMap = new MapView();
+        //Add selected markers overlay  
+        GMapOverlay selectedMarkers = new GMapOverlay("SelectedMarkers");
+
+        private void LoadAndShowMap()
+        {
+            try
+            {
+                RestoreWindowLocation();
+
+                //MapView myOSMMap = new MapView();
+                myMap._myMap = gMapControl1;
+                //Get route data table
+                myMap._oldRideData = Form1.dtOldRide;
+
+                //Correction table from form1
+                myMap._cps = Form1.cps;
+
+                // Test LatLng = New York
+                myMap._initLatLng = new PointLatLng(40.730610, -73.935242);
+                // Get route begin and set it as map center
+                double myLat = (double)myMap._oldRideData.Rows[0][6];
+                double myLng = (double)myMap._oldRideData.Rows[0][7];
+                myMap._initLatLng = new PointLatLng(myLat, myLng);
+                myMap._mapZoom = 17;
+                myMap.SetMapDefaults();
+
+                //Add route overlay
+                GMapOverlay routes = new GMapOverlay("routes");
+                //Add markers overlay  
+                GMapOverlay markers = new GMapOverlay("markers");
+                myMap._markers = markers;
+
+                //Add axis for altitude chart
+                List<double> AltitideXAxis = new List<double>();
+                myMap._altDataX = AltitideXAxis;
+                List<double> AltitideYAxis = new List<double>();
+                myMap._altDataY = AltitideYAxis;
+
+                GMapRoute route = new GMapRoute(myMap.CreateFullRoute(), "GC route");
+                route.Stroke = new Pen(Color.Red, 3);
+                routes.Routes.Add(route);
+                gMapControl1.Overlays.Add(routes);
+
+                //Add markers to map
+                gMapControl1.Overlays.Add(markers);
+
+                //Add selected markers to map
+                myMap._selectedMarkers = selectedMarkers;
+                myMap.AddSelectedMarkersToMap();
+
+                //Add selected Markers  overlay
+                gMapControl1.Overlays.Add(selectedMarkers);
+
+                gMapControl1.Refresh();
+
+                //Change Map drag button 
+                gMapControl1.DragButton = MouseButtons.Left;
+
+                ////Add Altitude chart
+                //formsPlot1.plt.PlotScatter(AltitideXAxis.ToArray(), AltitideYAxis.ToArray());
+                //formsPlot1.Render();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Add a red marker at the LatLng and add it to the selected markers layer
+        /// </summary>
+        /// <param name="_lat"></param>
+        /// <param name="_lng"></param>
+        private void AddSelectedMarkerToRoute(double _lat, double _lng)
+        {
+            //Add marker
+            GMapMarker marker = new GMarkerGoogle(
+                new PointLatLng(_lat, _lng),
+                GMarkerGoogleType.red_small);
+            // Add to marker overlay
+            marker.Tag = "red";
+            selectedMarkers.Markers.Add(marker);
+            //selectedMarkers.Markers.Remove(marker);
+        }
+
+        /// <summary>
+        /// Return the index of a Marker with the given LatLng in the table
+        /// </summary>
+        /// <param name="_lat"></param>
+        /// <param name="_lng"></param>
+        /// <returns>Possition if found, otherwise -1</returns>
+        private int MarkerGeoLocSecIndexAt(double _lat, double _lng)
+        {
+            int _index = -1;
+            int _sec;
+            double _currLat, _currLng;
+            try
+            {
+                DataTable _dt = new DataTable();
+                _dt = Form1.dtOldRide;
+
+                foreach (DataRow dr in _dt.Rows)
+                {
+                    _sec = (int)dr["secs"];
+                    _currLat = (double)dr["lat"];
+                    _currLng = (double)dr["lon"];
+
+                    if (_currLat == _lat && _currLng == _lng)
+                    {
+                        _index = _sec;
+                    }
+
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return _index;
+        }
 
         public static DialogResult InputBox(string title, string promptText, ref string value)
         {
@@ -1190,6 +1396,11 @@ namespace BuildCorrectionsList
             }
         }
 
+        /// <summary>
+        /// Show Map Form
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void showMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // If a ride is loaded show the form and start the timer to monitor the queue for correction points 
@@ -1197,8 +1408,8 @@ namespace BuildCorrectionsList
             {
                 frmMapView newFrmMapView = new frmMapView();
                 newFrmMapView.Show();
-                timerQMapLocs.Interval = 500;
-                timerQMapLocs.Start();
+                //timerQMapLocs.Interval = 500;
+                //timerQMapLocs.Start();
             }
             else
             {
@@ -1240,22 +1451,222 @@ namespace BuildCorrectionsList
             }
         }
 
-        private void timerQMapLocs_Tick(object sender, EventArgs e)
+        //private void timerQMapLocs_Tick(object sender, EventArgs e)
+        //{
+        //    ProcessMapLocsQ();
+        //}
+
+        //private void ProcessMapLocsQ()
+        //{
+        //    while (mapLocs.Count > 0)
+        //    {
+        //        string m = mapLocs.Dequeue();
+        //        AddRowToTable(m);
+        //        Console.WriteLine("Object in queue: " + m);
+        //        // Go to the bottom of the grid.
+        //        gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
+        //        projectStateChanged = true;
+        //    }
+        //}
+
+        private void gMapControl1_OnMarkerDoubleClick(GMapMarker item, MouseEventArgs e)
         {
-            ProcessMapLocsQ();
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                double _lat = item.Position.Lat;
+                double _lng = item.Position.Lng;
+
+                int _index = MarkerGeoLocSecIndexAt(_lat, _lng);
+                string s = $"At time: {_index.ToString()} Lat: {_lat.ToString()} and LON: {_lng.ToString()}";
+                if (_index >= 0)
+                {
+                    Console.WriteLine(s);
+                    //Center Map on point 
+                    gMapControl1.Position = new PointLatLng(_lat, _lng);
+                    mapLocation = $"{_index.ToString()},{_lat.ToString()},{_lng.ToString()}";
+                    if (mapLocation != "") // If we have a location, update data grid
+                    {
+                        //mapLocs.Enqueue(mapLocation);
+                        AddRowToTable(mapLocation);
+                        AddSelectedMarkerToRoute(_lat, _lng);
+                        // Go to the bottom of the grid.
+                        gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Index NOT FOUND for LAT: " + _lat.ToString() + " and LON: " + _lng.ToString());
+                    return;
+                } 
+            }
         }
 
-        private void ProcessMapLocsQ()
+        private void gMapControl1_OnMarkerClick(GMapMarker item, MouseEventArgs e)
         {
-            while (mapLocs.Count > 0)
+            selectedBlueMarker = item;
+            if (e.Button == System.Windows.Forms.MouseButtons.Right && (string)item.Tag == "red")
             {
-                string m = mapLocs.Dequeue();
-                AddRowToTable(m);
-                Console.WriteLine("Object in queue: " + m);
+                //selectedMarkers.Markers.Remove(selectedMarker);
+                selectedRedMarker = item;
+                PopupMenu.Show(Cursor.Position);
             }
-            // Go to the bottom of the grid.
-            gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
         }
+
+        private void BuildMapContextMenu()
+        {
+            //ContextMenuStrip PopupMenu = new ContextMenuStrip();
+
+            PopupMenu.BackColor = Color.OrangeRed;
+            PopupMenu.ForeColor = Color.Black;
+            PopupMenu.Text = "Context Menu";
+            PopupMenu.Font = new Font("Georgia", 16);
+
+
+            //The following code snippet adds a ContextMenuStrip control to the current Form and displays it when you right click on the Form.
+            //this.ContextMenuStrip = PopupMenu;
+            //PopupMenu.Show();
+
+            PopupMenu.Name = "PopupMenu";
+            PopupMenu.Font = new Font("Georgia", 16);
+            PopupMenu.BackColor = Color.OrangeRed;
+            PopupMenu.ForeColor = Color.Black;
+
+            // Create the Delete Menu Item
+            ToolStripMenuItem DeleteMenuItem = new ToolStripMenuItem("Delete");
+            DeleteMenuItem.BackColor = Color.OrangeRed;
+            DeleteMenuItem.ForeColor = Color.Black;
+            DeleteMenuItem.Text = "Delete Marker";
+            DeleteMenuItem.Font = new Font("Georgia", 16);
+            DeleteMenuItem.TextAlign = ContentAlignment.BottomRight;
+            DeleteMenuItem.ToolTipText = "Delete selected marker";
+
+            //Add event Handler for new item
+            PopupMenu.Items.Add(DeleteMenuItem);
+            DeleteMenuItem.Click += new System.EventHandler(this.DeleteMapMenuItemClick);
+
+            // Add background image --OPTIONAL
+            //FileMenu.Image = Image.FromFile("C:\\Images\\Garden.jpg");
+            //FileMenu.BackgroundImage = Image.FromFile("C:\\Images\\Garden.jpg");
+            //FileMenu.BackgroundImageLayout = ImageLayout.Tile;
+
+            // Rotate menu -- OPTIONAL
+            //FileMenu.TextDirection = ToolStripTextDirection.Vertical90;
+
+            // Create the GoogleMap Menu Item
+            ToolStripMenuItem GoogleMapMenuItem = new ToolStripMenuItem("Google Map");
+            GoogleMapMenuItem.BackColor = Color.OrangeRed;
+            GoogleMapMenuItem.ForeColor = Color.Black;
+            GoogleMapMenuItem.Text = "Open GoogleMap";
+            GoogleMapMenuItem.Font = new Font("Georgia", 16);
+            GoogleMapMenuItem.TextAlign = ContentAlignment.BottomRight;
+            GoogleMapMenuItem.ToolTipText = "Open Google Map at the marker coordinates";
+
+            //Add event Handler for new item
+            PopupMenu.Items.Add(GoogleMapMenuItem);
+            GoogleMapMenuItem.Click += new System.EventHandler(this.GoogleMapMenuItemClick);
+
+            PopupMenu.GripStyle = ToolStripGripStyle.Visible;
+        }
+
+        private void DeleteMapMenuItemClick(object sender, EventArgs e)
+        {
+            //MessageBox.Show("Delete menu item clicked");
+
+            if (selectedRedMarker.Tag.ToString() == "red")
+            {
+                var selectedOption = MessageBox.Show("Delete selected marker?", "Delete marker", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                // If the yes button was pressed ...
+                if (selectedOption == DialogResult.Yes)
+                {
+                    selectedMarkers.Markers.Remove(selectedRedMarker);
+                    Console.WriteLine("Removing marker at: " + selectedRedMarker.Position.Lat.ToString() + ", " + selectedRedMarker.Position.Lng.ToString());
+                    //Console.WriteLine("Removing marker:");
+                    DeleteGridRowAtGeoLoc(selectedRedMarker.Position.Lat, selectedRedMarker.Position.Lng);
+
+
+                }
+                else if (selectedOption == DialogResult.No)
+                {
+                    selectedRedMarker = null;
+                    return;
+                    //MessageBox.Show("No is pressed!", "No Dialog", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                else
+                {
+                    selectedRedMarker = null;
+                    return;
+                    //MessageBox.Show("Cancel is pressed", "Cancel Dialog", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } 
+            }
+
+        }
+
+        private void DeleteGridRowAtGeoLoc(double lat, double lng)
+        {
+            try
+            {
+                int gridIndex = MarkerGeoLocRowIndexAt(lat, lng);
+                //Delete marker from the table
+                if (gridIndex > 0)
+                {
+                    //MessageBox.Show($"Deleting grid row: { gridIndex.ToString() }");
+                    gridCorrectionsList.Rows.RemoveAt(gridIndex); 
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        private int MarkerGeoLocRowIndexAt(double _lat, double _lng)
+        {
+            int _index = -1;
+            int _row = 0;
+            double _currLat, _currLng;
+            try
+            {
+                //DataTable _dt = new DataTable();
+                //_dt = Form1.dtOldRide;
+
+                foreach (DataRow dr in cps.Rows)
+                {
+                    _currLat = (double)dr["Latitude"];
+                    _currLng = (double)dr["Longitude"];
+                    if (_currLat == _lat && _currLng == _lng)
+                    {
+                        _index = _row;
+                    }
+                    _row++;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return _index;
+        }
+
+
+
+        private void GoogleMapMenuItemClick(object sender, EventArgs e)
+        {
+            //MessageBox.Show("File menu item clicked");
+            string _sLat = selectedBlueMarker.Position.Lat.ToString();
+            string _sLng = selectedBlueMarker.Position.Lng.ToString();
+            string _url = $"https://www.google.com/maps/@{ _sLat },{ _sLng },18.5z";
+            //selectedMarker = null;
+            System.Diagnostics.Process.Start(_url);
+        }
+
+        private void gMapControl1_OnMapClick(PointLatLng pointClick, MouseEventArgs e)
+        {
+            //MessageBox.Show("Clicked on MAP", "Cancel Dialog", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+
 
         private void SaveWindowLocation()
         {
