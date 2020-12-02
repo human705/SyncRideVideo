@@ -739,6 +739,7 @@ namespace BuildCorrectionsList
             //Delete marker from the table
             gridCorrectionsList.Rows.RemoveAt(rowIndex);
             gridCorrectionsList.Refresh();
+            projectStateChanged = true;
         }
 
 
@@ -1491,6 +1492,7 @@ namespace BuildCorrectionsList
                         AddSelectedMarkerToRoute(_lat, _lng);
                         // Go to the bottom of the grid.
                         gridCorrectionsList.FirstDisplayedCell = gridCorrectionsList.Rows[gridCorrectionsList.Rows.Count - 1].Cells[0];
+                        projectStateChanged = true;
                     }
                 }
                 else
@@ -1582,8 +1584,7 @@ namespace BuildCorrectionsList
                     Console.WriteLine("Removing marker at: " + selectedRedMarker.Position.Lat.ToString() + ", " + selectedRedMarker.Position.Lng.ToString());
                     //Console.WriteLine("Removing marker:");
                     DeleteGridRowAtGeoLoc(selectedRedMarker.Position.Lat, selectedRedMarker.Position.Lng);
-
-
+                    projectStateChanged = true;
                 }
                 else if (selectedOption == DialogResult.No)
                 {
