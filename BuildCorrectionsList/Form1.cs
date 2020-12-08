@@ -888,7 +888,8 @@ namespace BuildCorrectionsList
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message + " \n \n " + ex.StackTrace);
+                    MessageBox.Show(ex.Message + " \n \n row #: " + i.ToString() +"\n" + ex.StackTrace);
+                    return;
                     //throw;
                 }
             }

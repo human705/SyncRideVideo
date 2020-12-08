@@ -62,6 +62,10 @@ namespace CommonLibrary
         private int CalculateAddPointsInterval(int _pointsToAdd, int _segmentTime, int _endCnt, int _videoTime)
         {
             int _pointsInterval = -99;
+            if (_pointsToAdd > (_segmentTime -1 ))
+            {
+                _pointsInterval = 2;
+            }
             //Calculate the number of points to add and the interval for adding them
 
             //if (_pointsToAdd == 1)
@@ -90,7 +94,7 @@ namespace CommonLibrary
                 //return _pointsInterval;
             }
             
-            if (_pointsInterval < 1)
+            if (_pointsInterval < 1 && _pointsInterval != -99)
             {
                 _pointsInterval = 1;
                 return _pointsInterval;
@@ -101,9 +105,9 @@ namespace CommonLibrary
             //    //ADD every other point starting with (_segmentTime - _pointsToAdd) / 2
             //}
 
-            if (_pointsInterval == 1)
+            if (_pointsInterval == 1 || _pointsInterval == -99)
             {
-                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points, pointsInterval = 1");
+                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points, pointsInterval = " + _pointsInterval.ToString());
              }
             return _pointsInterval;
         }
