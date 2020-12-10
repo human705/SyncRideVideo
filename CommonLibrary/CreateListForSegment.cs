@@ -16,19 +16,20 @@ namespace CommonLibrary
         public int mStartTimeMarker { get; set; }
         public int mEndTimeMarket { get; set; }
         public int mVideoTime { get; set; }
-        public List<SAMPLE> tempList { get; private set; } = new List<SAMPLE>();
-        public List<SAMPLE> mDestList { get; private set; } = new List<SAMPLE>();
-
+        public List<SAMPLE> mTempList { get; private set; } = new List<SAMPLE>();
         private int mSegmentTime { get; set; } = -1;
+
+
         private int pointsToAdd = -1;
+        private int pointsInterval = -1;
 
         //CTOR
-        public CreateListForSegment(List<SAMPLE> sourceList, List<SAMPLE> destList, int startTimeMarker, int endTimeMarker, int videoTime)
+        public CreateListForSegment(List<SAMPLE> sourceList, int startTimeMarker, int endTimeMarker, int videoTime)
         {
             this.mSourceList = sourceList ?? throw new ArgumentNullException(nameof(mSourceList));
             this.mStartTimeMarker = startTimeMarker;
             this.mEndTimeMarket = endTimeMarker;
-            this.tempList.Clear();
+            this.mTempList.Clear();
             
             //this.mNumOfItemsToCopy = numOfItemsToCopy;
 
@@ -36,10 +37,9 @@ namespace CommonLibrary
 
             CreateSubListOfSamples();
             //BuildTempList();
-            AddPointsToListProcess();
+            //AddPointsToListProcess();
 
-            // Copy contents of temp list to Dest list. -- Check if points exist
-            AppendToDestList();
+
         }
 
 
@@ -47,13 +47,15 @@ namespace CommonLibrary
         /// <summary>
         /// Append items from the tempList to the destination list
         /// </summary>
-        public void AppendToDestList()
+        public void AppendToDestList(List<SAMPLE> destList)
         {
-            foreach (SAMPLE sample in tempList)
+            foreach (SAMPLE sample in mTempList)
             {
                 //Check is fample exists
-                mDestList.Add(sample);
+                destList.Add(sample);
             }
+            // Write debug info
+            ListToDebugTxt();
         }
 
         /// <summary>
@@ -61,12 +63,95 @@ namespace CommonLibrary
         /// If we need to add more than half of the points we have may we need multiple passes
         /// Otherwise we need to calculate the interval to add points
         /// </summary>
-        private void AddPointsToListProcess()
+        public void AddPointsToListProcess()
         {
             pointsToAdd = mVideoTime - mSegmentTime;
             if (pointsToAdd > (mSegmentTime / 2) ) {
                 AddMoreThanHalfPoints();
+            } else
+            {
+                AddLessThanHalfPoints();
             }
+        }
+
+        /// <summary>
+        /// Adding less that half of the segment length. Need to calculate the insert inteval
+        /// </summary>
+        private void AddLessThanHalfPoints()
+        {
+            pointsInterval = CalculateAddPointsInterval();
+
+            //int startingPoint = (mSegmentTime - pointsToAdd) / 2;
+            //if (startingPoint < 1) startingPoint = 1; // Skip the first point
+
+            int startCnt = 1; 
+            int pointsAdded = 0;
+            int endCnt = mSegmentTime - 1; // Last point is already there
+            int cnt = 1;
+            //bool done = false;
+
+            while (startCnt <= endCnt)
+            {
+                if (pointsAdded < pointsToAdd && cnt == pointsInterval)
+                {
+                    //// Build new sample
+                    //GeoLoc point1 = new GeoLoc(mTempList[startCnt - 1].LAT, mTempList[startCnt - 1].LON);
+                    //GeoLoc point2 = new GeoLoc(mTempList[startCnt].LAT, mTempList[startCnt].LON);
+                    //double newPointSlope = (mTempList[startCnt - 1].SLOPE + mTempList[startCnt].SLOPE) / 2;
+                    //double newPointSpeed = (mTempList[startCnt - 1].KPH + mTempList[startCnt].KPH) / 2;
+                    //GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
+                    //GeoLoc newPoint = geoLocM1.CalcMidPoint();
+                    //geoLocM1.point1 = newPoint;
+                    //geoLocM1.point2 = point1;
+                    //double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + mTempList[startCnt - 1].KM;
+                    //// Create new sample and add data from above
+                    //SAMPLE newSample = new SAMPLE()
+                    //{
+                    //    SECS = 999, //insertPosition,
+                    //    KM = newdistanceTravelled,
+                    //    KPH = newPointSpeed,
+                    //    ALT = (mTempList[startCnt].ALT + mTempList[startCnt - 1].ALT) / 2,
+                    //    LAT = newPoint.Latitude,
+                    //    LON = newPoint.Longitude,
+                    //    SLOPE = newPointSlope
+                    //};
+
+                    SAMPLE newSample = BuildNewSample(startCnt);
+                    // Insert new point in ride
+                    mTempList.Add(newSample);
+                    pointsAdded++;
+                    cnt = 1;
+                    //if (pointsAdded == pointsToAdd) done = true;
+                }
+                startCnt++;
+                cnt++;
+            }
+            SortMyList();
+        }
+
+        /// <summary>
+        /// Calculate the interval for adding new point to the segment
+        /// </summary>
+        /// <returns></returns>
+        private int CalculateAddPointsInterval()
+        {
+            int _pointsInterval = -99;
+
+            if (pointsToAdd <= (mSegmentTime / 2))
+            {
+                _pointsInterval = mSegmentTime / pointsToAdd;
+            }
+
+            if (pointsToAdd > (mSegmentTime - 1))
+            {
+                _pointsInterval = 2;
+            }
+
+            if (_pointsInterval <= 1 || _pointsInterval == -99)
+            {
+                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points, pointsInterval = " + _pointsInterval.ToString());
+            }
+            return _pointsInterval;
         }
 
         /// <summary>
@@ -75,39 +160,40 @@ namespace CommonLibrary
         private void AddMoreThanHalfPoints()
         {
             int startingPoint = (mSegmentTime - pointsToAdd) / 2;
-            if (startingPoint < 1) startingPoint = 1; // Skip the first point
+            if (startingPoint < 1) startingPoint = 1; 
             int startCnt = 0;
             int pointsAdded = 0;
-            int endCnt = mSegmentTime - 1; // Last point is added manually
+            int endCnt = mSegmentTime - 1; // Last point is already there
 
             while (startCnt <= endCnt)
             {
                 if (pointsAdded < pointsToAdd && startCnt >= startingPoint)
                 {
-                    // Build new sample
-                    GeoLoc point1 = new GeoLoc(tempList[startCnt - 1].LAT, tempList[startCnt - 1].LON);
-                    GeoLoc point2 = new GeoLoc(tempList[startCnt].LAT, tempList[startCnt].LON);
-                    double newPointSlope = (tempList[startCnt - 1].SLOPE + tempList[startCnt].SLOPE) / 2;
-                    double newPointSpeed = (tempList[startCnt - 1].KPH + tempList[startCnt].KPH) / 2;
-                    GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
-                    GeoLoc newPoint = geoLocM1.CalcMidPoint();
-                    geoLocM1.point1 = newPoint;
-                    geoLocM1.point2 = point1;
-                    double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + tempList[startCnt - 1].KM;
-                    // Create new sample and add data from above
-                    SAMPLE newSample = new SAMPLE()
-                    {
-                        SECS = 999, //insertPosition,
-                        KM = newdistanceTravelled,
-                        KPH = newPointSpeed,
-                        ALT = (tempList[startCnt].ALT + tempList[startCnt - 1].ALT) / 2,
-                        LAT = newPoint.Latitude,
-                        LON = newPoint.Longitude,
-                        SLOPE = newPointSlope
-                    };
+                    //// Build new sample
+                    //GeoLoc point1 = new GeoLoc(mTempList[startCnt - 1].LAT, mTempList[startCnt - 1].LON);
+                    //GeoLoc point2 = new GeoLoc(mTempList[startCnt].LAT, mTempList[startCnt].LON);
+                    //double newPointSlope = (mTempList[startCnt - 1].SLOPE + mTempList[startCnt].SLOPE) / 2;
+                    //double newPointSpeed = (mTempList[startCnt - 1].KPH + mTempList[startCnt].KPH) / 2;
+                    //GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
+                    //GeoLoc newPoint = geoLocM1.CalcMidPoint();
+                    //geoLocM1.point1 = newPoint;
+                    //geoLocM1.point2 = point1;
+                    //double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + mTempList[startCnt - 1].KM;
+                    //// Create new sample and add data from above
+                    //SAMPLE newSample = new SAMPLE()
+                    //{
+                    //    SECS = 999, //insertPosition,
+                    //    KM = newdistanceTravelled,
+                    //    KPH = newPointSpeed,
+                    //    ALT = (mTempList[startCnt].ALT + mTempList[startCnt - 1].ALT) / 2,
+                    //    LAT = newPoint.Latitude,
+                    //    LON = newPoint.Longitude,
+                    //    SLOPE = newPointSlope
+                    //};
+                    SAMPLE newSample = BuildNewSample(startCnt);
 
                     // Insert new point in ride
-                    tempList.Add(newSample);
+                    mTempList.Add(newSample);
                     pointsAdded++;
                 }
                 startCnt++;
@@ -119,7 +205,41 @@ namespace CommonLibrary
                 }
             }
             SortMyList();
-            ListToDebugTxt();
+        }
+
+
+        /// <summary>
+        /// Create and return a new SAMPLE based on the index in the mTempList
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        private SAMPLE BuildNewSample(int index)
+        {
+            SAMPLE newSample = new SAMPLE();
+
+            // Build new sample
+            GeoLoc point1 = new GeoLoc(mTempList[index - 1].LAT, mTempList[index - 1].LON);
+            GeoLoc point2 = new GeoLoc(mTempList[index].LAT, mTempList[index].LON);
+            double newPointSlope = (mTempList[index - 1].SLOPE + mTempList[index].SLOPE) / 2;
+            double newPointSpeed = (mTempList[index - 1].KPH + mTempList[index].KPH) / 2;
+            GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
+            GeoLoc newPoint = geoLocM1.CalcMidPoint();
+            geoLocM1.point1 = newPoint;
+            geoLocM1.point2 = point1;
+            double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + mTempList[index - 1].KM;
+            // Create new sample and add data from above
+            newSample = new SAMPLE()
+            {
+                SECS = 999, //insertPosition,
+                KM = newdistanceTravelled,
+                KPH = newPointSpeed,
+                ALT = (mTempList[index].ALT + mTempList[index - 1].ALT) / 2,
+                LAT = newPoint.Latitude,
+                LON = newPoint.Longitude,
+                SLOPE = newPointSlope
+            };
+
+            return newSample;
         }
 
         /// <summary>
@@ -128,11 +248,11 @@ namespace CommonLibrary
         private void SortMyList() {
 
             DataTableOperations dto = new DataTableOperations();
-            DataTable dt = dto.LoadTableFromList(tempList);
+            DataTable dt = dto.LoadTableFromList(mTempList);
             dt.DefaultView.Sort = "KM asc";
             dt = dt.DefaultView.ToTable();
-            tempList.Clear();
-            tempList = dto.LoadListFromTable(dt);
+            mTempList.Clear();
+            mTempList = dto.LoadListFromTable(dt);
         }
 
         /// <summary>
@@ -145,7 +265,7 @@ namespace CommonLibrary
             if (File.Exists(fullPath)) File.Delete(fullPath);
             using (TextWriter tw = new StreamWriter(fullPath, true)) //Append mode
             {
-                foreach (SAMPLE item in tempList)
+                foreach (SAMPLE item in mTempList)
                 {
 
                     tw.Write(" -- SECS:" + item.SECS.ToString());
@@ -190,7 +310,7 @@ namespace CommonLibrary
 
             if (mStartTimeMarker > 0) mStartTimeMarker++;
 
-            for (int i = mStartTimeMarker; i <= mEndTimeMarket; i++)
+            for (int i = mStartTimeMarker; i <= mEndTimeMarket; i++) // Skip point already there
             {
                 SAMPLE newSample = new SAMPLE()
                 {
@@ -202,9 +322,9 @@ namespace CommonLibrary
                     LON = mSourceList[i].LON,
                     SLOPE = mSourceList[i].SLOPE
                 };
-                tempList.Add(newSample);
+                mTempList.Add(newSample);
             }
-            if (tempList == null)
+            if (mTempList == null)
             {
                 throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + $"Created list is empty.");
             }

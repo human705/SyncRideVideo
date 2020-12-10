@@ -835,27 +835,18 @@ namespace BuildCorrectionsList
                             return;
                         }
 
+                        // Initalize the segment creation
+                        CreateListForSegment createListForSegment = new CreateListForSegment(oldRide.RIDE.SAMPLES,
+                            //newRide.RIDE.SAMPLES,
+                            startMarkerTime,
+                            endMarkerTime,
+                            videoTime);
+
                         if (videoTime > (endMarkerTime - startMarkerTime))
                         {
 
-
-                            try
-                            {
-                                CreateListForSegment createListForSegment = new CreateListForSegment(oldRide.RIDE.SAMPLES,
-                                    newRide.RIDE.SAMPLES,
-                                    startMarkerTime,
-                                    endMarkerTime,
-                                    videoTime);
-
-                                // Copy items to newRide.RIDE.SAMPLES
-                                _testSegment = createListForSegment.tempList;
-
-                            }
-                            catch (Exception)
-                            {
-
-                                throw;
-                            }
+                            createListForSegment.AddPointsToListProcess();
+                            createListForSegment.AppendToDestList(newRide.RIDE.SAMPLES);
 
                             //Adding points to ride
                             //_testSegment = newRideProcessing.AddPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, 
@@ -868,10 +859,15 @@ namespace BuildCorrectionsList
                                 ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
                         } else if (videoTime == (endMarkerTime - startMarkerTime))
                         {
-                            _testSegment = newRideProcessing.MoveAllPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, 
-                                ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
+
+                            createListForSegment.AppendToDestList(newRide.RIDE.SAMPLES);
+
+                            //_testSegment = newRideProcessing.MoveAllPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, 
+                            //    ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
                         }
 
+                        // Copy items to newRide.RIDE.SAMPLES
+                        _testSegment = createListForSegment.mTempList;
 
 #if (TESTS)
                         // TESTS
@@ -883,26 +879,21 @@ namespace BuildCorrectionsList
 
                         //int vTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]);
 
-                        bool checkLon, checkLat, checkKM;
+                        bool checkLon, checkLat, checkKM, checkItemCount; 
                         checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[vTime].LON;
                         checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[vTime].LAT;
                         checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[vTime].KM;
 
 
+                        if (i == 1)
+                        {
+                            checkItemCount = vTime + 1 == _testSegment.Count(); 
+                        } else
+                        {
+                            checkItemCount = vTime + 1 == _testSegment.Count();
+                        }
 
-                        //if (i == 1)
-                        //{
-                        //    checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime].LON;
-                        //    checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime].LAT;
-                        //    checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime].KM;
-                        //} else
-                        //{
-                        //    checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime - 1].LON;
-                        //    checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime - 1].LAT;
-                        //    checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime - 1].KM;
-                        //}
-
-                        if (checkLon && checkLat && checkKM)
+                        if (checkLon && checkLat && checkKM && checkItemCount)
                         {
                             Debug.WriteLine(" Check PASSED ");
                         }
@@ -911,6 +902,9 @@ namespace BuildCorrectionsList
                             Debug.WriteLine(" *** Check FAILED *** ");
                         }
 
+                        DataTableOperations dto = new DataTableOperations();
+                        DataTable dt = new DataTable();
+                        dt = dto.LoadTableFromList(newRide.RIDE.SAMPLES);
                         //Debug.WriteLine("Calling AddPointsToRide with parms: " + videoTime.ToString() + "," + startMarkerTime.ToString() +
                         //    "," + endMarkerTime.ToString() + ","+ oldRideCnt.ToString() + ", oldRide");  
 
