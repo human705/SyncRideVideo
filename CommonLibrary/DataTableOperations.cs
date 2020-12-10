@@ -127,6 +127,66 @@ namespace CommonLibrary
             return dtCsv;
         }
 
+
+        public DataTable LoadTableFromList(List<SAMPLE> myList)
+        {
+            if (myList.Count() == 0)
+            {
+                return null;
+            }
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("secs", typeof(int));
+            dt.Columns.Add("km", typeof(double));
+            dt.Columns.Add("cad", typeof(int));
+            dt.Columns.Add("kph", typeof(double));
+            dt.Columns.Add("hr", typeof(double));
+            dt.Columns.Add("alt", typeof(double));
+            dt.Columns.Add("lat", typeof(double));
+            dt.Columns.Add("lon", typeof(double));
+            dt.Columns.Add("slope", typeof(double));
+
+            for (int i = 0; i < myList.Count(); i++)
+            {
+                DataRow dr = dt.NewRow();
+
+                dr["secs"] = myList[i].SECS;
+                dr["km"] = myList[i].KM;
+                dr["cad"] = myList[i].CAD;
+                dr["kph"] = myList[i].KPH;
+                dr["hr"] = myList[i].HR;
+                dr["alt"] = myList[i].ALT;
+                dr["lat"] = myList[i].LAT;
+                dr["lon"] = myList[i].LON;
+                dr["slope"] = myList[i].SLOPE;
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
+
+
+        public List<SAMPLE> LoadListFromTable(DataTable dt)
+        {
+            List<SAMPLE> myList = new List<SAMPLE>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                SAMPLE newSample = new SAMPLE();
+                newSample.SECS = (int)dr["secs"];
+                newSample.KM = (double)dr["km"];
+                newSample.CAD = (int)dr["cad"];
+                newSample.KPH = (double)dr["kph"];
+                newSample.HR = (double)dr["hr"];
+                newSample.ALT = (double)dr["alt"];
+                newSample.LAT = (double)dr["lat"];
+                newSample.LON = (double)dr["lon"];
+                newSample.SLOPE = (double)dr["slope"];
+
+                myList.Add(newSample);
+            }
+
+            if (dt.Rows.Count > 0) return myList; else return null;
+        }
+
         public DataTable LoadTableFromGCRideList(GoldenCheetahRide thisRide)
         {
             if (thisRide.RIDE.SAMPLES.Count() == 0)

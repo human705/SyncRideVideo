@@ -83,7 +83,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildAddRideSegment.cs" />
     <Compile Include="CorrectionPoint.cs" />
+    <Compile Include="CreateListForSegment.cs" />
     <Compile Include="DataTableOperations.cs" />
     <Compile Include="DictionalyProcessing.cs" />
     <Compile Include="GoldenCheetahRide.cs" />

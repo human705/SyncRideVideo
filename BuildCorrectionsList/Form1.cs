@@ -826,6 +826,9 @@ namespace BuildCorrectionsList
                         startMarkerTime = newRideProcessing.FindTimeForDistance(fromKm, ref oldRide);
                         endMarkerTime = newRideProcessing.FindTimeForDistance(toKm, ref oldRide);
                         //Debug.WriteLine(startMarkerTime.ToString() + "," + endMarkerTime.ToString());
+
+
+
                         if (startMarkerTime == -1 || endMarkerTime == -1)
                         {
                             MessageBox.Show("Error converting distance to time at row #: " + i.ToString());
@@ -834,9 +837,29 @@ namespace BuildCorrectionsList
 
                         if (videoTime > (endMarkerTime - startMarkerTime))
                         {
+
+
+                            try
+                            {
+                                CreateListForSegment createListForSegment = new CreateListForSegment(oldRide.RIDE.SAMPLES,
+                                    newRide.RIDE.SAMPLES,
+                                    startMarkerTime,
+                                    endMarkerTime,
+                                    videoTime);
+
+                                // Copy items to newRide.RIDE.SAMPLES
+                                _testSegment = createListForSegment.tempList;
+
+                            }
+                            catch (Exception)
+                            {
+
+                                throw;
+                            }
+
                             //Adding points to ride
-                            _testSegment = newRideProcessing.AddPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, 
-                                ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
+                            //_testSegment = newRideProcessing.AddPointsToNewRide(videoTime, startMarkerTime, endMarkerTime, 
+                            //    ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
                         }
                         else if (videoTime < (endMarkerTime - startMarkerTime))
                         {
@@ -855,21 +878,29 @@ namespace BuildCorrectionsList
                         Debug.Write("Record: " + i.ToString());
 
                         int rTime = Convert.ToInt32(cps.Rows[i]["FileTimeInSecs"]);
-                        int vTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]);
+                        int vTime = -1;
+                        if (i == 1) { vTime = videoTime; } else { vTime = videoTime - 1; }
+
+                        //int vTime = Convert.ToInt32(cps.Rows[i]["VideoTimeInSecs"]);
 
                         bool checkLon, checkLat, checkKM;
+                        checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[vTime].LON;
+                        checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[vTime].LAT;
+                        checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[vTime].KM;
 
-                        if (i == 1)
-                        {
-                            checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime].LON;
-                            checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime].LAT;
-                            checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime].KM;
-                        } else
-                        {
-                            checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime - 1].LON;
-                            checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime - 1].LAT;
-                            checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime - 1].KM;
-                        }
+
+
+                        //if (i == 1)
+                        //{
+                        //    checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime].LON;
+                        //    checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime].LAT;
+                        //    checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime].KM;
+                        //} else
+                        //{
+                        //    checkLon = oldRide.RIDE.SAMPLES[rTime].LON == _testSegment[videoTime - 1].LON;
+                        //    checkLat = oldRide.RIDE.SAMPLES[rTime].LAT == _testSegment[videoTime - 1].LAT;
+                        //    checkKM = oldRide.RIDE.SAMPLES[rTime].KM == _testSegment[videoTime - 1].KM;
+                        //}
 
                         if (checkLon && checkLat && checkKM)
                         {
