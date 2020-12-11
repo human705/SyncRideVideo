@@ -12,7 +12,7 @@ namespace CommonLibrary
     public class CreateListForSegment
     {
         public List<SAMPLE> mSourceList { get; set; }
-        public List<SAMPLE> mCreatedList { get; set; } = new List<SAMPLE>();
+        public List<SAMPLE> mDestList { private get; set; } 
         public int mStartTimeMarker { get; set; }
         public int mEndTimeMarket { get; set; }
         public int mVideoTime { get; set; }
@@ -20,29 +20,35 @@ namespace CommonLibrary
         private int mSegmentTime { get; set; } = -1;
 
 
+
+
         private int pointsToAdd = -1;
+        private int pointsToRemove = -1;
         private int pointsInterval = -1;
+        private int startCnt = -1;
 
         //CTOR
-        public CreateListForSegment(List<SAMPLE> sourceList, int startTimeMarker, int endTimeMarker, int videoTime)
+        public CreateListForSegment(List<SAMPLE> sourceList, List<SAMPLE> destList, int startTimeMarker, int endTimeMarker, int videoTime)
         {
             this.mSourceList = sourceList ?? throw new ArgumentNullException(nameof(mSourceList));
             this.mStartTimeMarker = startTimeMarker;
             this.mEndTimeMarket = endTimeMarker;
             this.mTempList.Clear();
-            
-            //this.mNumOfItemsToCopy = numOfItemsToCopy;
-
+            this.mDestList = destList;
             this.mVideoTime = videoTime + 1; // Account for the 0 second
+            CreateSubListOfSamples(); // Create a sublist to add or remove points, based on the inpute values
 
-            CreateSubListOfSamples();
-            //BuildTempList();
-            //AddPointsToListProcess();
+            //First record starts with 0 second.
+            if (mDestList.Count() == 0 )
+            {
+                startCnt = 0;
+            } else
+            {
+                startCnt = 1;
+            }
 
 
         }
-
-
 
         /// <summary>
         /// Append items from the tempList to the destination list
@@ -75,47 +81,98 @@ namespace CommonLibrary
         }
 
         /// <summary>
+        /// Select the process to use based on the segment size and the # of points to remove
+        /// </summary>
+        public void RemovePointsFromListProcess()
+        {
+            pointsToRemove = Math.Abs(mVideoTime - mSegmentTime);
+            pointsInterval = CalculateRomovePointsInterval();
+
+            if (mVideoTime > (mSegmentTime / 2))
+            {
+                NonConsecutivePointsRemoveProcess();
+            } else
+            {
+                ConsecutivePointsRemoveProcess();
+            }
+        }
+
+
+        /// <summary>
+        /// Process to remove more than half the point of the list
+        /// We'll callculate the intarval and keep only those points
+        /// </summary>
+        private void ConsecutivePointsRemoveProcess()
+        {
+            //startCnt = 1;
+            int endCnt = mSegmentTime; // ???????????????????
+            int dropCount = (endCnt - startCnt) / (mVideoTime - 1);
+            if (dropCount * (mVideoTime - 1) > endCnt - startCnt) dropCount--;
+            if (dropCount <= 1)
+            {
+                throw new Exception("ConsecutivePointsRemoveProcess -- Cannot remove all points");
+            }
+        }
+
+        /// <summary>
+        /// Process to remove less than half the point in a list
+        /// </summary>
+        private void NonConsecutivePointsRemoveProcess()
+        {
+            //startCnt = 1;
+            int pointsRemoved = 0;
+            int endCnt = mSegmentTime - 1; // Last point is already there
+            int cnt = 1;
+
+            while (startCnt <= endCnt)
+            {
+                if (pointsRemoved < pointsToRemove && cnt == pointsInterval)
+                {
+                    mTempList.RemoveAt(startCnt-1);
+                    cnt = 1;
+                    pointsRemoved++;
+                }
+                cnt++;
+                startCnt++;
+            }
+        }
+
+        private int CalculateRomovePointsInterval()
+        {
+            int _pointsInterval = -99;
+            if (pointsToRemove == 1)
+            {
+                _pointsInterval = (int)Math.Round(mSegmentTime / 2.0);
+            }
+            else
+            {
+                _pointsInterval = (int)Math.Round(Math.Abs(mSegmentTime / (pointsToRemove + 1.0)));
+            }
+
+            if ((_pointsInterval * pointsToRemove) >= mSegmentTime - 1) _pointsInterval--;
+
+            //if (pointsInterval < 1) pointsInterval = 1;
+
+            return _pointsInterval;
+        }
+
+
+        /// <summary>
         /// Adding less that half of the segment length. Need to calculate the insert inteval
         /// </summary>
         private void AddLessThanHalfPoints()
         {
             pointsInterval = CalculateAddPointsInterval();
 
-            //int startingPoint = (mSegmentTime - pointsToAdd) / 2;
-            //if (startingPoint < 1) startingPoint = 1; // Skip the first point
-
-            int startCnt = 1; 
+            //startCnt = 1; 
             int pointsAdded = 0;
             int endCnt = mSegmentTime - 1; // Last point is already there
             int cnt = 1;
-            //bool done = false;
 
             while (startCnt <= endCnt)
             {
                 if (pointsAdded < pointsToAdd && cnt == pointsInterval)
                 {
-                    //// Build new sample
-                    //GeoLoc point1 = new GeoLoc(mTempList[startCnt - 1].LAT, mTempList[startCnt - 1].LON);
-                    //GeoLoc point2 = new GeoLoc(mTempList[startCnt].LAT, mTempList[startCnt].LON);
-                    //double newPointSlope = (mTempList[startCnt - 1].SLOPE + mTempList[startCnt].SLOPE) / 2;
-                    //double newPointSpeed = (mTempList[startCnt - 1].KPH + mTempList[startCnt].KPH) / 2;
-                    //GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
-                    //GeoLoc newPoint = geoLocM1.CalcMidPoint();
-                    //geoLocM1.point1 = newPoint;
-                    //geoLocM1.point2 = point1;
-                    //double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + mTempList[startCnt - 1].KM;
-                    //// Create new sample and add data from above
-                    //SAMPLE newSample = new SAMPLE()
-                    //{
-                    //    SECS = 999, //insertPosition,
-                    //    KM = newdistanceTravelled,
-                    //    KPH = newPointSpeed,
-                    //    ALT = (mTempList[startCnt].ALT + mTempList[startCnt - 1].ALT) / 2,
-                    //    LAT = newPoint.Latitude,
-                    //    LON = newPoint.Longitude,
-                    //    SLOPE = newPointSlope
-                    //};
-
                     SAMPLE newSample = BuildNewSample(startCnt);
                     // Insert new point in ride
                     mTempList.Add(newSample);
@@ -147,6 +204,13 @@ namespace CommonLibrary
                 _pointsInterval = 2;
             }
 
+            if (pointsToAdd == 1)
+            {
+                _pointsInterval = mSegmentTime / 2;
+            }
+
+            if ((_pointsInterval * pointsToAdd) >= mSegmentTime - 1) _pointsInterval--;
+
             if (_pointsInterval <= 1 || _pointsInterval == -99)
             {
                 throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points, pointsInterval = " + _pointsInterval.ToString());
@@ -161,7 +225,7 @@ namespace CommonLibrary
         {
             int startingPoint = (mSegmentTime - pointsToAdd) / 2;
             if (startingPoint < 1) startingPoint = 1; 
-            int startCnt = 0;
+            //startCnt = 0;
             int pointsAdded = 0;
             int endCnt = mSegmentTime - 1; // Last point is already there
 
@@ -169,32 +233,18 @@ namespace CommonLibrary
             {
                 if (pointsAdded < pointsToAdd && startCnt >= startingPoint)
                 {
-                    //// Build new sample
-                    //GeoLoc point1 = new GeoLoc(mTempList[startCnt - 1].LAT, mTempList[startCnt - 1].LON);
-                    //GeoLoc point2 = new GeoLoc(mTempList[startCnt].LAT, mTempList[startCnt].LON);
-                    //double newPointSlope = (mTempList[startCnt - 1].SLOPE + mTempList[startCnt].SLOPE) / 2;
-                    //double newPointSpeed = (mTempList[startCnt - 1].KPH + mTempList[startCnt].KPH) / 2;
-                    //GeoLocMath geoLocM1 = new GeoLocMath(point1, point2);
-                    //GeoLoc newPoint = geoLocM1.CalcMidPoint();
-                    //geoLocM1.point1 = newPoint;
-                    //geoLocM1.point2 = point1;
-                    //double newdistanceTravelled = geoLocM1.CalcDistanceBetweenGeoLocations() + mTempList[startCnt - 1].KM;
-                    //// Create new sample and add data from above
-                    //SAMPLE newSample = new SAMPLE()
-                    //{
-                    //    SECS = 999, //insertPosition,
-                    //    KM = newdistanceTravelled,
-                    //    KPH = newPointSpeed,
-                    //    ALT = (mTempList[startCnt].ALT + mTempList[startCnt - 1].ALT) / 2,
-                    //    LAT = newPoint.Latitude,
-                    //    LON = newPoint.Longitude,
-                    //    SLOPE = newPointSlope
-                    //};
                     SAMPLE newSample = BuildNewSample(startCnt);
-
                     // Insert new point in ride
-                    mTempList.Add(newSample);
-                    pointsAdded++;
+
+
+                    // *** Should not add at the end of the list  ***
+                    if (startCnt != endCnt)
+                    {
+                        mTempList.Add(newSample);
+                        pointsAdded++; 
+                    }
+
+
                 }
                 startCnt++;
                 // We got to the end of the list but if we didn't add all the points we needed, start again.
@@ -216,7 +266,6 @@ namespace CommonLibrary
         private SAMPLE BuildNewSample(int index)
         {
             SAMPLE newSample = new SAMPLE();
-
             // Build new sample
             GeoLoc point1 = new GeoLoc(mTempList[index - 1].LAT, mTempList[index - 1].LON);
             GeoLoc point2 = new GeoLoc(mTempList[index].LAT, mTempList[index].LON);
@@ -230,7 +279,7 @@ namespace CommonLibrary
             // Create new sample and add data from above
             newSample = new SAMPLE()
             {
-                SECS = 999, //insertPosition,
+                SECS = 999999, //insertPosition,
                 KM = newdistanceTravelled,
                 KPH = newPointSpeed,
                 ALT = (mTempList[index].ALT + mTempList[index - 1].ALT) / 2,
@@ -238,7 +287,6 @@ namespace CommonLibrary
                 LON = newPoint.Longitude,
                 SLOPE = newPointSlope
             };
-
             return newSample;
         }
 
@@ -246,7 +294,6 @@ namespace CommonLibrary
         /// Sort the contents of the temp list
         /// </summary>
         private void SortMyList() {
-
             DataTableOperations dto = new DataTableOperations();
             DataTable dt = dto.LoadTableFromList(mTempList);
             dt.DefaultView.Sort = "KM asc";
@@ -267,7 +314,6 @@ namespace CommonLibrary
             {
                 foreach (SAMPLE item in mTempList)
                 {
-
                     tw.Write(" -- SECS:" + item.SECS.ToString());
                     tw.Write(", KM:" + item.KM.ToString());
                     tw.Write(", KPH:" + item.KPH.ToString());
@@ -278,23 +324,6 @@ namespace CommonLibrary
                 }
             }
         }
-
-        /// <summary>
-        /// Build a new temp list from the created sublist so we can add points
-        /// </summary>
-        //private void BuildTempList()
-        //{
-        //    if (mCreatedList != null)
-        //    {
-        //        foreach (SAMPLE sample in mCreatedList)
-        //        {
-        //            tempList.Add(sample);
-        //        } 
-        //    } else
-        //    {
-        //        throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + $"Created list is empty ");
-        //    }
-        //}
 
         /// <summary>
         /// Create a sublist of the source list based on starting point and items to copy

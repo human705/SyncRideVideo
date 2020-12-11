@@ -837,7 +837,7 @@ namespace BuildCorrectionsList
 
                         // Initalize the segment creation
                         CreateListForSegment createListForSegment = new CreateListForSegment(oldRide.RIDE.SAMPLES,
-                            //newRide.RIDE.SAMPLES,
+                            newRide.RIDE.SAMPLES,
                             startMarkerTime,
                             endMarkerTime,
                             videoTime);
@@ -855,8 +855,12 @@ namespace BuildCorrectionsList
                         else if (videoTime < (endMarkerTime - startMarkerTime))
                         {
                             //Removing points from ride
-                            _testSegment = newRideProcessing.RemovePointsFromNewRide(videoTime, startMarkerTime, endMarkerTime, 
-                                ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
+
+                            createListForSegment.RemovePointsFromListProcess();
+                            createListForSegment.AppendToDestList(newRide.RIDE.SAMPLES);
+
+                            //_testSegment = newRideProcessing.RemovePointsFromNewRide(videoTime, startMarkerTime, endMarkerTime, 
+                            //    ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
                         } else if (videoTime == (endMarkerTime - startMarkerTime))
                         {
 
@@ -866,12 +870,12 @@ namespace BuildCorrectionsList
                             //    ref oldRideCnt, ref newRideCnt, oldRide, ref newRide);
                         }
 
-                        // Copy items to newRide.RIDE.SAMPLES
+                        // Copy items to newRide.RIDE.SAMPLES so we can run Unit tests
                         _testSegment = createListForSegment.mTempList;
 
 #if (TESTS)
                         // TESTS
-                        Debug.Write("Record: " + i.ToString());
+                        Debug.Write($"Record:  { i.ToString() } of { cps.Rows.Count - 1} ");
 
                         int rTime = Convert.ToInt32(cps.Rows[i]["FileTimeInSecs"]);
                         int vTime = -1;
@@ -895,11 +899,11 @@ namespace BuildCorrectionsList
 
                         if (checkLon && checkLat && checkKM && checkItemCount)
                         {
-                            Debug.WriteLine(" Check PASSED ");
+                            Debug.WriteLine(" --- SUCCESS --- ");
                         }
                         else
                         {
-                            Debug.WriteLine(" *** Check FAILED *** ");
+                            Debug.WriteLine(" *** *** *** FAILED *** *** *** ");
                         }
 
                         DataTableOperations dto = new DataTableOperations();
