@@ -280,7 +280,7 @@ namespace BuildCorrectionsList
                 axWindowsMediaPlayer1.Ctlcontrols.pause();
                 getMovieDurationTimer.Stop();
                 //lblVideoTimeTotal.Text += VideoLingthInSecs.ToString();
-                TotVideoTimeToolStripLabel1.Text += " = " + VideoLingthInSecs.ToString();
+                TotVideoTimeToolStripLabel1.Text = "Video secs = " + VideoLingthInSecs.ToString();
             }
             
         }
@@ -1360,7 +1360,7 @@ namespace BuildCorrectionsList
         ///MRUList
 
         Queue<string> MRUlist = new Queue<string>();
-        int MRUnumber = 5;
+        int MRUnumber = 15;
         private void SaveRecentFile(string path)
         {
             //clear all recent list from menu

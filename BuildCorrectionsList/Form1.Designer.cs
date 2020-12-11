@@ -123,14 +123,14 @@
             this.viewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1242, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1242, 30);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // recentToolStripMenuItem
             // 
             this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
-            this.recentToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
+            this.recentToolStripMenuItem.Size = new System.Drawing.Size(68, 26);
             this.recentToolStripMenuItem.Text = "Recent";
             // 
             // fileToolStripMenuItem
@@ -141,7 +141,7 @@
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // CreateProjtoolStripMenuItem
@@ -176,7 +176,7 @@
             this.openFileToolStripMenuItem,
             this.clearGridToolStripMenuItem});
             this.correctionsToolStripMenuItem.Name = "correctionsToolStripMenuItem";
-            this.correctionsToolStripMenuItem.Size = new System.Drawing.Size(98, 24);
+            this.correctionsToolStripMenuItem.Size = new System.Drawing.Size(98, 26);
             this.correctionsToolStripMenuItem.Text = "Corrections";
             this.correctionsToolStripMenuItem.Click += new System.EventHandler(this.correctionsToolStripMenuItem_Click);
             // 
@@ -199,7 +199,7 @@
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showMapToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
             this.viewToolStripMenuItem.Text = "View";
             // 
             // showMapToolStripMenuItem
@@ -325,15 +325,11 @@
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // timerQMapLocs
-            // 
-            //this.timerQMapLocs.Tick += new System.EventHandler(this.timerQMapLocs_Tick);
-            // 
             // TopPanel
             // 
             this.TopPanel.Controls.Add(this.gridCorrectionsList);
             this.TopPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.TopPanel.Location = new System.Drawing.Point(0, 28);
+            this.TopPanel.Location = new System.Drawing.Point(0, 30);
             this.TopPanel.Name = "TopPanel";
             this.TopPanel.Size = new System.Drawing.Size(1242, 99);
             this.TopPanel.TabIndex = 10;
@@ -342,7 +338,7 @@
             // 
             this.splitter1.BackColor = System.Drawing.Color.RoyalBlue;
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitter1.Location = new System.Drawing.Point(0, 127);
+            this.splitter1.Location = new System.Drawing.Point(0, 129);
             this.splitter1.Name = "splitter1";
             this.splitter1.Size = new System.Drawing.Size(1242, 13);
             this.splitter1.TabIndex = 11;
@@ -448,9 +444,9 @@
             this.VideoPanel.BackColor = System.Drawing.Color.Red;
             this.VideoPanel.Controls.Add(this.axWindowsMediaPlayer1);
             this.VideoPanel.Dock = System.Windows.Forms.DockStyle.Left;
-            this.VideoPanel.Location = new System.Drawing.Point(0, 140);
+            this.VideoPanel.Location = new System.Drawing.Point(0, 142);
             this.VideoPanel.Name = "VideoPanel";
-            this.VideoPanel.Size = new System.Drawing.Size(426, 449);
+            this.VideoPanel.Size = new System.Drawing.Size(426, 447);
             this.VideoPanel.TabIndex = 0;
             // 
             // axWindowsMediaPlayer1
@@ -460,16 +456,16 @@
             this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(0, 0);
             this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
             this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
-            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(426, 449);
+            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(426, 447);
             this.axWindowsMediaPlayer1.TabIndex = 2;
             this.axWindowsMediaPlayer1.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.MediaPlayerStateChanged);
             // 
             // MiddleSplitter
             // 
             this.MiddleSplitter.BackColor = System.Drawing.Color.RoyalBlue;
-            this.MiddleSplitter.Location = new System.Drawing.Point(426, 140);
+            this.MiddleSplitter.Location = new System.Drawing.Point(426, 142);
             this.MiddleSplitter.Name = "MiddleSplitter";
-            this.MiddleSplitter.Size = new System.Drawing.Size(16, 449);
+            this.MiddleSplitter.Size = new System.Drawing.Size(16, 447);
             this.MiddleSplitter.TabIndex = 17;
             this.MiddleSplitter.TabStop = false;
             // 
@@ -478,9 +474,9 @@
             this.mapPanel1.BackColor = System.Drawing.Color.Magenta;
             this.mapPanel1.Controls.Add(this.gMapControl1);
             this.mapPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mapPanel1.Location = new System.Drawing.Point(442, 140);
+            this.mapPanel1.Location = new System.Drawing.Point(442, 142);
             this.mapPanel1.Name = "mapPanel1";
-            this.mapPanel1.Size = new System.Drawing.Size(800, 449);
+            this.mapPanel1.Size = new System.Drawing.Size(800, 447);
             this.mapPanel1.TabIndex = 18;
             // 
             // gMapControl1
@@ -506,7 +502,7 @@
             this.gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             this.gMapControl1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.gMapControl1.ShowTileGridLines = false;
-            this.gMapControl1.Size = new System.Drawing.Size(800, 449);
+            this.gMapControl1.Size = new System.Drawing.Size(800, 447);
             this.gMapControl1.TabIndex = 0;
             this.gMapControl1.Zoom = 0D;
             this.gMapControl1.OnMapClick += new GMap.NET.WindowsForms.MapClick(this.gMapControl1_OnMapClick);

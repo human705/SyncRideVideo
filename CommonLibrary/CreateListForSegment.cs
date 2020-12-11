@@ -100,18 +100,43 @@ namespace CommonLibrary
 
         /// <summary>
         /// Process to remove more than half the point of the list
-        /// We'll callculate the intarval and keep only those points
+        /// Remove every other point and repeat until all points are removed
         /// </summary>
         private void ConsecutivePointsRemoveProcess()
         {
             //startCnt = 1;
             int endCnt = mSegmentTime; // ???????????????????
+            int pointsRemoved = 0;
+            int cnt = 0;
+
             int dropCount = (endCnt - startCnt) / (mVideoTime - 1);
             if (dropCount * (mVideoTime - 1) > endCnt - startCnt) dropCount--;
             if (dropCount <= 1)
             {
-                throw new Exception("ConsecutivePointsRemoveProcess -- Cannot remove all points");
+                throw new Exception($"*** ERROR *** Consecutive Points Remove Process drop count = { dropCount } ");
             }
+
+            while (startCnt <= mTempList.Count - 1) // We don't want to remove the last point because it's a marker
+            {
+                if (pointsRemoved < pointsToRemove && cnt == dropCount)
+                {
+                    mTempList.RemoveAt(startCnt - 1);
+                    cnt = 0;
+                    pointsRemoved++;
+                }
+                cnt++;
+                startCnt++;
+
+                // The list is smaller than our position but if we didn't remove all the points we needed, start again.
+                if (pointsRemoved < pointsToRemove && startCnt > mTempList.Count - 1)
+                {
+                    startCnt = 1;
+                    //endCnt = mTempList.Count;
+                    SortMyList();
+                }
+
+            }
+
         }
 
         /// <summary>

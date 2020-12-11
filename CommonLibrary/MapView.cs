@@ -128,7 +128,11 @@ namespace CommonLibrary
         public void SetMapDefaults()
         {
             //Set Map provider
-            _myMap.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
+            //_myMap.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
+            // Hybrid map
+            _myMap.MapProvider = GMap.NET.MapProviders.GoogleChinaHybridMapProvider.Instance;
+            //Satellite map
+            //_myMap.MapProvider = GMap.NET.MapProviders.GoogleChinaSatelliteMapProvider.Instance;
 
             //OSM
             //_myMap.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
