@@ -89,6 +89,7 @@
     <Compile Include="DataTableOperations.cs" />
     <Compile Include="DictionalyProcessing.cs" />
     <Compile Include="GoldenCheetahRide.cs" />
+    <Compile Include="HandleButtonActions.cs" />
     <Compile Include="MapView.cs" />
     <Compile Include="NewRideProcessing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -6,10 +6,12 @@
 //#if (DEBUG)
 //Console.WriteLine("Debugging is enabled.");  
 //#endif  
-  
+
 //#if (TRACE)  
 //     Console.WriteLine("Tracing is enabled.");  
 //#endif 
+
+//#define KMTOMILES = 0.6213712
 
 #define TESTS
 
@@ -243,25 +245,20 @@ namespace BuildCorrectionsList
         //}
         private void btnLoadVideo_Click(object sender, EventArgs e)
         {
-            //string movie = @"C:\BikeAthlets\Peter Test\media\Chesco Training Loop - 4486.mp4";
             string movie = "";
-
             DialogResult dr = new DialogResult();
             dr = openFileMovieDialog.ShowDialog();
             if (dr == DialogResult.OK)
             {
-                //lblLoadVideo.Text = openFileMovieDialog.FileName;
                 VideoNameLabel1.Text = openFileMovieDialog.FileName;
+                VideoNameLabel1.BackColor = Color.SpringGreen;
                 movie = openFileMovieDialog.FileName;
                 axWindowsMediaPlayer1.URL = movie;
                 axWindowsMediaPlayer1.Ctlcontrols.play();
                 videoLoaded = true;
-                //VideoLingthInSecs = axWindowsMediaPlayer1.currentMedia.duration;
-                //axWindowsMediaPlayer1.Ctlcontrols.stop();
                 getMovieDurationTimer.Start();
             } else if (dr == DialogResult.Cancel)
             {
-                //lblLoadVideo.Text = "";
                 VideoNameLabel1.Text = "";
                 videoLoaded = false;
                 Close();
@@ -273,14 +270,15 @@ namespace BuildCorrectionsList
         /// </summary>
         private void GetDuration(object sender, EventArgs e)
         {
-            // public variable songDuration declared elsewhere
+            // 
             VideoLingthInSecs = axWindowsMediaPlayer1.currentMedia.duration;
             if (VideoLingthInSecs > 0) 
             {
                 axWindowsMediaPlayer1.Ctlcontrols.pause();
                 getMovieDurationTimer.Stop();
                 //lblVideoTimeTotal.Text += VideoLingthInSecs.ToString();
-                TotVideoTimeToolStripLabel1.Text = "Video secs = " + VideoLingthInSecs.ToString();
+                TotVideoTimeToolStripLabel1.Text = $"Video time = { VideoLingthInSecs } SECS";
+                TotVideoTimeToolStripLabel1.BackColor = Color.SpringGreen;
             }
             
         }
@@ -298,12 +296,21 @@ namespace BuildCorrectionsList
             {
                 //lblRideName.Text = openRideFileDialog.FileName;
                 RideNameLabel1.Text = openRideFileDialog.FileName;
+                RideNameLabel1.BackColor = Color.SpringGreen;
                 string injson = File.ReadAllText(openRideFileDialog.FileName);
                 oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
                 DataTableOperations dto = new DataTableOperations();
                 dtOldRide = dto.LoadTableFromGCRideList(oldRide);
                 //dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
                 rideLoaded = true;
+
+                LoadAndShowMap((double)dtOldRide.Rows[0][6], (double)dtOldRide.Rows[0][7], 17);
+
+                double dist = oldRide.RIDE.SAMPLES[oldRide.RIDE.SAMPLES.Count()-1].KM * 0.6213712;
+                RideDurationStatusBarLabel1.Text = $"Distance = { dist } MI";
+                RideDurationStatusBarLabel1.BackColor = Color.SpringGreen;
+
+
                 frmOldRide newFrmOldRide = new frmOldRide();
                 newFrmOldRide.Show();
             }
@@ -368,6 +375,11 @@ namespace BuildCorrectionsList
                 str = gridCorrectionsList.Rows[rowIndex].Cells[1].Value.ToString();
                 axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(str);
                 axWindowsMediaPlayer1.Ctlcontrols.play();
+                axWindowsMediaPlayer1.Ctlcontrols.pause();
+                string sLat = gridCorrectionsList.Rows[rowIndex].Cells[2].Value.ToString();
+                string sLng = gridCorrectionsList.Rows[rowIndex].Cells[3].Value.ToString();
+                LoadAndShowMap(Convert.ToDouble(sLat), Convert.ToDouble(sLng), 17);
+
             }
         }
 
@@ -535,7 +547,7 @@ namespace BuildCorrectionsList
             RestoreWindowLocation();
             //Clear Map Locations Q
             //mapLocs.Clear();
-            //showOnMonitor(1);
+
             DataTableOperations dto = new DataTableOperations();
             cps = dto.CreateCorrectionPointsTable();
             getMovieDurationTimer.Tick += new EventHandler(GetDuration);
@@ -765,6 +777,11 @@ namespace BuildCorrectionsList
             }
         }
 
+        /// <summary>
+        /// Timer1 is used to update the the media player's time label in the main from every 200 ms
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (axWindowsMediaPlayer1.playState == WMPLib.WMPPlayState.wmppsPlaying)
@@ -1169,6 +1186,7 @@ namespace BuildCorrectionsList
             string video = dp.GetAnyValue<string>("VideoFileName", projectData);
             //lblLoadVideo.Text = video;
             VideoNameLabel1.Text = video;
+            VideoNameLabel1.BackColor = Color.SpringGreen;
             axWindowsMediaPlayer1.URL = video;
             axWindowsMediaPlayer1.Ctlcontrols.currentPosition = Convert.ToDouble(dp.GetAnyValue<string>("VideoPosition", projectData));
             axWindowsMediaPlayer1.Ctlcontrols.play();
@@ -1182,11 +1200,16 @@ namespace BuildCorrectionsList
             string injson = File.ReadAllText(rideName);
             //lblRideName.Text = rideName;
             RideNameLabel1.Text = rideName;
+            RideNameLabel1.BackColor = Color.SpringGreen;
             oldRide = JsonConvert.DeserializeObject<GoldenCheetahRide>(injson);
             dtOldRide = dto.LoadTableFromGCRideList(oldRide);
             //dto.UpdateRideListSamplesFromTable(dtOldRide, oldRide);
-            LoadAndShowMap();
+            LoadAndShowMap((double)dtOldRide.Rows[0][6], (double)dtOldRide.Rows[0][7], 17);
             rideLoaded = true;
+
+            double dist = oldRide.RIDE.SAMPLES[oldRide.RIDE.SAMPLES.Count()-1].KM * 0.6213712; 
+            RideDurationStatusBarLabel1.Text = $"Distance =  { dist } MI";
+            RideDurationStatusBarLabel1.BackColor = Color.SpringGreen;
 
             btnCreateNewRide.Enabled = true;
         }
@@ -1196,7 +1219,7 @@ namespace BuildCorrectionsList
         //Add selected markers overlay  
         GMapOverlay selectedMarkers = new GMapOverlay("SelectedMarkers");
 
-        private void LoadAndShowMap()
+        private void LoadAndShowMap(double myLat, double myLng, int myZoom)
         {
             try
             {
@@ -1210,13 +1233,15 @@ namespace BuildCorrectionsList
                 //Correction table from form1
                 myMap._cps = Form1.cps;
 
-                // Test LatLng = New York
-                myMap._initLatLng = new PointLatLng(40.730610, -73.935242);
-                // Get route begin and set it as map center
-                double myLat = (double)myMap._oldRideData.Rows[0][6];
-                double myLng = (double)myMap._oldRideData.Rows[0][7];
+                //// Test LatLng = New York
+                //myMap._initLatLng = new PointLatLng(40.730610, -73.935242);
+                //// Get route begin and set it as map center
+                //double myLat = (double)myMap._oldRideData.Rows[0][6];
+                //double myLng = (double)myMap._oldRideData.Rows[0][7];
+
+
                 myMap._initLatLng = new PointLatLng(myLat, myLng);
-                myMap._mapZoom = 17;
+                myMap._mapZoom = myZoom; //default = 17
                 myMap.SetMapDefaults();
 
                 //Add route overlay
