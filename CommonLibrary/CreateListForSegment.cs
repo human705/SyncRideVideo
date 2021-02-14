@@ -238,7 +238,7 @@ namespace CommonLibrary
 
             if (_pointsInterval <= 1 || _pointsInterval == -99)
             {
-                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points, pointsInterval = " + _pointsInterval.ToString());
+                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + " -- Cannot ADD points at file time: " + (mStartTimeMarker-1) + ", pointsInterval = " + _pointsInterval.ToString());
             }
             return _pointsInterval;
         }
@@ -359,7 +359,7 @@ namespace CommonLibrary
 
             if (mSegmentTime <= 1)
             {
-                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + $"Items to copy in the list is less than 1.");
+                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().ToString() + $"File time: { mStartTimeMarker }. Items to copy in the list is less than 1.");
             }
 
             if (mStartTimeMarker > 0) mStartTimeMarker++;

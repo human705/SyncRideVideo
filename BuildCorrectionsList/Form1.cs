@@ -1016,6 +1016,7 @@ namespace BuildCorrectionsList
         {
             CreateNewProject();
             rideLoaded = false;
+            saveProjectState();
         }
 
         /// <summary>
