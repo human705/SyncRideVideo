@@ -573,9 +573,9 @@ namespace BuildCorrectionsList
 
         private void clearGridToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //gridCorrectionsList.DataSource = null;
-            //gridCorrectionsList.Refresh();
-            //CorrectionPoints = new List<CorrectionPoint>();
+            gridCorrectionsList.DataSource = null;
+            gridCorrectionsList.Refresh();
+            CorrectionPoints = new List<CorrectionPoint>();
 
         }
 
@@ -676,11 +676,6 @@ namespace BuildCorrectionsList
             projectStateChanged = true;
         }
 
-
-        private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
 
         /// <summary>
         /// Show context menu created in design view
@@ -1583,7 +1578,8 @@ namespace BuildCorrectionsList
                 if (gridIndex > 0)
                 {
                     //MessageBox.Show($"Deleting grid row: { gridIndex.ToString() }");
-                    gridCorrectionsList.Rows.RemoveAt(gridIndex); 
+                    gridCorrectionsList.Rows.RemoveAt(gridIndex);
+                    gridCorrectionsList.Refresh();
                 }
             }
             catch (Exception)
@@ -1632,6 +1628,11 @@ namespace BuildCorrectionsList
             string _url = $"https://www.google.com/maps/@{ _sLat },{ _sLng },18.5z";
             //selectedMarker = null;
             System.Diagnostics.Process.Start(_url);
+        }
+
+        private void gridCorrectionsList_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
 
         private void gMapControl1_OnMapClick(PointLatLng pointClick, MouseEventArgs e)

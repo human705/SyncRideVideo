@@ -104,8 +104,7 @@ namespace CommonLibrary
         /// </summary>
         private void ConsecutivePointsRemoveProcess()
         {
-            //startCnt = 1;
-            int endCnt = mSegmentTime; // ???????????????????
+            int endCnt = mSegmentTime; 
             int pointsRemoved = 0;
             int cnt = 0;
 
@@ -113,7 +112,7 @@ namespace CommonLibrary
             if (dropCount * (mVideoTime - 1) > endCnt - startCnt) dropCount--;
             if (dropCount <= 1)
             {
-                throw new Exception($"*** ERROR *** Consecutive Points Remove Process drop count = { dropCount } ");
+                throw new Exception($"*** ERROR *** Consecutive Points Remove Process drop count = { dropCount } at possition { mTempList[0].SECS-1 }");
             }
 
             while (startCnt <= mTempList.Count - 1) // We don't want to remove the last point because it's a marker

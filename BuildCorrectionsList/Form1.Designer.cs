@@ -99,6 +99,7 @@
             this.gridCorrectionsList.RowTemplate.Height = 24;
             this.gridCorrectionsList.Size = new System.Drawing.Size(1356, 99);
             this.gridCorrectionsList.TabIndex = 0;
+            this.gridCorrectionsList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridCorrectionsList_CellContentClick);
             this.gridCorrectionsList.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.gridCorrectionsList_CellMouseUp);
             this.gridCorrectionsList.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.UserDeleteRow);
             // 
@@ -184,14 +185,13 @@
             // openFileToolStripMenuItem
             // 
             this.openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
+            this.openFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.openFileToolStripMenuItem.Text = "Open File";
-            this.openFileToolStripMenuItem.Click += new System.EventHandler(this.openFileToolStripMenuItem_Click);
             // 
             // clearGridToolStripMenuItem
             // 
             this.clearGridToolStripMenuItem.Name = "clearGridToolStripMenuItem";
-            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
+            this.clearGridToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.clearGridToolStripMenuItem.Text = "Clear grid";
             this.clearGridToolStripMenuItem.Click += new System.EventHandler(this.clearGridToolStripMenuItem_Click);
             // 
