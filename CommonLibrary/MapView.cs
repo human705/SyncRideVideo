@@ -25,12 +25,14 @@ namespace CommonLibrary
 
         public List<double> _altDataX { get; set; }
         public List<double> _altDataY { get; set; }
+        public List<double> _slope { get; set; }
 
-        private void AddAltitudeChartData (int _sec, double _alt)
+        private void AddAltitudeChartData (double _x, double _alt, double _slp)
         {
-            double t = (double)_sec;
+            double t = (double)_x;
             _altDataX.Add(t);
             _altDataY.Add(_alt);
+            _slope.Add(_slp);
         }
 
         private void AddMarkerToRoutePoint(double _lat, double _lng, double _alt, int _sec, double _km)
@@ -88,7 +90,7 @@ namespace CommonLibrary
             List<GeoLocPoint> _geoPoints = new List<GeoLocPoint>();
             try
             {
-                double _lat, _lng, _alt, _km;
+                double _lat, _lng, _alt, _km, _slp;
                 int _sec;
 
                 if (_oldRideData != null)
@@ -110,11 +112,12 @@ namespace CommonLibrary
                         _alt = (double)dr["alt"];
                         _lat = (double)dr["lat"];
                         _lng = (double)dr["lon"];
+                        _slp = (double)dr["slope"];
 
                         _geoPoints.Add(new GeoLocPoint(_lat, _lng, _alt, _sec));
                         _points.Add(new PointLatLng(_lat, _lng));
                         AddMarkerToRoutePoint(_lat, _lng, _alt, _sec, _km);
-                        AddAltitudeChartData(_sec, _alt);
+                        AddAltitudeChartData(_km, _alt, _slp);
 
                     }
                 }

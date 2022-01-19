@@ -1173,6 +1173,8 @@ namespace BuildCorrectionsList
                 myMap._altDataX = AltitideXAxis;
                 List<double> AltitideYAxis = new List<double>();
                 myMap._altDataY = AltitideYAxis;
+                List<double> SlopeYAxis = new List<double>();
+                myMap._slope = SlopeYAxis;
 
                 GMapRoute route = new GMapRoute(myMap.CreateFullRoute(), "GC route");
                 route.Stroke = new Pen(Color.Red, 3);

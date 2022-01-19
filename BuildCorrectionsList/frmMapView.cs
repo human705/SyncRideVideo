@@ -68,6 +68,8 @@ namespace BuildCorrectionsList
                 myOSMMap._altDataX = AltitideXAxis;
                 List<double> AltitideYAxis = new List<double>();
                 myOSMMap._altDataY = AltitideYAxis;
+                List<double> SlopeYAxis = new List<double>();
+                myOSMMap._slope = SlopeYAxis;
 
                 GMapRoute route = new GMapRoute(myOSMMap.CreateFullRoute(), "GC route");
                 route.Stroke = new Pen(Color.Red, 3);
@@ -89,8 +91,18 @@ namespace BuildCorrectionsList
 
                 //Add Altitude chart
                 formsPlot1.plt.PlotScatter(AltitideXAxis.ToArray(), AltitideYAxis.ToArray());
+                formsPlot1.plt.Title("Altitude over distance");
+                formsPlot1.plt.XLabel("Distance (KM)");
+                formsPlot1.plt.YLabel("Altitude (m)");
                 formsPlot1.Render();
-                
+
+                //Add Slope chart
+                formsPlot2.plt.PlotScatter(AltitideXAxis.ToArray(), SlopeYAxis.ToArray());
+                formsPlot2.plt.Title("Slope over distance");
+                formsPlot2.plt.XLabel("Distance (KM)");
+                formsPlot2.plt.YLabel("Slope (%)");
+                formsPlot2.Render();
+
 
             }
             catch (Exception)
